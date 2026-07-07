@@ -3,222 +3,551 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Portafolio personal de Emanuel Chacón: infraestructura TI, VMware, Dell, almacenamiento, automatización, backup y nube híbrida." />
-  <title>Emanuel Chacón | Portafolio TI</title>
+  <title>Emanuel Chacón | Infraestructura TI</title>
+  <meta name="description" content="Portafolio profesional de Emanuel Chacón, especialista en infraestructura, virtualización, almacenamiento, cloud híbrido y automatización." />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+  <style>
+    :root{
+      --bg:#050816;
+      --bg2:#07111f;
+      --card:rgba(255,255,255,.06);
+      --line:rgba(255,255,255,.12);
+      --text:#f6fbff;
+      --muted:#a9b6c8;
+      --cyan:#00e5ff;
+      --green:#00ff9d;
+      --purple:#8b5cf6;
+      --blue:#2563eb;
+      --shadow:0 25px 70px rgba(0,229,255,.18);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth}
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+      line-height:1.6;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(0,229,255,.25), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(139,92,246,.22), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(0,255,157,.16), transparent 30%),
+        linear-gradient(135deg,#050816,#07111f 45%,#030712);
+      z-index:-3;
+      animation:ambient 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes ambient{
+      from{filter:hue-rotate(0deg) brightness(1);transform:scale(1)}
+      to{filter:hue-rotate(16deg) brightness(1.08);transform:scale(1.04)}
+    }
+
+    .grid-bg{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size:55px 55px;
+      mask-image:linear-gradient(to bottom,rgba(0,0,0,.75),transparent 85%);
+    }
+
+    .orb{
+      position:fixed;
+      width:320px;
+      height:320px;
+      border-radius:50%;
+      filter:blur(80px);
+      opacity:.35;
+      z-index:-1;
+      animation:float 10s ease-in-out infinite alternate;
+    }
+    .orb.one{background:var(--cyan);left:-120px;top:120px}
+    .orb.two{background:var(--purple);right:-130px;top:260px;animation-delay:1.5s}
+    .orb.three{background:var(--green);left:45%;bottom:-180px;animation-delay:3s}
+
+    @keyframes float{
+      from{transform:translate(0,0) scale(1)}
+      to{transform:translate(50px,-35px) scale(1.12)}
+    }
+
+    nav{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:99;
+      padding:18px 8%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:rgba(5,8,22,.65);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(18px);
+    }
+
+    .brand{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.5px;
+    }
+    .brand span{color:var(--cyan)}
+
+    nav ul{
+      display:flex;
+      list-style:none;
+      gap:24px;
+    }
+    nav a{
+      color:var(--muted);
+      text-decoration:none;
+      font-weight:600;
+      font-size:14px;
+      transition:.3s;
+    }
+    nav a:hover{color:var(--cyan)}
+
+    .hero{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      align-items:center;
+      gap:60px;
+      padding:130px 8% 80px;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:9px 16px;
+      border:1px solid rgba(0,229,255,.35);
+      border-radius:999px;
+      color:var(--cyan);
+      background:rgba(0,229,255,.08);
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:1.5px;
+      margin-bottom:25px;
+    }
+
+    .hero h1{
+      font-size:clamp(42px,7vw,88px);
+      line-height:.98;
+      letter-spacing:-3px;
+      margin-bottom:24px;
+      font-weight:900;
+    }
+    .hero h1 span{
+      background:linear-gradient(90deg,var(--cyan),var(--green),var(--purple));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .hero p{
+      color:var(--muted);
+      max-width:760px;
+      font-size:18px;
+      margin-bottom:34px;
+    }
+
+    .hero-actions{display:flex;gap:16px;flex-wrap:wrap}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:14px 24px;
+      border-radius:14px;
+      text-decoration:none;
+      font-weight:800;
+      transition:.35s;
+      border:1px solid transparent;
+    }
+    .btn.primary{background:linear-gradient(135deg,var(--cyan),var(--green));color:#031018}
+    .btn.secondary{border-color:rgba(255,255,255,.16);color:var(--text);background:rgba(255,255,255,.05)}
+    .btn:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+
+    .terminal{
+      border:1px solid rgba(0,229,255,.25);
+      background:rgba(2,6,23,.78);
+      border-radius:24px;
+      box-shadow:0 35px 95px rgba(0,0,0,.35), 0 0 45px rgba(0,229,255,.10);
+      overflow:hidden;
+      backdrop-filter:blur(20px);
+      animation:terminalFloat 5s ease-in-out infinite alternate;
+    }
+    @keyframes terminalFloat{from{transform:translateY(0)}to{transform:translateY(-14px)}}
+
+    .terminal-top{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:16px 18px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+    }
+    .dot{width:12px;height:12px;border-radius:50%}
+    .red{background:#ff5f57}.yellow{background:#ffbd2e}.green-dot{background:#28c840}
+    .terminal-body{padding:24px;font-family:'Courier New',monospace;color:#d7fff4;font-size:15px;min-height:360px}
+    .terminal-body .cmd{color:var(--cyan)}
+    .terminal-body .ok{color:var(--green)}
+    .terminal-body .muted{color:#7dd3fc}
+    .blink{animation:blink 1s infinite}@keyframes blink{50%{opacity:0}}
+
+    section{padding:105px 8%}
+    .section-header{text-align:center;max-width:980px;margin:0 auto 60px}
+    .subtitle{color:var(--cyan);font-size:13px;font-weight:900;letter-spacing:3px;text-transform:uppercase}
+    .section-header h2{font-size:clamp(32px,5vw,56px);margin:12px 0 18px;letter-spacing:-1px}
+    .section-header p{color:var(--muted);font-size:17px}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:20px;
+      margin-top:35px;
+    }
+    .stat{
+      padding:28px;
+      border-radius:22px;
+      background:var(--card);
+      border:1px solid var(--line);
+      text-align:center;
+      backdrop-filter:blur(16px);
+    }
+    .stat h3{font-size:40px;color:var(--cyan)}
+    .stat p{color:var(--muted);font-weight:700}
+
+    .skills-grid,.projects-grid,.certifications-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:28px;
+    }
+
+    .card,.project-card,.certificate-card{
+      position:relative;
+      overflow:hidden;
+      background:rgba(255,255,255,.055);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:24px;
+      padding:30px;
+      backdrop-filter:blur(20px);
+      transition:.4s;
+    }
+    .card::before,.project-card::before,.certificate-card::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:linear-gradient(135deg,rgba(0,229,255,.35),transparent 35%,rgba(139,92,246,.28));
+      opacity:0;
+      transition:.4s;
+      z-index:-1;
+    }
+    .card:hover,.project-card:hover,.certificate-card:hover{
+      transform:translateY(-10px);
+      box-shadow:var(--shadow);
+      border-color:rgba(0,229,255,.35);
+    }
+    .card:hover::before,.project-card:hover::before,.certificate-card:hover::before{opacity:1}
+
+    .icon{
+      width:62px;height:62px;border-radius:18px;
+      display:grid;place-items:center;
+      font-size:26px;
+      color:#06101a;
+      background:linear-gradient(135deg,var(--cyan),var(--green));
+      margin-bottom:22px;
+    }
+    .card h3,.project-card h3,.certificate-card h3{font-size:23px;margin-bottom:14px}
+    .card p,.project-card p,.certificate-card p{color:var(--muted)}
+
+    .tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+    .tag{
+      padding:7px 12px;
+      border-radius:999px;
+      color:#c7f9ff;
+      background:rgba(0,229,255,.10);
+      border:1px solid rgba(0,229,255,.22);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .project-card.featured{
+      grid-column:span 2;
+      background:linear-gradient(135deg,rgba(0,229,255,.11),rgba(139,92,246,.08)), rgba(255,255,255,.05);
+    }
+    .project-meta{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+    .meta{
+      padding:8px 12px;border-radius:12px;
+      background:rgba(255,255,255,.06);
+      color:#dffbff;
+      border:1px solid rgba(255,255,255,.10);
+      font-size:13px;font-weight:800;
+    }
+
+    .certificate-card ul{margin-top:18px;padding-left:18px;color:#b9c7d8}
+    .certificate-card li{margin-bottom:9px}
+    .cert-logo{
+      width:64px;height:64px;border-radius:18px;
+      display:grid;place-items:center;
+      font-size:28px;
+      margin-bottom:20px;
+      color:white;
+    }
+    .dell{background:#0076ce}.cisco{background:#049fd9}.certi{background:#7c3aed}
+    .issuer{display:block;color:var(--cyan);font-weight:900;margin-bottom:12px}
+
+    .timeline{max-width:950px;margin:auto;display:grid;gap:22px}
+    .timeline-item{
+      display:grid;
+      grid-template-columns:130px 1fr;
+      gap:26px;
+      padding:26px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:var(--card);
+      backdrop-filter:blur(15px);
+    }
+    .year{color:var(--green);font-size:26px;font-weight:900}
+    .timeline-item h3{font-size:22px;margin-bottom:8px}
+    .timeline-item p{color:var(--muted)}
+
+    .contact-box{
+      max-width:920px;
+      margin:auto;
+      text-align:center;
+      padding:45px;
+      border-radius:28px;
+      border:1px solid rgba(0,229,255,.25);
+      background:linear-gradient(135deg,rgba(0,229,255,.10),rgba(139,92,246,.08));
+      backdrop-filter:blur(20px);
+    }
+    .contact-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:26px}
+
+    footer{text-align:center;padding:28px 8%;color:#8ea1b8;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.18)}
+
+    .reveal{opacity:0;transform:translateY(35px);transition:.8s ease}
+    .reveal.active{opacity:1;transform:translateY(0)}
+
+    @media(max-width:900px){
+      nav ul{display:none}
+      .hero{grid-template-columns:1fr;padding-top:115px}
+      .project-card.featured{grid-column:span 1}
+      .timeline-item{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
-  <div id="particles-js"></div>
-  <div class="glow glow-a"></div>
-  <div class="glow glow-b"></div>
-  <div class="glow glow-c"></div>
+  <div class="grid-bg"></div>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="orb three"></div>
 
-  <nav class="navbar" id="navbar">
-    <a href="#inicio" class="logo">Emanuel <span>Chacón</span></a>
-    <button class="menu-btn" id="menuBtn" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
-    <div class="nav-links" id="navLinks">
-      <a class="active" href="#inicio"><i class="fa-solid fa-house"></i> Inicio</a>
-      <a href="#sobre-mi"><i class="fa-regular fa-user"></i> Sobre mí</a>
-      <a href="#habilidades"><i class="fa-solid fa-network-wired"></i> Habilidades</a>
-      <a href="#proyectos"><i class="fa-solid fa-cubes"></i> Proyectos</a>
-      <a href="#experiencia"><i class="fa-solid fa-timeline"></i> Experiencia</a>
-      <a href="#contacto"><i class="fa-regular fa-envelope"></i> Contacto</a>
-    </div>
-    <a class="cv-btn" href="#contacto"><i class="fa-solid fa-paper-plane"></i> Contacto</a>
+  <nav>
+    <div class="brand">Emanuel <span>Chacón</span></div>
+    <ul>
+      <li><a href="#inicio">Inicio</a></li>
+      <li><a href="#sobre-mi">Sobre mí</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#proyectos">Proyectos</a></li>
+      <li><a href="#certificaciones">Certificaciones</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
   </nav>
 
-  <main>
-    <section id="inicio" class="hero section-pad">
-      <div class="hero-content" data-aos="fade-right">
-        <p class="eyebrow">Infraestructura TI | VMware | Dell | Automatización</p>
-        <h1>Hola, soy <span>Emanuel Chacón</span></h1>
-        <p class="hero-text">Profesional en informática enfocado en administración de servidores, virtualización, almacenamiento empresarial, respaldos, automatización, nube híbrida, monitoreo y seguridad de infraestructura.</p>
-        <div class="hero-actions">
-          <a class="primary-btn" href="#proyectos">Ver proyectos</a>
-          <a class="secondary-btn" href="#contacto">Contactarme</a>
-        </div>
-        <div class="socials">
-          <a href="https://cr.linkedin.com/in/emanuelchaconcr" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-          <a href="https://github.com/" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-          <a href="mailto:emanuel.chacon@outlook.com" aria-label="Correo"><i class="fa-regular fa-envelope"></i></a>
-        </div>
+  <header id="inicio" class="hero">
+    <div class="hero-content reveal">
+      <div class="eyebrow"><i class="fa-solid fa-terminal"></i> INFRASTRUCTURE • CLOUD • AUTOMATION</div>
+      <h1>Especialista en <span>Infraestructura TI</span></h1>
+      <p>
+        Portafolio profesional enfocado en virtualización VMware, almacenamiento empresarial,
+        cloud híbrido, automatización, respaldo corporativo, migraciones de Data Center y administración
+        de plataformas críticas.
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#proyectos"><i class="fa-solid fa-rocket"></i> Ver proyectos</a>
+        <a class="btn secondary" href="#contacto"><i class="fa-solid fa-envelope"></i> Contacto</a>
       </div>
-
-      <div class="terminal" data-aos="fade-left">
-        <div class="terminal-top"><span></span><span></span><span></span></div>
-        <div class="terminal-body">
-          <p><b>&gt;</b> whoami</p>
-          <p>Emanuel Chacón - Especialista TI</p>
-          <br />
-          <p><b>&gt;</b> skills --list</p>
-          <p>VMware | Dell VxRail | Dell Compellent | NetBackup</p>
-          <p>Azure Arc | Ansible | ManageEngine | Windows | Linux</p>
-          <br />
-          <p><b>&gt;</b> projects --summary</p>
-          <p>Data Center migrations, HCI, SAN, backup, cloud & IaC</p>
-          <br />
-          <p class="cursor">_</p>
-        </div>
+      <div class="stats">
+        <div class="stat"><h3>300+</h3><p>VMs migradas</p></div>
+        <div class="stat"><h3>9</h3><p>Dell SC Compellent</p></div>
+        <div class="stat"><h3>5</h3><p>Implementaciones VxRail</p></div>
+        <div class="stat"><h3>10+</h3><p>Certificaciones</p></div>
       </div>
-    </section>
+    </div>
 
-    <section id="proyectos" class="section-pad compact">
-      <div class="section-title" data-aos="fade-up">
-        <p class="eyebrow">Casos de éxito</p>
-        <h2>Proyectos <span>Destacados</span></h2>
+    <div class="terminal reveal">
+      <div class="terminal-top">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green-dot"></span>
       </div>
-
-      <div class="projects-grid">
-        <article class="project-card purple" data-aos="fade-up">
-          <div class="project-icon"><i class="fa-solid fa-server"></i></div>
-          <h3>Migración Integral de Data Center</h3>
-          <p>Migración completa de infraestructura física y virtual usando VMware Cross vCenter y Zerto en menos de 3 meses por obsolescencia de equipos.</p>
-          <div class="tags"><span>VMware</span><span>Cross vCenter</span><span>Zerto</span><span>HPE</span></div>
-          <div class="duration"><i class="fa-regular fa-clock"></i> Menos de 3 meses</div>
-        </article>
-
-        <article class="project-card green" data-aos="fade-up" data-aos-delay="70">
-          <div class="project-icon"><i class="fa-solid fa-database"></i></div>
-          <h3>Migración y Administración Veritas NetBackup</h3>
-          <p>Migración, administración e integración de Veritas NetBackup con VMware y SQL Server para respaldos corporativos seguros y eficientes.</p>
-          <div class="tags"><span>NetBackup</span><span>VMware</span><span>SQL Server</span><span>Backup</span></div>
-          <div class="duration"><i class="fa-solid fa-shield-halved"></i> Respaldo empresarial</div>
-        </article>
-
-        <article class="project-card blue" data-aos="fade-up" data-aos-delay="140">
-          <div class="project-icon"><i class="fa-solid fa-cloud"></i></div>
-          <h3>Despliegue de Azure Arc para VMware</h3>
-          <p>Implementación de Azure Arc para gestionar máquinas virtuales VMware desde Microsoft Azure, centralizando administración, gobierno y monitoreo.</p>
-          <div class="tags"><span>Azure Arc</span><span>VMware</span><span>Azure</span><span>Cloud</span></div>
-          <div class="duration"><i class="fa-solid fa-cloud-arrow-up"></i> Nube híbrida</div>
-        </article>
-
-        <article class="project-card yellow" data-aos="fade-up" data-aos-delay="210">
-          <div class="project-icon"><i class="fa-solid fa-gear"></i></div>
-          <h3>Integración de ManageEngine</h3>
-          <p>Integración de ManageEngine para automatización de actualizaciones, parches, monitoreo, inventario y administración de equipos y servidores.</p>
-          <div class="tags"><span>ManageEngine</span><span>Parches</span><span>Inventario</span><span>ITSM</span></div>
-          <div class="duration"><i class="fa-solid fa-robot"></i> Automatización TI</div>
-        </article>
-
-        <article class="project-card purple" data-aos="fade-up" data-aos-delay="280">
-          <div class="project-icon"><i class="fa-solid fa-terminal"></i></div>
-          <h3>Infraestructura como Código con Ansible</h3>
-          <p>Uso de Ansible para automatizar aprovisionamiento, configuración y gestión de infraestructura como código en ambientes Linux y Windows.</p>
-          <div class="tags"><span>Ansible</span><span>IaC</span><span>Linux</span><span>Windows</span></div>
-          <div class="duration"><i class="fa-solid fa-code"></i> Automatización de infraestructura</div>
-        </article>
-
-        <article class="project-card blue" data-aos="fade-up" data-aos-delay="350">
-          <div class="project-icon"><i class="fa-solid fa-cubes-stacked"></i></div>
-          <h3>Implementación de Dell VxRail</h3>
-          <p>Implementación de soluciones Dell VxRail como implementador dentro del programa de partner de Dell, participando como especialista Dell en despliegues para 5 clientes.</p>
-          <div class="tags"><span>Dell VxRail</span><span>VMware</span><span>vSAN</span><span>HCI</span><span>Dell</span></div>
-          <div class="duration"><i class="fa-regular fa-building"></i> 5 clientes implementados</div>
-        </article>
-
-        <article class="project-card green" data-aos="fade-up" data-aos-delay="420">
-          <div class="project-icon"><i class="fa-solid fa-hard-drive"></i></div>
-          <h3>Despliegue Nacional Dell SC Compellent</h3>
-          <p>Implementación de plataformas Dell SC Series / Compellent en 9 clientes gubernamentales a nivel nacional, integrando almacenamiento empresarial con ambientes VMware y servidores críticos.</p>
-          <div class="tags"><span>Dell SC</span><span>Compellent</span><span>SAN</span><span>VMware</span><span>Gobierno</span></div>
-          <div class="duration"><i class="fa-solid fa-landmark"></i> 9 clientes gubernamentales</div>
-        </article>
+      <div class="terminal-body">
+        <p><span class="cmd">emanuel@infra:~$</span> whoami</p>
+        <p class="ok">Senior Infrastructure Engineer</p><br>
+        <p><span class="cmd">emanuel@infra:~$</span> cat expertise.yml</p>
+        <p class="muted">vmware: vSphere, ESXi, vCenter, VxRail</p>
+        <p class="muted">storage: Dell SC, SAN, iSCSI, Fibre Channel</p>
+        <p class="muted">cloud: Azure Arc, Hybrid Management</p>
+        <p class="muted">backup: Veritas NetBackup, SQL, VMware</p>
+        <p class="muted">automation: Ansible, ManageEngine, PowerShell</p><br>
+        <p><span class="cmd">emanuel@infra:~$</span> deploy portfolio --status</p>
+        <p class="ok">✔ Portfolio ready for GitHub Pages <span class="blink">_</span></p>
       </div>
+    </div>
+  </header>
 
-      <div class="stats" data-aos="zoom-in">
-        <div><i class="fa-solid fa-server"></i><strong data-count="300">0</strong><span>Servidores Virtuales Migrados</span></div>
-        <div><i class="fa-solid fa-hard-drive"></i><strong data-count="40">0</strong><span>Servidores Físicos Migrados</span></div>
-        <div><i class="fa-solid fa-shield-halved"></i><strong data-count="99.9">0</strong><span>% Disponibilidad Alcanzada</span></div>
-        <div><i class="fa-solid fa-building-user"></i><strong data-count="5">0</strong><span>Clientes con VxRail</span></div>
-        <div><i class="fa-solid fa-landmark"></i><strong data-count="9">0</strong><span>Clientes Dell Compellent</span></div>
-        <div><i class="fa-regular fa-user"></i><strong data-count="8">0</strong><span>Años de Experiencia</span></div>
-      </div>
-    </section>
+  <section id="sobre-mi">
+    <div class="section-header reveal">
+      <span class="subtitle">PERFIL PROFESIONAL</span>
+      <h2>Sobre mí</h2>
+      <p>
+        Profesional de TI con experiencia en implementación, administración y modernización de infraestructura empresarial.
+        Especializado en entornos VMware, Dell Technologies, almacenamiento SAN, respaldos, automatización, cloud híbrido y
+        plataformas críticas de alta disponibilidad.
+      </p>
+    </div>
+  </section>
 
-    <section id="sobre-mi" class="section-pad two-col">
-      <div data-aos="fade-right">
-        <p class="eyebrow">Perfil profesional</p>
-        <h2>Sobre <span>mí</span></h2>
-        <p class="text-block">Me especializo en administración de infraestructura tecnológica, virtualización, almacenamiento, respaldo, automatización, monitoreo y gestión de plataformas críticas. Mi enfoque está orientado a mantener ambientes seguros, disponibles y optimizados.</p>
-      </div>
-      <div class="info-card" data-aos="fade-left">
-        <h3>Enfoque técnico</h3>
-        <ul>
-          <li><i class="fa-solid fa-check"></i> Administración de servidores Windows y Linux.</li>
-          <li><i class="fa-solid fa-check"></i> Virtualización con VMware vSphere, vCenter y ESXi.</li>
-          <li><i class="fa-solid fa-check"></i> Implementación de Dell VxRail y soluciones HCI.</li>
-          <li><i class="fa-solid fa-check"></i> Almacenamiento empresarial Dell SC Series / Compellent.</li>
-          <li><i class="fa-solid fa-check"></i> Respaldos empresariales con Veritas NetBackup.</li>
-          <li><i class="fa-solid fa-check"></i> Automatización con Ansible, PowerShell y Bash.</li>
-          <li><i class="fa-solid fa-check"></i> Nube híbrida con Azure Arc.</li>
-        </ul>
-      </div>
-    </section>
+  <section id="skills">
+    <div class="section-header reveal">
+      <span class="subtitle">TECH STACK</span>
+      <h2>Áreas de Especialidad</h2>
+      <p>Tecnologías y capacidades técnicas aplicadas en proyectos empresariales.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="card reveal"><div class="icon"><i class="fa-solid fa-cloud"></i></div><h3>Virtualización & Cloud</h3><p>VMware vSphere, ESXi, vCenter, Cross vCenter, VxRail, Azure Arc y administración híbrida.</p></div>
+      <div class="card reveal"><div class="icon"><i class="fa-solid fa-database"></i></div><h3>Storage Empresarial</h3><p>Dell SC Series Compellent, SAN, Fibre Channel, iSCSI, MPIO y alta disponibilidad.</p></div>
+      <div class="card reveal"><div class="icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Backup & Continuidad</h3><p>Veritas NetBackup integrado con VMware y SQL Server para respaldos corporativos.</p></div>
+      <div class="card reveal"><div class="icon"><i class="fa-solid fa-robot"></i></div><h3>Automatización</h3><p>Ansible, ManageEngine, PowerShell y Bash para automatización e IaC.</p></div>
+    </div>
+  </section>
 
-    <section id="habilidades" class="section-pad compact">
-      <div class="section-title" data-aos="fade-up">
-        <p class="eyebrow">Stack técnico</p>
-        <h2>Habilidades <span>Técnicas</span></h2>
-      </div>
-      <div class="skills-grid">
-        <div class="skill"><i class="fa-brands fa-windows"></i> Windows Server</div>
-        <div class="skill"><i class="fa-brands fa-linux"></i> Linux</div>
-        <div class="skill"><i class="fa-solid fa-layer-group"></i> VMware vSphere</div>
-        <div class="skill"><i class="fa-solid fa-cubes-stacked"></i> Dell VxRail / HCI</div>
-        <div class="skill"><i class="fa-solid fa-hard-drive"></i> Dell SC / Compellent</div>
-        <div class="skill"><i class="fa-solid fa-network-wired"></i> SAN / iSCSI / Fibre Channel</div>
-        <div class="skill"><i class="fa-solid fa-cloud"></i> Azure Arc</div>
-        <div class="skill"><i class="fa-solid fa-database"></i> Veritas NetBackup</div>
-        <div class="skill"><i class="fa-solid fa-code"></i> Ansible IaC</div>
-        <div class="skill"><i class="fa-solid fa-screwdriver-wrench"></i> ManageEngine</div>
-        <div class="skill"><i class="fa-solid fa-chart-line"></i> Monitoreo</div>
-        <div class="skill"><i class="fa-solid fa-shield-halved"></i> Seguridad</div>
-        <div class="skill"><i class="fa-brands fa-git-alt"></i> Git / GitHub</div>
-      </div>
-    </section>
+  <section id="proyectos">
+    <div class="section-header reveal">
+      <span class="subtitle">CASOS DE ÉXITO</span>
+      <h2>Proyectos Destacados</h2>
+      <p>Resumen de proyectos ejecutados en infraestructura crítica, virtualización, almacenamiento, nube híbrida y automatización.</p>
+    </div>
 
-    <section id="experiencia" class="section-pad compact">
-      <div class="section-title" data-aos="fade-up">
-        <p class="eyebrow">Ruta profesional</p>
-        <h2>Línea de <span>Experiencia</span></h2>
-      </div>
-      <div class="timeline">
-        <div class="timeline-item" data-aos="fade-up"><span>2025</span><h3>Azure Arc & ManageEngine</h3><p>Administración híbrida, automatización de parches y control centralizado de infraestructura.</p></div>
-        <div class="timeline-item" data-aos="fade-up"><span>2025</span><h3>Dell VxRail</h3><p>Implementación de plataformas hiperconvergentes Dell VxRail para 5 clientes dentro del programa de partner de Dell.</p></div>
-        <div class="timeline-item" data-aos="fade-up"><span>2024</span><h3>Dell SC Compellent</h3><p>Despliegue de almacenamiento empresarial Dell SC Series / Compellent en 9 clientes gubernamentales a nivel nacional.</p></div>
-        <div class="timeline-item" data-aos="fade-up"><span>2024</span><h3>Migración Data Center</h3><p>Traslado integral de servidores físicos y virtuales con VMware Cross vCenter y Zerto.</p></div>
-        <div class="timeline-item" data-aos="fade-up"><span>2024</span><h3>Veritas NetBackup</h3><p>Integración de respaldos para ambientes VMware y SQL Server.</p></div>
-        <div class="timeline-item" data-aos="fade-up"><span>2023</span><h3>Ansible IaC</h3><p>Automatización de infraestructura y configuración masiva por medio de playbooks.</p></div>
-      </div>
-    </section>
+    <div class="projects-grid">
+      <article class="project-card featured reveal">
+        <h3><i class="fa-solid fa-building-columns"></i> Migración Integral de Data Center</h3>
+        <p>Migración completa de servidores físicos y virtuales VMware en menos de 3 meses por obsolescencia de equipos, utilizando VMware Cross vCenter y Zerto.</p>
+        <div class="project-meta"><span class="meta">&lt; 3 meses</span><span class="meta">VMware</span><span class="meta">Zerto</span><span class="meta">Data Center</span></div>
+        <div class="tags"><span class="tag">Cross vCenter</span><span class="tag">vMotion</span><span class="tag">Servidores físicos</span><span class="tag">Migración SAN</span><span class="tag">Alta disponibilidad</span></div>
+      </article>
 
-    <section id="contacto" class="section-pad contact-section">
-      <div data-aos="zoom-in">
-        <p class="eyebrow">Conversemos</p>
-        <h2>Contacto <span>Profesional</span></h2>
-        <p>Disponible para proyectos de infraestructura, virtualización, automatización, respaldo, almacenamiento, nube híbrida y administración de servidores.</p>
-        <div class="contact-actions">
-          <a href="mailto:emanuel.chacon@outlook.com" class="primary-btn"><i class="fa-regular fa-envelope"></i> Enviar correo</a>
-          <a href="https://github.com/" target="_blank" class="secondary-btn"><i class="fa-brands fa-github"></i> GitHub</a>
-          <a href="https://cr.linkedin.com/in/emanuelchaconcr" target="_blank" class="secondary-btn"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
-        </div>
+      <article class="project-card reveal">
+        <h3><i class="fa-solid fa-server"></i> Implementación Dell VxRail</h3>
+        <p>Implementación de VxRail como implementador dentro del programa Partner de Dell, especialista Dell, con despliegue en 5 clientes.</p>
+        <div class="tags"><span class="tag">Dell VxRail</span><span class="tag">HCI</span><span class="tag">VMware</span><span class="tag">5 clientes</span></div>
+      </article>
+
+      <article class="project-card reveal">
+        <h3><i class="fa-solid fa-hard-drive"></i> Dell SC Compellent Nacional</h3>
+        <p>Despliegue de 9 soluciones Dell SC Compellent a nivel nacional para clientes gubernamentales.</p>
+        <div class="tags"><span class="tag">Dell SC Series</span><span class="tag">Compellent</span><span class="tag">Gobierno</span><span class="tag">SAN</span></div>
+      </article>
+
+      <article class="project-card reveal">
+        <h3><i class="fa-solid fa-rotate"></i> Veritas NetBackup</h3>
+        <p>Migración y administración de sistema de respaldo Veritas NetBackup con integración VMware y SQL Server.</p>
+        <div class="tags"><span class="tag">NetBackup</span><span class="tag">VMware</span><span class="tag">SQL Server</span><span class="tag">Backups</span></div>
+      </article>
+
+      <article class="project-card reveal">
+        <h3><i class="fa-brands fa-microsoft"></i> Azure Arc para VMware</h3>
+        <p>Despliegue de agente Azure Arc para manejo en nube de equipos virtuales en VMware y administración híbrida.</p>
+        <div class="tags"><span class="tag">Azure Arc</span><span class="tag">VMware</span><span class="tag">Hybrid Cloud</span><span class="tag">Azure Monitor</span></div>
+      </article>
+
+      <article class="project-card reveal">
+        <h3><i class="fa-solid fa-gears"></i> ManageEngine</h3>
+        <p>Integración de ManageEngine para automatización de actualizaciones, inventario y administración de equipos.</p>
+        <div class="tags"><span class="tag">Patch Management</span><span class="tag">Inventario</span><span class="tag">Automatización</span></div>
+      </article>
+
+      <article class="project-card reveal">
+        <h3><i class="fa-solid fa-code"></i> Ansible IaC</h3>
+        <p>Uso de Ansible para Infraestructura como Código, automatización de configuraciones y despliegues repetibles.</p>
+        <div class="tags"><span class="tag">Ansible</span><span class="tag">IaC</span><span class="tag">Playbooks</span><span class="tag">Linux/Windows</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="certificaciones">
+    <div class="section-header reveal">
+      <span class="subtitle">PROFESSIONAL DEVELOPMENT</span>
+      <h2>Licencias & Certificaciones</h2>
+      <p>Certificaciones profesionales en almacenamiento, networking, virtualización, servidores y mejora continua.</p>
+    </div>
+
+    <div class="certifications-grid">
+      <div class="certificate-card reveal"><div class="cert-logo dell"><i class="fa-solid fa-server"></i></div><h3>VxRail Appliance 4.x Deployment and Implementation</h3><span class="issuer">Dell EMC</span><p>Implementación y configuración de plataformas hiperconvergentes Dell VxRail.</p><ul><li><strong>Emitido:</strong> Septiembre 2018</li><li><strong>ID:</strong> HBB39P06CEV1QT5D</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo dell"><i class="fa-solid fa-microchip"></i></div><h3>Dell PowerEdge Professional</h3><span class="issuer">Dell Technologies</span><ul><li><strong>Emitido:</strong> Agosto 2019</li><li><strong>Vence:</strong> Agosto 2021</li><li><strong>ID:</strong> 241002734</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo dell"><i class="fa-solid fa-database"></i></div><h3>Especialista - Arquitecto de Tecnología</h3><span class="issuer">Dell EMC</span><p>Soluciones de almacenamiento empresarial de rango medio versión 1.0.</p><ul><li><strong>Emitido:</strong> Enero 2018</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo dell"><i class="fa-solid fa-hard-drive"></i></div><h3>Associate - Information Storage and Management V3</h3><span class="issuer">Dell EMC</span><ul><li><strong>Emitido:</strong> Diciembre 2017</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo cisco"><i class="fa-solid fa-network-wired"></i></div><h3>Cisco Certified Networking Associate (CCNA)</h3><span class="issuer">Cisco</span><ul><li><strong>Emitido:</strong> Septiembre 2021</li><li><strong>Vence:</strong> Septiembre 2024</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo cisco"><i class="fa-solid fa-shield-halved"></i></div><h3>CCNA: Enterprise Networking, Security, and Automation</h3><span class="issuer">Cisco</span><ul><li><strong>Emitido:</strong> Octubre 2020</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo certi"><i class="fa-solid fa-chart-column"></i></div><h3>Business Intelligence Foundation Professional - BIFPC™</h3><span class="issuer">CertiProf</span><ul><li><strong>Emitido:</strong> Diciembre 2022</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo certi"><i class="fa-solid fa-book-open"></i></div><h3>Lifelong Learning</h3><span class="issuer">CertiProf</span><ul><li><strong>Emitido:</strong> Diciembre 2022</li></ul></div>
+      <div class="certificate-card reveal"><div class="cert-logo certi"><i class="fa-solid fa-laptop-house"></i></div><h3>Remote Worker Professional Certificate - RWPC™</h3><span class="issuer">CertiProf</span><ul><li><strong>Emitido:</strong> Diciembre 2022</li><li><strong>Vence:</strong> Diciembre 2024</li></ul></div>
+    </div>
+  </section>
+
+  <section id="experiencia">
+    <div class="section-header reveal">
+      <span class="subtitle">ROADMAP PROFESIONAL</span>
+      <h2>Experiencia Técnica</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal"><div class="year">2025</div><div><h3>Cloud híbrido y automatización</h3><p>Azure Arc, ManageEngine, Ansible y administración centralizada de infraestructura.</p></div></div>
+      <div class="timeline-item reveal"><div class="year">2024</div><div><h3>Migraciones críticas de Data Center</h3><p>Migraciones VMware, Zerto, servidores físicos, virtuales y renovación tecnológica.</p></div></div>
+      <div class="timeline-item reveal"><div class="year">2018+</div><div><h3>Dell Technologies</h3><p>Implementaciones VxRail, Dell PowerEdge y Dell SC Series Compellent en múltiples clientes.</p></div></div>
+    </div>
+  </section>
+
+  <section id="contacto">
+    <div class="contact-box reveal">
+      <span class="subtitle">CONTACTO</span>
+      <h2>Conectemos</h2>
+      <p>Disponible para proyectos de infraestructura, virtualización, almacenamiento, cloud híbrido y automatización.</p>
+      <div class="contact-links">
+        <a class="btn primary" href="mailto:emanuel.chacon@outlook.com"><i class="fa-solid fa-envelope"></i> Correo</a>
+        <a class="btn secondary" href="https://cr.linkedin.com/in/emanuelchaconcr" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+        <a class="btn secondary" href="https://github.com/emanuelchacon" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
   <footer>
-    <p>© 2026 Emanuel Chacón. Portafolio personal de infraestructura TI.</p>
+    © 2026 Emanuel Chacón. Todos los derechos reservados. Información anonimizada por confidencialidad.
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script src="script.js"></script>
+  <script>
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){ entry.target.classList.add('active'); }
+      });
+    }, {threshold: .13});
+    reveals.forEach(el => observer.observe(el));
+
+    document.addEventListener('mousemove', e => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      document.querySelector('.orb.one').style.transform = `translate(${x*55}px, ${y*35}px)`;
+      document.querySelector('.orb.two').style.transform = `translate(${-x*45}px, ${y*45}px)`;
+    });
+  </script>
 </body>
 </html>

@@ -1,18 +1,8 @@
 # 💼 Emanuel Chacón - Professional Infrastructure Portfolio
 
-![Status](https://img.shields.io/badge/Status-Active-success)
-![Version](https://img.shields.io/badge/Version-1.0-blue)
-![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red)
+Portafolio profesional para presentar experiencia en Infraestructura TI, Virtualización, Almacenamiento Empresarial, Cloud Híbrido, Automatización y Administración de Plataformas Críticas.
 
-## 📌 Descripción
-
-Este repositorio contiene el código fuente de mi portafolio profesional, desarrollado para presentar mi experiencia en Infraestructura de TI, Virtualización, Almacenamiento Empresarial, Automatización, Cloud Híbrido y Administración de Plataformas Críticas.
-
-El objetivo de este sitio es mostrar proyectos técnicos, habilidades y experiencia adquirida durante mi trayectoria profesional en implementaciones empresariales para clientes del sector privado y gubernamental.
-
----
-
-# Tecnologías
+## Tecnologías del sitio
 
 - HTML5
 - CSS3
@@ -20,55 +10,36 @@ El objetivo de este sitio es mostrar proyectos técnicos, habilidades y experien
 - GitHub Pages
 - Responsive Design
 - Animaciones CSS
-- Particles.js
-- AOS Animation
+- Font Awesome
 
----
+## Áreas de especialización
 
-# Áreas de Especialización
-
-- VMware vSphere
-- VMware ESXi
-- VMware vCenter
+- VMware vSphere, ESXi y vCenter
 - VMware Cross vCenter vMotion
 - Dell VxRail
-- Dell SC Series (Compellent)
-- HPE Private Cloud Business Edition
-- HPE Alletra
+- Dell SC Series / Compellent
+- Veritas NetBackup
 - Azure Arc
+- ManageEngine
+- Ansible IaC
 - Windows Server
 - Linux
-- Red Hat Enterprise Linux
-- Oracle Linux
-- Veritas NetBackup
-- ManageEngine
-- Ansible
-- PowerShell
-- Bash
 - SQL Server
-- Storage SAN
-- Fibre Channel
-- iSCSI
-- Alta Disponibilidad
-- Automatización de Infraestructura
+- SAN, Fibre Channel e iSCSI
 
----
-
-# Proyectos Destacados
+## Proyectos destacados
 
 - Migración Integral de Data Center
 - Implementación Dell VxRail
-- Implementación Dell SC Compellent
-- Azure Arc Deployment
-- Administración Veritas NetBackup
+- Despliegue Dell SC Compellent nacional
+- Migración y administración Veritas NetBackup
+- Despliegue Azure Arc para VMware
 - Automatización con ManageEngine
 - Infraestructura como Código con Ansible
 
----
+## Aviso de confidencialidad
 
-# ⚠️ Aviso de Confidencialidad
-
-La información presentada en este portafolio ha sido elaborada únicamente con fines demostrativos para evidenciar mi experiencia profesional.
+La información presentada en este portafolio ha sido elaborada únicamente con fines demostrativos para evidenciar experiencia profesional.
 
 Por razones de confidencialidad:
 
@@ -80,56 +51,18 @@ Por razones de confidencialidad:
 - No se muestran credenciales ni datos de acceso.
 - No se divulga información clasificada de ninguna organización.
 
-Toda la información ha sido anonimizada respetando acuerdos de confidencialidad (NDA) y las políticas de seguridad de las organizaciones donde participaron los proyectos.
+Toda la información ha sido anonimizada respetando acuerdos de confidencialidad, políticas internas y buenas prácticas de seguridad.
 
----
-
-# © Derechos de Autor
+## Derechos de autor
 
 Copyright © 2026 Emanuel Chacón.
 
 Todos los derechos reservados.
 
-Este repositorio, su código fuente, diseño, imágenes, animaciones, documentación y contenido intelectual son propiedad exclusiva de Emanuel Chacón.
+No está permitido copiar, redistribuir, modificar, publicar versiones derivadas o utilizar este proyecto con fines comerciales sin autorización expresa del autor.
 
-No está permitido:
+## Descargo de responsabilidad
 
-- Copiar total o parcialmente este proyecto.
-- Redistribuir el código.
-- Modificar el diseño para uso comercial.
-- Publicar versiones derivadas sin autorización expresa.
-- Utilizar el contenido con fines comerciales.
-- Reutilizar las animaciones o elementos gráficos sin autorización.
-
-La utilización de este repositorio implica la aceptación de estas condiciones.
-
----
-
-# Descargo de Responsabilidad
-
-Las opiniones, experiencias y proyectos descritos corresponden exclusivamente a la experiencia profesional del autor.
-
-Las marcas comerciales mencionadas, incluyendo VMware, Dell Technologies, Microsoft, Red Hat, HPE, Veritas, Azure, Oracle y otras, pertenecen a sus respectivos propietarios.
+Las marcas mencionadas, incluyendo VMware, Dell Technologies, Microsoft, Red Hat, HPE, Veritas, Azure, Oracle y Cisco, pertenecen a sus respectivos propietarios.
 
 Este sitio no representa oficialmente a ninguna empresa, fabricante o institución.
-
----
-
-# Contacto
-
-**Emanuel Chacón**
-
-Infrastructure Engineer
-
-Virtualization • Cloud • Storage • Automation
-
-GitHub:
-https://github.com/emanuelchacon
-
-LinkedIn:
-https://www.linkedin.com/in/emanuelchaconcr
-
----
-
-© 2026 Emanuel Chacón
-All Rights Reserved.
