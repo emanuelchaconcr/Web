@@ -1,70 +1,60 @@
-AOS.init({ duration: 850, once: true, offset: 80 });
+AOS.init({ duration: 900, once: true, offset: 90 });
 
 const menuBtn = document.getElementById('menuBtn');
 const navLinks = document.getElementById('navLinks');
 menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
-document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => navLinks.classList.remove('open')));
 
-const sections = document.querySelectorAll('section[id]');
-const navItems = document.querySelectorAll('.nav-links a');
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', () => navLinks.classList.remove('open'));
+});
+
 window.addEventListener('scroll', () => {
-  let current = 'inicio';
-  sections.forEach(section => {
-    if (scrollY >= section.offsetTop - 130) current = section.id;
-  });
-  navItems.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
-  });
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
 });
 
 const counters = document.querySelectorAll('[data-count]');
-let counted = false;
-function animateCounters(){
-  if(counted) return;
-  const stats = document.querySelector('.stats');
-  if(!stats) return;
-  const rect = stats.getBoundingClientRect();
-  if(rect.top < window.innerHeight - 80){
-    counted = true;
-    counters.forEach(counter => {
-      const target = parseFloat(counter.dataset.count);
-      let current = 0;
-      const duration = 1500;
-      const start = performance.now();
-      function update(now){
-        const progress = Math.min((now - start) / duration, 1);
-        current = target * progress;
-        if(target % 1 !== 0){
-          counter.textContent = current.toFixed(1);
-        } else {
-          counter.textContent = '+' + Math.floor(current);
-        }
-        if(target === 99.9) counter.textContent = current.toFixed(1);
-        if(progress < 1) requestAnimationFrame(update);
-        else counter.textContent = target % 1 !== 0 ? target.toFixed(1) : '+' + target;
-      }
-      requestAnimationFrame(update);
-    });
-  }
-}
-window.addEventListener('scroll', animateCounters);
-animateCounters();
+const runCounter = (counter) => {
+  const target = parseFloat(counter.dataset.count);
+  const isDecimal = String(counter.dataset.count).includes('.');
+  let current = 0;
+  const increment = target / 90;
+  const timer = setInterval(() => {
+    current += increment;
+    if (current >= target) {
+      counter.textContent = isDecimal ? target.toFixed(1) : Math.round(target);
+      clearInterval(timer);
+    } else {
+      counter.textContent = isDecimal ? current.toFixed(1) : Math.round(current);
+    }
+  }, 18);
+};
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !entry.target.dataset.started) {
+      entry.target.dataset.started = 'true';
+      runCounter(entry.target);
+    }
+  });
+}, { threshold: 0.6 });
+
+counters.forEach(counter => observer.observe(counter));
 
 if (window.particlesJS) {
   particlesJS('particles-js', {
     particles: {
-      number: { value: 65, density: { enable: true, value_area: 900 } },
-      color: { value: '#45f6ff' },
+      number: { value: 75, density: { enable: true, value_area: 900 } },
+      color: { value: ['#45f6ff', '#27ffd4', '#9b54ff'] },
       shape: { type: 'circle' },
-      opacity: { value: 0.28, random: true },
-      size: { value: 2.4, random: true },
-      line_linked: { enable: true, distance: 145, color: '#45f6ff', opacity: 0.16, width: 1 },
-      move: { enable: true, speed: 1.2, direction: 'none', random: false, straight: false, out_mode: 'out' }
+      opacity: { value: 0.35, random: true },
+      size: { value: 3, random: true },
+      line_linked: { enable: true, distance: 150, color: '#45f6ff', opacity: 0.18, width: 1 },
+      move: { enable: true, speed: 1.4, direction: 'none', random: true, straight: false, out_mode: 'out' }
     },
     interactivity: {
       detect_on: 'canvas',
       events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
-      modes: { grab: { distance: 150, line_linked: { opacity: 0.35 } }, push: { particles_nb: 3 } }
+      modes: { grab: { distance: 180, line_linked: { opacity: 0.35 } }, push: { particles_nb: 3 } }
     },
     retina_detect: true
   });
