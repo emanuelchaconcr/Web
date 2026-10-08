@@ -1,0 +1,9 @@
+{
+  "name": "Emanuel Chacón",
+  "short_name": "Emanuel",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070a",
+  "theme_color": "#00e5ff",
+  "icons": [{"src": "/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml"}]
+}

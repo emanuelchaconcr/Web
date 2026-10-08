@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://emanuelchacon.cr/sitemap.xml

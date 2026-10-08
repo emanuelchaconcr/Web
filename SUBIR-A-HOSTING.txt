@@ -1,0 +1,23 @@
+EMANUELCHACON.CR — PAQUETE DE PRODUCCIÓN
+==========================================
+
+RUTAS:
+  /                  -> index.html
+  /enlaces/          -> enlaces/index.html
+  /proyectos/        -> casos técnicos
+  /herramientas/     -> herramientas TI
+  /cv.html           -> CV imprimible
+
+IMPORTANTE:
+1. Haz una copia de seguridad del sitio actual.
+2. Sube TODO el contenido de este ZIP al document root de emanuelchacon.cr.
+3. Si usas cPanel, normalmente el document root es public_html.
+4. Incluye también el archivo .htaccess.
+5. Comprueba:
+   https://emanuelchacon.cr/
+   https://emanuelchacon.cr/enlaces/
+   https://emanuelchacon.cr/herramientas/
+6. Revisa correo, LinkedIn, GitHub y TikTok antes de publicar.
+7. No subas credenciales, IPs internas, archivos de configuración ni información de clientes.
+
+Si tu hosting ya tiene un .htaccess propio, haz backup antes de reemplazarlo.

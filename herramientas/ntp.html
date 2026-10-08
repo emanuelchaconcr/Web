@@ -1,0 +1,4 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NTP / Chrony Helper | Emanuel Chacón</title><link rel="stylesheet" href="tool.css"></head><body><main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>NTP / Chrony Helper</h1><div class="toolbox">
+<label>Servidor NTP</label><input id="server" value="pool.ntp.org">
+<label>Sistema</label><select id="os"><option>RHEL / Oracle Linux / CentOS</option><option>Ubuntu / Debian</option></select>
+<button class="btn primary" onclick="go()">Generar configuración</button><div id="out" class="result"></div></div></main><script>function go(){let s=server.value.trim();out.textContent=`chrony:\nserver ${s} iburst\n\nComandos:\nsystemctl enable --now chronyd\nchronyc sources -v\nchronyc tracking\n\nValidación:\ntimedatectl status\n\nNota: revisa firewall UDP/123.`}</script></body></html>
