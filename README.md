@@ -1,33 +1,21 @@
-# EmanuelChacon.cr V2
+cat > README.md <<'EOF'
+# 👨‍💻 Emanuel Chacón
 
-Portfolio personal de Emanuel Chacón.
+> `Infrastructure Engineer | Automation | Data Center | Costa Rica 🇨🇷`
 
-## Incluye
-- Home / Portfolio
-- `/enlacess/` Link Hub
-- `/proyectos/` Casos técnicos
-- `/herramientas/` Utilidades TI
-- CV imprimible
-- Diseño responsive
-- Animaciones ligeras
-- Sin dependencias de backend
-
-## Publicación
-Subir el contenido completo al hosting de `emanuelchacon.cr`.
-
-## Rutas
-- `/`
-- `/enlacess/`
-- `/proyectos/datacenter.html`
-- `/proyectos/vxrail.html`
-- `/proyectos/netbackup.html`
-- `/proyectos/automation.html`
-- `/herramientas/`
-
-## Nota
-El portfolio presenta experiencia de manera anonimizada y no debe incluir información confidencial, IPs internas, credenciales, diagramas propietarios ni datos de clientes.
-
-## V2 Pro
-- Fondo de red animado con partículas y conexiones.
-- 13+ herramientas TI funcionales.
-- Helpers para VMware, Linux, Windows, DNS, NTP/Chrony y redes.
+```text
+┌──────────────────────────────────────────────┐
+│              EMANUEL INFRA OS               │
+├──────────────────────────────────────────────┤
+│                                              │
+│  🖥️  VMware        ████████████████  ONLINE │
+│  💾  Storage       ████████████████  ONLINE │
+│  🛡️  NetBackup     ████████████████  ONLINE │
+│  ⚙️  Ansible       ████████████████  ONLINE │
+│  🐧  Linux         ████████████████  ONLINE │
+│  📊  Monitoring    ████████████████  ONLINE │
+│                                              │
+│  Status: EVERYTHING IS ON FIRE 🔥            │
+│  Operator: Emanuel Chacón                    │
+│  Location: Costa Rica 🇨🇷                    │
+└──────────────────────────────────────────────┘
