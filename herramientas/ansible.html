@@ -1,1 +1,25 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ansible Builder</title><link rel="stylesheet" href="tool.css"></head><body><main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>Ansible Playbook Builder</h1><div class="toolbox"><div class="grid2"><div><label>Nombre</label><input id="name" value="Infrastructure Task"></div><div><label>Hosts</label><input id="hosts" value="servers"></div></div><label>Comando</label><input id="cmd" value="uptime"><button class="btn primary" style="margin-top:16px" onclick="go()">Generar YAML</button><div id="out" class="result"></div></div></main><script>function go(){let esc=s=>s.replace(/'/g,\"''\");out.textContent=`---\\n- name: ${esc(name.value)}\\n  hosts: ${esc(hosts.value)}\\n  become: true\\n  tasks:\\n    - name: Run command\\n      ansible.builtin.command: '${esc(cmd.value)}'\\n      register: result\\n\\n    - name: Show result\\n      ansible.builtin.debug:\\n        var: result.stdout`}</script></body></html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ansible Builder</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<meta name="description" content="Constructor de playbooks de Ansible. Genera YAML a partir de nombre, hosts y comando.">
+<meta property="og:title" content="Ansible Builder">
+<meta property="og:description" content="Constructor de playbooks de Ansible. Genera YAML a partir de nombre, hosts y comando.">
+<meta property="og:url" content="https://emanuelchacon.cr/herramientas/ansible.html">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="tool.css">
+</head><body><canvas id="network-bg"></canvas><div class="bg-glow one"></div><div class="bg-glow two"></div><div id="loader"><div class="loader-ring"></div><span>INITIALIZING EMANUEL OS...</span></div><header class="navbar">
+  <div class="container nav-inner">
+    <a class="brand" href="../#home"><span>EMANUEL</span><b>.</b></a>
+    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
+    <nav class="nav-links">
+      <a href="../#home">Inicio</a>
+      <a href="../#about">Perfil</a>
+      <a href="../#projects">Proyectos</a>
+      <a href="../#skills">Skills</a>
+      <a href="../#lab">Lab</a>
+      <a href="../herramientas/index.html">Herramientas</a>
+      <a href="../#contact">Contacto</a>
+      <a class="nav-special" href="../enlaces/">Enlaces ↗</a>
+    </nav>
+  </div>
+</header>
+<main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>Ansible Playbook Builder</h1><div class="toolbox"><div class="grid2"><div><label>Nombre</label><input id="name" value="Infrastructure Task"></div><div><label>Hosts</label><input id="hosts" value="servers"></div></div><label>Comando</label><input id="cmd" value="uptime"><button class="btn primary" style="margin-top:16px" onclick="go()">Generar YAML</button><div id="out" class="result"></div></div></main><script>function go(){let esc=s=>s.replace(/'/g,\"''\");out.textContent=`---\\n- name: ${esc(name.value)}\\n  hosts: ${esc(hosts.value)}\\n  become: true\\n  tasks:\\n    - name: Run command\\n      ansible.builtin.command: '${esc(cmd.value)}'\\n      register: result\\n\\n    - name: Show result\\n      ansible.builtin.debug:\\n        var: result.stdout`}</script><script src="../js/main.js"></script></body></html>

@@ -1,3 +1,27 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VMware Troubleshooting Helper | Emanuel Chacón</title><link rel="stylesheet" href="tool.css"></head><body><main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>VMware Troubleshooting Helper</h1><div class="toolbox">
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VMware Troubleshooting Helper | Emanuel Chacón</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<meta name="description" content="Ayudante de troubleshooting VMware. Genera checklists para ESXi Host, vCenter, VM y Datastore.">
+<meta property="og:title" content="VMware Troubleshooting Helper | Emanuel Chacón">
+<meta property="og:description" content="Ayudante de troubleshooting VMware. Genera checklists para ESXi Host, vCenter, VM y Datastore.">
+<meta property="og:url" content="https://emanuelchacon.cr/herramientas/vmware.html">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="tool.css">
+</head><body><canvas id="network-bg"></canvas><div class="bg-glow one"></div><div class="bg-glow two"></div><div id="loader"><div class="loader-ring"></div><span>INITIALIZING EMANUEL OS...</span></div><header class="navbar">
+  <div class="container nav-inner">
+    <a class="brand" href="../#home"><span>EMANUEL</span><b>.</b></a>
+    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
+    <nav class="nav-links">
+      <a href="../#home">Inicio</a>
+      <a href="../#about">Perfil</a>
+      <a href="../#projects">Proyectos</a>
+      <a href="../#skills">Skills</a>
+      <a href="../#lab">Lab</a>
+      <a href="../herramientas/index.html">Herramientas</a>
+      <a href="../#contact">Contacto</a>
+      <a class="nav-special" href="../enlaces/">Enlaces ↗</a>
+    </nav>
+  </div>
+</header>
+<main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>VMware Troubleshooting Helper</h1><div class="toolbox">
 <label>VMware componente</label><select id="comp"><option>ESXi Host</option><option>vCenter</option><option>VM</option><option>Datastore</option></select>
-<button class="btn primary" onclick="go()">Generar checklist</button><div id="out" class="result"></div></div></main><script>function go(){let c=comp.value;let m={"ESXi Host":"esxcli system version get\nesxcli hardware platform get\nesxcli network ip interface list\nesxcli storage filesystem list\nesxcli vm process list\nvmkping <target>","vCenter":"service-control --status --all\nvmware-vmon-cli -h\nCheck vpxd and vpxd-svcs logs","VM":"vim-cmd vmsvc/getallvms\nvim-cmd vmsvc/get.summary <VMID>\nvim-cmd vmsvc/power.getstate <VMID>","Datastore":"esxcli storage filesystem list\nesxcli storage core device list\nesxcli storage nmp device list"};out.textContent=m[c]}`}</script></body></html>
+<button class="btn primary" onclick="go()">Generar checklist</button><div id="out" class="result"></div></div></main><script>function go(){let c=comp.value;let m={"ESXi Host":"esxcli system version get\nesxcli hardware platform get\nesxcli network ip interface list\nesxcli storage filesystem list\nesxcli vm process list\nvmkping <target>","vCenter":"service-control --status --all\nvmware-vmon-cli -h\nCheck vpxd and vpxd-svcs logs","VM":"vim-cmd vmsvc/getallvms\nvim-cmd vmsvc/get.summary <VMID>\nvim-cmd vmsvc/power.getstate <VMID>","Datastore":"esxcli storage filesystem list\nesxcli storage core device list\nesxcli storage nmp device list"};out.textContent=m[c]}`}</script><script src="../js/main.js"></script></body></html>
