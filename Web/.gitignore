@@ -1,0 +1,33 @@
+# Node dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+*.log
+*.pids
+*.seed
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artefacts
+dist/
+build/
+.out/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Environment files
+.env
+
+# IDE / editor folders
+.vscode/
+.idea/
+
+# Misc
+*.zip
+*.tar.gz
