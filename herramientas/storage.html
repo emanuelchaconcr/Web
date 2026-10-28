@@ -1,2 +1,18 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Storage Calculator</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css"></head><body><main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>Storage Calculator</h1><div class="toolbox"><div class="grid2"><div><label>Capacidad inicial (TB)</label><input id="cap" type="number" value="10"></div><div><label>Crecimiento mensual (%)</label><input id="growth" type="number" value="5"></div></div><label>Meses</label><input id="months" type="number" value="12"><button class="btn primary" style="margin-top:16px" onclick="go()">Calcular</button><div id="out" class="result"></div></div></main><script>function go(){let c=+cap.value,g=+growth.value/100,m=+months.value;let end=c*Math.pow(1+g,m);out.textContent=`Capacidad inicial: ${c.toFixed(2)} TB\\nCapacidad estimada: ${end.toFixed(2)} TB\\nCrecimiento: ${(end-c).toFixed(2)} TB`}</script></body></html>
+<link rel="stylesheet" href="../css/style.css"></head><body><canvas id="network-bg"></canvas><div class="bg-glow one"></div><div class="bg-glow two"></div><div id="loader"><div class="loader-ring"></div><span>INITIALIZING EMANUEL OS...</span></div><header class="navbar">
+  <div class="container nav-inner">
+    <a class="brand" href="../#home"><span>EMANUEL</span><b>.</b></a>
+    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
+    <nav class="nav-links">
+      <a href="../#home">Inicio</a>
+      <a href="../#about">Perfil</a>
+      <a href="../#projects">Proyectos</a>
+      <a href="../#skills">Skills</a>
+      <a href="../#lab">Lab</a>
+      <a href="../herramientas/index.html">Herramientas</a>
+      <a href="../#contact">Contacto</a>
+      <a class="nav-special" href="../enlaces/">Enlaces ↗</a>
+    </nav>
+  </div>
+</header>
+<main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>Storage Calculator</h1><div class="toolbox"><div class="grid2"><div><label>Capacidad inicial (TB)</label><input id="cap" type="number" value="10"></div><div><label>Crecimiento mensual (%)</label><input id="growth" type="number" value="5"></div></div><label>Meses</label><input id="months" type="number" value="12"><button class="btn primary" style="margin-top:16px" onclick="go()">Calcular</button><div id="out" class="result"></div></div></main><script>function go(){let c=+cap.value,g=+growth.value/100,m=+months.value;let end=c*Math.pow(1+g,m);out.textContent=`Capacidad inicial: ${c.toFixed(2)} TB\\nCapacidad estimada: ${end.toFixed(2)} TB\\nCrecimiento: ${(end-c).toFixed(2)} TB`}</script><script src="../js/main.js"></script></body></html>
