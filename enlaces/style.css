@@ -1,2 +1,24 @@
-:root{--bg:#05070a;--cyan:#00e5ff;--text:#f4f7fb;--muted:#8d9aaa;--line:rgba(255,255,255,.09)}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,rgba(0,229,255,.1),transparent 35%),#05070a;color:var(--text);font-family:Inter,Arial,sans-serif}.noise{position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px}.links-wrap{position:relative;width:min(620px,calc(100% - 28px));margin:auto;padding:35px 0 25px}.back{display:block;color:#718091;font-size:12px;margin-bottom:40px}.profile{text-align:center}.avatar{width:82px;height:82px;margin:auto;border-radius:24px;display:grid;place-items:center;background:linear-gradient(145deg,#0b1922,#071016);border:1px solid rgba(0,229,255,.3);color:var(--cyan);font-size:24px;font-weight:800;box-shadow:0 15px 50px rgba(0,229,255,.08)}h1{font-size:29px;margin:17px 0 4px}.profile p{margin:0;color:var(--muted);font-size:13px}.availability{display:inline-flex;align-items:center;gap:7px;margin-top:15px;color:#9aa7b5;font-size:11px}.availability i{width:7px;height:7px;background:#35e58a;border-radius:50%;box-shadow:0 0 12px #35e58a}.links{display:grid;gap:12px;margin-top:30px}.link-card{min-height:68px;display:flex;align-items:center;gap:15px;padding:14px 17px;border:1px solid var(--line);border-radius:14px;background:rgba(10,16,23,.85);transition:.25s}.link-card:hover{transform:translateY(-2px);border-color:rgba(0,229,255,.35);box-shadow:0 15px 40px rgba(0,0,0,.25)}.link-card.featured{border-color:rgba(0,229,255,.25);background:linear-gradient(100deg,rgba(0,229,255,.08),rgba(139,92,246,.06))}.link-card>span{flex:1}.link-card b,.link-card small{display:block}.link-card b{font-size:14px}.link-card small{font-size:11px;color:var(--muted);margin-top:2px}.link-card>strong{color:#677382}footer{text-align:center;color:#56616d;font-size:10px;margin-top:35px}
+/* Links page — extends css/style.css */
+body{background:var(--bg-alt)}
+.links-wrap{width:min(560px,calc(100% - 32px));margin:0 auto;padding:28px 0 40px}
+.back{font-size:14px;margin-bottom:36px}
+.back::after{display:none}
+.back::before{content:"‹";font-size:1.3em;margin-right:4px;line-height:1}
+.profile{text-align:center}
+.profile .avatar{margin:0 auto;width:104px;height:104px;font-size:36px}
+.profile h1{font-size:34px;font-weight:700;letter-spacing:-.03em;margin:20px 0 4px}
+.profile p{color:var(--muted);font-size:17px}
+.availability{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--text-2);background:var(--surface);padding:6px 14px;border-radius:999px;border:1px solid var(--line)}
+.availability i{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.links{display:grid;gap:12px;margin-top:34px}
+.link-card{display:flex;align-items:center;gap:16px;padding:14px 18px 14px 14px;min-height:72px;background:var(--surface);border-radius:18px;border:1px solid var(--line);transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.link-card:hover{transform:scale(1.015);box-shadow:var(--shadow)}
+.link-card:active{transform:scale(.99)}
+.link-card>span:not(.icon){flex:1;min-width:0}
+.link-card b,.link-card small{display:block}
+.link-card b{font-size:17px;font-weight:600;letter-spacing:-.02em}
+.link-card small{font-size:14px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-card>strong{color:var(--muted);font-size:20px;font-weight:400}
+.share{display:block;margin:26px auto 0;color:var(--link);font-size:15px}
+.share:hover{text-decoration:underline}
+.links-wrap footer{text-align:center;color:var(--muted);font-size:12px;margin-top:34px}

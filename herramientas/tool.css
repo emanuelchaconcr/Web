@@ -1,1 +1,20 @@
-body{background:#05070a;color:#f4f7fb;font-family:Inter,Arial;margin:0}.tool-page{width:min(900px,calc(100% - 28px));margin:auto;padding:65px 0}.back{color:#00e5ff;font-size:12px}.toolbox{background:#0a1017;border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:26px;box-shadow:0 20px 70px rgba(0,0,0,.25)}.toolbox label{display:block;color:#8d9aaa;font-size:12px;margin:12px 0 6px}.toolbox input,.toolbox select,.toolbox textarea{width:100%;padding:12px;background:#06090d;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;outline:none;box-sizing:border-box}.toolbox textarea{min-height:260px;font-family:monospace}.result{margin-top:18px;padding:18px;border:1px solid rgba(0,229,255,.2);border-radius:10px;background:rgba(0,229,255,.03);font-family:monospace;white-space:pre-wrap;color:#c9d6e2;overflow:auto}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border-radius:9px;border:1px solid rgba(255,255,255,.1);font-size:13px;font-weight:700;cursor:pointer}.primary{background:#00e5ff;color:#001014;border-color:#00e5ff}@media(max-width:650px){.grid2,.grid3{grid-template-columns:1fr}}
+/* Tool pages — extends css/style.css */
+.tool-page{width:min(860px,calc(100% - 32px));margin:0 auto;padding:64px 0 110px}
+.tool-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:34px}
+.tool-head .icon{width:56px;height:56px;border-radius:15px;flex:none}
+.tool-head .icon svg{width:30px;height:30px}
+.tool-head p{color:var(--muted);font-size:17px;margin-top:8px;max-width:620px}
+.toolbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow)}
+.toolbox h2,.toolbox h3{font-size:19px;letter-spacing:-.02em;margin:22px 0 4px}
+.toolbox label{display:block;color:var(--text-2);font-size:13px;font-weight:500;margin:16px 0 7px;letter-spacing:-.01em}
+.toolbox input,.toolbox select,.toolbox textarea{width:100%;min-height:46px;padding:12px 14px;background:var(--bg-alt);border:1px solid transparent;border-radius:12px;color:var(--text);font:16px var(--font);letter-spacing:-.01em;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;-webkit-appearance:none;appearance:none}
+.toolbox select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%236e6e73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+.toolbox input:focus,.toolbox select:focus,.toolbox textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent);background:var(--surface)}
+.toolbox textarea{min-height:240px;font-family:var(--mono);font-size:14px;line-height:1.6}
+.toolbox .btn{margin-top:22px!important}
+.toolbox .btn+.btn{margin-left:10px}
+.result{margin-top:22px;padding:20px 22px;border-radius:14px;background:var(--term-bg);color:#e5e5ea;font:13.5px/1.7 var(--mono);letter-spacing:0;white-space:pre-wrap;overflow:auto;min-height:56px;position:relative}
+.result:empty::before{content:"El resultado aparecerá aquí.";color:#8e8e93;font-family:var(--font)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:0 14px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}.toolbox{padding:22px}.tool-head{flex-direction:column}}

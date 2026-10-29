@@ -1,25 +1,54 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Subnet Calculator</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
-<link rel="stylesheet" href="tool.css">
+<!DOCTYPE html>
+<html lang="es" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Subnet Calculator | Emanuel Chacón</title>
 <meta name="description" content="Calculadora de subred IPv4. Provee información de red, broadcast, máscara y número de hosts.">
-<meta property="og:title" content="Subnet Calculator">
+<meta property="og:title" content="Subnet Calculator | Emanuel Chacón">
 <meta property="og:description" content="Calculadora de subred IPv4. Provee información de red, broadcast, máscara y número de hosts.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/subnet.html">
 <meta property="og:type" content="website">
-</head><body><canvas id="network-bg"></canvas><div class="bg-glow one"></div><div class="bg-glow two"></div><div id="loader"><div class="loader-ring"></div><span>INITIALIZING EMANUEL OS...</span></div><header class="navbar">
-  <div class="container nav-inner">
-    <a class="brand" href="../#home"><span>EMANUEL</span><b>.</b></a>
-    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
-    <nav class="nav-links">
-      <a href="../#home">Inicio</a>
-      <a href="../#about">Perfil</a>
-      <a href="../#projects">Proyectos</a>
-      <a href="../#skills">Skills</a>
-      <a href="../#lab">Lab</a>
-      <a href="../herramientas/index.html">Herramientas</a>
-      <a href="../#contact">Contacto</a>
-      <a class="nav-special" href="../enlaces/">Enlaces ↗</a>
+<meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
+<meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161617" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="https://emanuelchacon.cr/herramientas/subnet.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="tool.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="navbar">
+  <div class="container wide nav-inner">
+    <a class="brand" href="../" aria-label="Emanuel Chacón, inicio"><span class="brand-mark">EC</span>Emanuel Chacón</a>
+    <nav class="nav-links" id="site-nav" aria-label="Principal">
+      <a href="../#about">Perfil</a><a href="../#projects">Proyectos</a><a href="../#skills">Skills</a><a href="../#lab">Lab</a><a href="../herramientas/" aria-current="page">Herramientas</a><a href="../#contact">Contacto</a><a class="nav-cta" href="../enlaces/">Enlaces</a>
     </nav>
+    <button class="menu-toggle" aria-label="Menú" aria-expanded="false" aria-controls="site-nav"><span></span><span></span></button>
   </div>
 </header>
-<main class="tool-page"><a class="back" href="../">← Emanuel Chacón</a><h1>IPv4 Subnet Calculator</h1><div class="toolbox"><div class="grid2"><div><label>IP</label><input id="ip" value="192.168.1.10"></div><div><label>CIDR</label><select id="cidr"></select></div></div><button class="btn primary" style="margin-top:16px" onclick="calc()">Calcular</button><div id="out" class="result"></div></div></main><script>const c=document.getElementById('cidr');for(let i=0;i<=32;i++)c.innerHTML+=`<option ${i==24?'selected':''}>${i}</option>`;function ipn(s){return s.split('.').map(Number)}function calc(){let a=ipn(document.getElementById('ip').value),p=+c.value;if(a.length!=4||a.some(x=>x<0||x>255))return out.textContent='IP inválida';let mask=p===0?0:(0xffffffff<<(32-p))>>>0,n=((a[0]<<24)>>>0)|((a[1]<<16)>>>0)|((a[2]<<8)>>>0)|a[3],net=(n&mask)>>>0,b=p===32?net:(net+(2**(32-p)-1))>>>0;const s=x=>[(x>>>24)&255,(x>>>16)&255,(x>>>8)&255,x&255].join('.');out.textContent=`Network: ${s(net)}\\nBroadcast: ${s(b)}\\nMask: ${s(mask)}\\nPrefix: /${p}\\nHosts: ${p>=31?Math.max(0,2**(32-p)-2):2**(32-p)-2}`}</script><script src="../js/main.js"></script></body></html>
+<main id="main" class="tool-page">
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>IPv4 Subnet Calculator</span></nav>
+  <header class="tool-head"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span><div><h1 class="headline-sm">IPv4 Subnet Calculator</h1><p>Calculadora de subred IPv4. Provee información de red, broadcast, máscara y número de hosts.</p></div></header>
+<div class="toolbox"><div class="grid2"><div><label>IP</label><input id="ip" value="192.168.1.10"></div><div><label>CIDR</label><select id="cidr"></select></div></div><button class="btn primary" style="margin-top:16px" onclick="calc()">Calcular</button><div id="out" class="result"></div></div>
+</main><script>const c=document.getElementById('cidr');for(let i=0;i<=32;i++)c.innerHTML+=`<option ${i==24?'selected':''}>${i}</option>`;function ipn(s){return s.split('.').map(Number)}function calc(){let a=ipn(document.getElementById('ip').value),p=+c.value;if(a.length!=4||a.some(x=>x<0||x>255))return out.textContent='IP inválida';let mask=p===0?0:(0xffffffff<<(32-p))>>>0,n=((a[0]<<24)>>>0)|((a[1]<<16)>>>0)|((a[2]<<8)>>>0)|a[3],net=(n&mask)>>>0,b=p===32?net:(net+(2**(32-p)-1))>>>0;const s=x=>[(x>>>24)&255,(x>>>16)&255,(x>>>8)&255,x&255].join('.');out.textContent=`Network: ${s(net)}\nBroadcast: ${s(b)}\nMask: ${s(mask)}\nPrefix: /${p}\nHosts: ${p>=31?Math.max(0,2**(32-p)-2):2**(32-p)-2}`}</script>
+<footer class="site-footer">
+  <div class="container wide">
+    <div class="footer-cols">
+      <div><h4>Portfolio</h4><a href="../#about">Perfil</a><a href="../#projects">Proyectos</a><a href="../#skills">Skills</a><a href="../cv.html">Curriculum</a></div>
+      <div><h4>Proyectos</h4><a href="../proyectos/datacenter.html">Data Center</a><a href="../proyectos/vxrail.html">Dell VxRail</a><a href="../proyectos/netbackup.html">NetBackup</a><a href="../proyectos/automation.html">Automation &amp; IaC</a></div>
+      <div><h4>Herramientas</h4><a href="../herramientas/subnet.html">Subnet Calculator</a><a href="../herramientas/sla.html">SLA Calculator</a><a href="../herramientas/password.html">Password Generator</a><a href="../herramientas/">Ver todas</a></div>
+      <div><h4>Contacto</h4><a href="mailto:contacto@emanuelchacon.cr">Correo</a><a href="https://www.linkedin.com/in/emanuelchaconcr/" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/emanuelchaconcr" target="_blank" rel="noopener">GitHub</a><a href="../enlaces/">Enlaces</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>Copyright © <span data-year>2026</span> Emanuel Chacón. Todos los derechos reservados.</span>
+      <span>Infrastructure · Automation · Costa Rica</span>
+    </div>
+  </div>
+</footer>
+<script src="../js/main.js"></script>
+</body>
+</html>

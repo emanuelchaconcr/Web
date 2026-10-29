@@ -1,188 +1,202 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="no-js">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Emanuel Chacón | Infrastructure Engineer</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <meta name="description" content="Portfolio profesional de Emanuel Chacón: infraestructura TI, virtualización, storage, backup, automatización y Data Center.">
-<meta property="og:title" content="Emanuel Chacón – Infrastructure Engineer">
-<meta property="og:description" content="Portfolio profesional de Emanuel Chacón, especializado en infraestructura, virtualización, backup y automatización.">
+<meta property="og:title" content="Emanuel Chacón | Infrastructure Engineer">
+<meta property="og:description" content="Portfolio profesional de Emanuel Chacón: infraestructura TI, virtualización, storage, backup, automatización y Data Center.">
 <meta property="og:url" content="https://emanuelchacon.cr/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
-<meta name="theme-color" content="#05070a">
+<meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161617" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="https://emanuelchacon.cr/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-<link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://emanuelchacon.cr/"></head>
-<body><canvas id="network-bg"></canvas><div class="bg-glow one"></div><div class="bg-glow two"></div>
-<div id="loader"><div class="loader-ring"></div><span>INITIALIZING EMANUEL OS...</span></div>
-
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
 <header class="navbar">
-  <div class="container nav-inner">
-    <a class="brand" href="#home"><span>EMANUEL</span><b>.</b></a>
-    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
-    <nav class="nav-links">
-      <a href="#home">Inicio</a>
-      <a href="#about">Perfil</a>
-      <a href="#projects">Proyectos</a>
-      <a href="#skills">Skills</a>
-      <a href="#lab">Lab</a>
-      <a href="/herramientas/index.html">Herramientas</a>
-      <a href="#contact">Contacto</a>
-      <a class="nav-special" href="/enlaces/">Enlaces ↗</a>
+  <div class="container wide nav-inner">
+    <a class="brand" href="#top" aria-label="Emanuel Chacón, inicio"><span class="brand-mark">EC</span>Emanuel Chacón</a>
+    <nav class="nav-links" id="site-nav" aria-label="Principal">
+      <a href="#about">Perfil</a><a href="#projects">Proyectos</a><a href="#skills">Skills</a><a href="#lab">Lab</a><a href="herramientas/">Herramientas</a><a href="#contact">Contacto</a><a class="nav-cta" href="enlaces/">Enlaces</a>
     </nav>
+    <button class="menu-toggle" aria-label="Menú" aria-expanded="false" aria-controls="site-nav"><span></span><span></span></button>
   </div>
 </header>
-
-<main>
-<section id="home" class="hero section">
-  <div class="container hero-grid">
-    <div class="hero-copy reveal">
-      <div class="status-pill"><i></i> INFRASTRUCTURE ENGINEER · COSTA RICA</div>
-      <h1>Emanuel<br><span>Chacón.</span></h1>
-      <p class="lead">Infraestructura TI, virtualización, servidores, almacenamiento, backup y automatización. Construyendo plataformas confiables y operaciones más eficientes.</p>
+<main id="main">
+<section class="hero" id="top">
+  <div class="container">
+    <div class="reveal">
+      <span class="status"><i></i>Infrastructure Engineer · Costa Rica</span>
+      <h1>Emanuel <span class="gradient-text">Chacón.</span></h1>
+      <p class="subhead">Infraestructura TI, virtualización, servidores, almacenamiento, backup y automatización. Plataformas confiables. Operaciones más eficientes.</p>
       <div class="actions">
         <a class="btn primary" href="#projects">Explorar proyectos</a>
-        <a class="btn ghost" href="/cv.html">Ver CV</a>
-        <a class="btn ghost" href="/enlaces/">Mis enlaces</a>
-      </div>
-      <div class="hero-meta">
-        <span>📍 Costa Rica</span><span>⚙️ Infrastructure</span><span>🤖 Automation</span>
+        <a class="link" href="cv.html">Ver CV</a>
+        <a class="link" href="enlaces/">Mis enlaces</a>
       </div>
     </div>
-
-    <div class="terminal reveal">
-      <div class="terminal-top"><span></span><span></span><span></span><label>emanuel@infra:~</label></div>
-      <div class="terminal-body">
-        <p><b class="cyan">emanuel@infra</b>:~$ whoami</p>
-        <p class="green">Infrastructure Engineer</p>
-        <p><b class="cyan">emanuel@infra</b>:~$ cat stack.yml</p>
-        <pre>virtualization:
-  - VMware vSphere
-  - VxRail
-storage:
-  - Dell EMC
-  - HPE
-backup:
-  - Veritas NetBackup
-automation:
-  - Ansible
-  - PowerShell
-  - Bash</pre>
-        <p><b class="cyan">emanuel@infra</b>:~$ systemctl status infrastructure</p>
-        <p class="green">● infrastructure.service - ACTIVE</p>
-        <p><b class="cyan">emanuel@infra</b>:~$ <span class="cursor"></span></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section compact">
-  <div class="container stats">
-    <div class="stat reveal"><strong>7+</strong><span>Años de experiencia</span></div>
-    <div class="stat reveal"><strong>10+</strong><span>Certificaciones</span></div>
-    <div class="stat reveal"><strong>20+</strong><span>Tecnologías</span></div>
-    <div class="stat reveal"><strong>CR</strong><span>Costa Rica 🇨🇷</span></div>
-  </div>
-</section>
-
-<section id="about" class="section">
-  <div class="container">
-    <div class="section-head reveal"><small>// PROFILE</small><h2>Infraestructura con visión de operación.</h2><p>Perfil orientado a mantener plataformas críticas disponibles, documentadas, automatizadas y listas para crecer.</p></div>
-    <div class="about-grid">
-      <article class="glass reveal">
-        <span class="icon">🖥️</span><h3>Infrastructure</h3>
-        <p>Administración de servidores, virtualización, storage, redes, sistemas operativos y plataformas de Data Center.</p>
-      </article>
-      <article class="glass reveal">
-        <span class="icon">⚙️</span><h3>Automation</h3>
-        <p>Uso de Ansible, PowerShell y Bash para reducir tareas manuales y estandarizar operaciones.</p>
-      </article>
-      <article class="glass reveal">
-        <span class="icon">🛡️</span><h3>Resilience</h3>
-        <p>Backup, monitoreo, disponibilidad, troubleshooting y prácticas de continuidad operacional.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section id="projects" class="section">
-  <div class="container">
-    <div class="section-head reveal"><small>// PROJECTS</small><h2>Proyectos destacados.</h2><p>Experiencia presentada de forma anonimizada, sin información sensible ni configuraciones propietarias.</p></div>
-    <div class="project-grid">
-      <a class="project-card reveal" href="/proyectos/datacenter.html"><em>01 · DATA CENTER</em><h3>Migración Integral de Data Center</h3><p>Renovación de infraestructura, virtualización, storage, replicación y backup.</p><div class="tags"><span>VMware</span><span>vCenter</span><span>ESXi</span><span>Zerto</span></div><b>Ver caso →</b></a>
-      <a class="project-card reveal" href="/proyectos/vxrail.html"><em>02 · HYPERCONVERGENCE</em><h3>Implementación Dell VxRail</h3><p>Plataforma hiperconvergente para simplificar operación y crecimiento.</p><div class="tags"><span>VxRail</span><span>VMware</span><span>vSphere</span></div><b>Ver caso →</b></a>
-      <a class="project-card reveal" href="/proyectos/netbackup.html"><em>03 · BACKUP</em><h3>Veritas NetBackup</h3><p>Administración, políticas, SLP y protección de datos empresariales.</p><div class="tags"><span>NetBackup</span><span>SLP</span><span>Backup</span></div><b>Ver caso →</b></a>
-      <a class="project-card reveal" href="/proyectos/automation.html"><em>04 · AUTOMATION</em><h3>Automation & IaC</h3><p>Automatización de tareas de administración con Ansible, PowerShell y Bash.</p><div class="tags"><span>Ansible</span><span>Bash</span><span>PowerShell</span></div><b>Ver caso →</b></a>
-    </div>
-  </div>
-</section>
-
-<section id="skills" class="section">
-  <div class="container">
-    <div class="section-head reveal"><small>// TECHNOLOGY STACK</small><h2>Áreas de especialización.</h2></div>
-    <div class="skill-grid">
-      <div class="skill reveal"><h3>VMware</h3><p>vSphere · ESXi · vCenter · Cross vCenter vMotion · VxRail</p></div>
-      <div class="skill reveal"><h3>Storage</h3><p>Dell EMC · Dell SC/Compellent · HPE · SAN · Fibre Channel · iSCSI</p></div>
-      <div class="skill reveal"><h3>Backup</h3><p>Veritas NetBackup · políticas · SLP · appliances · protección de datos</p></div>
-      <div class="skill reveal"><h3>Linux</h3><p>Oracle Linux · RHEL · CentOS · Bash · troubleshooting · servicios</p></div>
-      <div class="skill reveal"><h3>Windows</h3><p>Windows Server · Active Directory · DNS · GPO · PowerShell · SQL Server</p></div>
-      <div class="skill reveal"><h3>Monitoring</h3><p>PRTG · Dynatrace · Aria Operations · observabilidad de infraestructura</p></div>
-      <div class="skill reveal"><h3>Automation</h3><p>Ansible IaC · PowerShell · Bash · scripts · estandarización</p></div>
-      <div class="skill reveal"><h3>Cloud / Hybrid</h3><p>Azure Arc · integración de workloads y administración híbrida</p></div>
-    </div>
-  </div>
-</section>
-
-<section id="lab" class="section">
-  <div class="container">
-    <div class="section-head reveal"><small>// EMANUEL INFRASTRUCTURE LAB</small><h2>Laboratorio técnico.</h2><p>Un espacio para experimentar, documentar y publicar herramientas útiles para infraestructura.</p></div>
-    <div class="lab-grid">
-      <div class="lab-terminal reveal">
-        <div class="terminal-top"><span></span><span></span><span></span><label>lab-status</label></div>
-        <div class="terminal-body">
-          <p><span class="cyan">$</span> ./healthcheck.sh</p>
-          <p class="green">[OK] Website</p><p class="green">[OK] Portfolio</p><p class="green">[OK] Tools</p><p class="green">[OK] Links</p>
-          <p class="muted">Last check: <span id="clock"></span></p>
+    <div class="hero-visual reveal d2">
+      <div class="window">
+        <div class="window-bar"><span></span><span></span><span></span><label>emanuel — infra — zsh</label></div>
+        <div class="window-body">
+<div><span class="p">emanuel@infra</span> ~ % whoami</div>
+<div class="ok">Infrastructure Engineer</div>
+<div><span class="p">emanuel@infra</span> ~ % cat stack.yml</div>
+<pre><span class="k">virtualization:</span>  [VMware vSphere, VxRail]
+<span class="k">storage:</span>         [Dell EMC, HPE]
+<span class="k">backup:</span>          [Veritas NetBackup]
+<span class="k">automation:</span>      [Ansible, PowerShell, Bash]</pre>
+<div><span class="p">emanuel@infra</span> ~ % systemctl status infrastructure</div>
+<div class="ok">● infrastructure.service — active (running)</div>
+<div><span class="p">emanuel@infra</span> ~ % <span class="cursor"></span></div>
         </div>
       </div>
-      <div class="architecture reveal">
-        <div class="arch-node">USER</div><div class="arch-line">↓</div><div class="arch-node">WEB / CDN</div><div class="arch-line">↓</div><div class="arch-node">APPLICATION</div><div class="arch-line">↓</div><div class="arch-node">DATA / BACKUP</div>
-      </div>
     </div>
   </div>
 </section>
 
-<section class="section">
+<section class="section tight alt">
   <div class="container">
-    <div class="section-head reveal"><small>// CERTIFICATIONS</small><h2>Certificaciones & formación.</h2></div>
-    <div class="cert-grid">
-      <div class="cert reveal"><small>VERITAS</small><h3>NetBackup Administrator</h3><p>Enterprise Backup</p></div>
-      <div class="cert reveal"><small>DELL EMC</small><h3>VxRail Appliance 4.x</h3><p>Deployment & Implementation</p></div>
-      <div class="cert reveal"><small>CISCO</small><h3>CCNA</h3><p>Enterprise Networking, Security & Automation</p></div>
-      <div class="cert reveal"><small>DELL EMC</small><h3>Storage Specialist</h3><p>Enterprise Storage</p></div>
-      <div class="cert reveal"><small>CERTIPROF</small><h3>Business Intelligence</h3><p>Foundation Professional</p></div>
+    <div class="stats">
+      <div class="stat reveal"><strong data-count="7" data-suffix="+">7+</strong><span>Años de experiencia</span></div>
+      <div class="stat reveal d1"><strong data-count="10" data-suffix="+">10+</strong><span>Certificaciones</span></div>
+      <div class="stat reveal d2"><strong data-count="20" data-suffix="+">20+</strong><span>Tecnologías</span></div>
+      <div class="stat reveal d3"><strong>CR</strong><span>Costa Rica</span></div>
     </div>
   </div>
 </section>
 
-<section id="contact" class="section">
+<section class="section" id="about">
   <div class="container">
-    <div class="contact glass reveal">
-      <small>// CONTACT</small><h2>¿Construimos algo?</h2>
-      <p>Para oportunidades profesionales, proyectos de infraestructura, automatización o colaboración.</p>
-      <div class="actions center">
-        <a class="btn primary" href="mailto:contacto@emanuelchacon.cr">contacto@emanuelchacon.cr</a>
-        <a class="btn ghost" href="https://www.linkedin.com/in/emanuelchaconcr/" target="_blank" rel="noopener">LinkedIn</a>
-        <a class="btn ghost" href="https://github.com/emanuelchaconcr" target="_blank" rel="noopener">GitHub</a>
+    <div class="section-head center reveal">
+      <span class="eyebrow">Perfil</span>
+      <h2 class="headline">Infraestructura con<br>visión de operación.</h2>
+      <p class="subhead">Plataformas críticas disponibles, documentadas, automatizadas y listas para crecer.</p>
+    </div>
+    <div class="grid-3">
+      <article class="tile reveal d0"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/></svg></span><h3>Infrastructure</h3><p>Administración de servidores, virtualización, storage, redes, sistemas operativos y plataformas de Data Center.</p></article>
+      <article class="tile reveal d1"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><h3>Automation</h3><p>Uso de Ansible, PowerShell y Bash para reducir tareas manuales y estandarizar operaciones.</p></article>
+      <article class="tile reveal d2"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Resilience</h3><p>Backup, monitoreo, disponibilidad, troubleshooting y prácticas de continuidad operacional.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="projects">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Proyectos</span>
+      <h2 class="headline">Proyectos destacados.</h2>
+      <p class="subhead">Experiencia presentada de forma anonimizada, sin información sensible ni configuraciones propietarias.</p>
+    </div>
+    <div class="grid-2">
+      <a class="tile project reveal d0" href="proyectos/datacenter.html"><span class="num">01 · Data Center</span><h3>Migración Integral de Data Center</h3><p>Renovación de infraestructura, virtualización, storage, replicación y backup.</p><div class="tags"><span>VMware</span><span>vCenter</span><span>ESXi</span><span>Zerto</span></div><span class="link">Ver caso</span><span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/></svg></span></a>
+      <a class="tile project reveal d1" href="proyectos/vxrail.html"><span class="num">02 · Hyperconvergence</span><h3>Implementación Dell VxRail</h3><p>Plataforma hiperconvergente para simplificar operación y crecimiento.</p><div class="tags"><span>VxRail</span><span>VMware</span><span>vSphere</span></div><span class="link">Ver caso</span><span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span></a>
+      <a class="tile project reveal d0" href="proyectos/netbackup.html"><span class="num">03 · Backup</span><h3>Veritas NetBackup</h3><p>Administración, políticas, SLP y protección de datos empresariales.</p><div class="tags"><span>NetBackup</span><span>SLP</span><span>Backup</span></div><span class="link">Ver caso</span><span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1.5"/><path d="M5 8v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4"/></svg></span></a>
+      <a class="tile project reveal d1" href="proyectos/automation.html"><span class="num">04 · Automation</span><h3>Automation &amp; IaC</h3><p>Automatización de tareas de administración con Ansible, PowerShell y Bash.</p><div class="tags"><span>Ansible</span><span>Bash</span><span>PowerShell</span></div><span class="link">Ver caso</span><span class="glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span></a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="skills">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">Technology stack</span>
+      <h2 class="headline">Áreas de especialización.</h2>
+    </div>
+    <div class="grid-4">
+      <div class="tile skill reveal d0"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span><h3>VMware</h3><p>vSphere · ESXi · vCenter · Cross vCenter vMotion · VxRail</p></div>
+      <div class="tile skill reveal d1"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><h3>Storage</h3><p>Dell EMC · Dell SC/Compellent · HPE · SAN · Fibre Channel · iSCSI</p></div>
+      <div class="tile skill reveal d2"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1.5"/><path d="M5 8v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4"/></svg></span><h3>Backup</h3><p>Veritas NetBackup · políticas · SLP · appliances · protección de datos</p></div>
+      <div class="tile skill reveal d3"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m6 9 3 3-3 3M12 15h5"/></svg></span><h3>Linux</h3><p>Oracle Linux · RHEL · CentOS · Bash · troubleshooting · servicios</p></div>
+      <div class="tile skill reveal d0"><span class="icon c-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></span><h3>Windows</h3><p>Windows Server · Active Directory · DNS · GPO · PowerShell · SQL Server</p></div>
+      <div class="tile skill reveal d1"><span class="icon c-pink" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span><h3>Monitoring</h3><p>PRTG · Dynatrace · Aria Operations · observabilidad de infraestructura</p></div>
+      <div class="tile skill reveal d2"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span><h3>Automation</h3><p>Ansible IaC · PowerShell · Bash · scripts · estandarización</p></div>
+      <div class="tile skill reveal d3"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 18a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 10a4 4 0 0 1-1 8z"/></svg></span><h3>Cloud / Hybrid</h3><p>Azure Arc · integración de workloads y administración híbrida</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="lab">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Emanuel Infrastructure Lab</span>
+      <h2 class="headline">Laboratorio técnico.</h2>
+      <p class="subhead">Un espacio para experimentar, documentar y publicar herramientas útiles para infraestructura.</p>
+    </div>
+    <div class="lab-grid">
+      <div class="window reveal">
+        <div class="window-bar"><span></span><span></span><span></span><label>lab-status</label></div>
+        <div class="window-body">
+<div><span class="p">$</span> ./healthcheck.sh</div>
+<div class="ok">[ OK ] Website</div>
+<div class="ok">[ OK ] Portfolio</div>
+<div class="ok">[ OK ] Tools</div>
+<div class="ok">[ OK ] Links</div>
+<div class="dim" style="margin-top:10px">Last check: <span id="clock"></span></div>
+        </div>
       </div>
+      <div class="tile flow reveal d1" aria-label="Arquitectura de referencia">
+        <div class="flow-node"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>User</div><div class="flow-line"></div>
+        <div class="flow-node"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span>Web / CDN<small>edge</small></div><div class="flow-line"></div>
+        <div class="flow-node"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/></svg></span>Application<small>compute</small></div><div class="flow-line"></div>
+        <div class="flow-node"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span>Data / Backup<span class="dot" style="margin-left:auto"></span></div>
+      </div>
+    </div>
+    <div class="actions reveal"><a class="btn primary" href="herramientas/">Abrir herramientas TI</a><a class="link" href="herramientas/subnet.html">Probar Subnet Calculator</a></div>
+  </div>
+</section>
+
+<section class="section" id="certs">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Certificaciones</span>
+      <h2 class="headline">Certificaciones &amp; formación.</h2>
+    </div>
+  </div>
+  <div class="gallery" id="cert-gallery">
+    <div class="tile cert reveal d0"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><small style="margin-top:22px">Veritas</small><h3>NetBackup Administrator</h3><p>Enterprise Backup</p></div>
+    <div class="tile cert reveal d1"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><small style="margin-top:22px">Dell EMC</small><h3>VxRail Appliance 4.x</h3><p>Deployment & Implementation</p></div>
+    <div class="tile cert reveal d2"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><small style="margin-top:22px">Cisco</small><h3>CCNA</h3><p>Enterprise Networking, Security & Automation</p></div>
+    <div class="tile cert reveal d0"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><small style="margin-top:22px">Dell EMC</small><h3>Storage Specialist</h3><p>Enterprise Storage</p></div>
+    <div class="tile cert reveal d1"><span class="icon c-pink" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><small style="margin-top:22px">CertiProf</small><h3>Business Intelligence</h3><p>Foundation Professional</p></div>
+  </div>
+  <div class="container"><div class="gallery-nav" data-gallery="cert-gallery"><button data-dir="prev" aria-label="Anterior">‹</button><button data-dir="next" aria-label="Siguiente">›</button></div></div>
+</section>
+
+<section class="section alt" id="contact">
+  <div class="container contact reveal">
+    <span class="eyebrow">Contacto</span>
+    <h2 class="headline">¿Construimos algo?</h2>
+    <p class="subhead" style="margin-inline:auto">Oportunidades profesionales, proyectos de infraestructura, automatización o colaboración.</p>
+    <div class="actions center">
+      <a class="btn primary" href="mailto:contacto@emanuelchacon.cr">contacto@emanuelchacon.cr</a>
+      <a class="link" href="https://www.linkedin.com/in/emanuelchaconcr/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="link" href="https://github.com/emanuelchaconcr" target="_blank" rel="noopener">GitHub</a>
     </div>
   </div>
 </section>
 </main>
-
-<footer><div class="container footer"><span>© <span id="year"></span> Emanuel Chacón</span><span>Infrastructure · Automation · Technology 🇨🇷</span><a href="/enlaces/">emanuelchacon.cr/enlacess</a></div></footer>
+<footer class="site-footer">
+  <div class="container wide">
+    <div class="footer-cols">
+      <div><h4>Portfolio</h4><a href="#about">Perfil</a><a href="#projects">Proyectos</a><a href="#skills">Skills</a><a href="cv.html">Curriculum</a></div>
+      <div><h4>Proyectos</h4><a href="proyectos/datacenter.html">Data Center</a><a href="proyectos/vxrail.html">Dell VxRail</a><a href="proyectos/netbackup.html">NetBackup</a><a href="proyectos/automation.html">Automation &amp; IaC</a></div>
+      <div><h4>Herramientas</h4><a href="herramientas/subnet.html">Subnet Calculator</a><a href="herramientas/sla.html">SLA Calculator</a><a href="herramientas/password.html">Password Generator</a><a href="herramientas/">Ver todas</a></div>
+      <div><h4>Contacto</h4><a href="mailto:contacto@emanuelchacon.cr">Correo</a><a href="https://www.linkedin.com/in/emanuelchaconcr/" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/emanuelchaconcr" target="_blank" rel="noopener">GitHub</a><a href="enlaces/">Enlaces</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>Copyright © <span data-year>2026</span> Emanuel Chacón. Todos los derechos reservados.</span>
+      <span>Infrastructure · Automation · Costa Rica</span>
+    </div>
+  </div>
+</footer>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,52 +1,75 @@
-const loader=document.getElementById("loader");
-window.addEventListener("load",()=>setTimeout(()=>loader.style.opacity="0",250));
-window.addEventListener("load",()=>setTimeout(()=>loader.remove(),900));
+/* emanuelchacon.cr — interactions */
+(function () {
+  const root = document.documentElement;
+  root.classList.remove("no-js");
 
-const menu=document.querySelector(".menu-toggle");
-const nav=document.querySelector(".nav-links");
-menu?.addEventListener("click",()=>nav.classList.toggle("open"));
-document.querySelectorAll(".nav-links a").forEach(a=>a.addEventListener("click",()=>nav.classList.remove("open")));
+  // Navbar: border on scroll + mobile menu
+  const navbar = document.querySelector(".navbar");
+  const toggle = document.querySelector(".menu-toggle");
+  const onScroll = () => navbar && navbar.classList.toggle("scrolled", window.scrollY > 4);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
 
-const observer=new IntersectionObserver(entries=>{
- entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("visible")});
-},{threshold:.12});
-document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+  const closeMenu = () => {
+    root.classList.remove("menu-open");
+    toggle && toggle.setAttribute("aria-expanded", "false");
+  };
+  toggle && toggle.addEventListener("click", () => {
+    const open = root.classList.toggle("menu-open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+  document.querySelectorAll(".nav-links a").forEach(a => a.addEventListener("click", closeMenu));
+  window.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
+  window.addEventListener("resize", () => { if (window.innerWidth > 834) closeMenu(); });
 
-document.getElementById("year").textContent=new Date().getFullYear();
-const clock=document.getElementById("clock");
-function updateClock(){if(clock)clock.textContent=new Date().toLocaleString("es-CR");}
-updateClock(); setInterval(updateClock,1000);
+  // Reveal on scroll
+  const items = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    items.forEach(el => io.observe(el));
+  } else {
+    items.forEach(el => el.classList.add("visible"));
+  }
 
-/* ===== Animated Network Background ===== */
-(function(){
- const c=document.getElementById("network-bg"); if(!c)return;
- const x=c.getContext("2d"); let w,h,dpr,pts=[],mouse={x:-9999,y:-9999};
- const N=window.innerWidth<700?38:78;
- function resize(){dpr=Math.min(devicePixelRatio||1,2);w=innerWidth;h=innerHeight;c.width=w*dpr;c.height=h*dpr;c.style.width=w+"px";c.style.height=h+"px";x.setTransform(dpr,0,0,dpr,0,0)}
- function init(){pts=Array.from({length:N},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.7+.5}))}
- function draw(){
-   x.clearRect(0,0,w,h);
-   for(const p of pts){
-     p.x+=p.vx;p.y+=p.vy;
-     if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;
-     const md=Math.hypot(p.x-mouse.x,p.y-mouse.y);
-     if(md<140){p.x+=(p.x-mouse.x)*.001;p.y+=(p.y-mouse.y)*.001}
-   }
-   for(let i=0;i<pts.length;i++){
-     const a=pts[i];
-     x.beginPath();x.arc(a.x,a.y,a.r,0,Math.PI*2);x.fillStyle="rgba(0,229,255,.48)";x.fill();
-     for(let j=i+1;j<pts.length;j++){
-       const b=pts[j],dist=Math.hypot(a.x-b.x,a.y-b.y);
-       if(dist<125){
-         x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);
-         x.strokeStyle=`rgba(0,180,220,${(1-dist/125)*.12})`;x.lineWidth=1;x.stroke();
-       }
-     }
-   }
-   requestAnimationFrame(draw);
- }
- addEventListener("resize",()=>{resize();init()});
- addEventListener("pointermove",e=>{mouse.x=e.clientX;mouse.y=e.clientY});
- addEventListener("pointerleave",()=>{mouse.x=-9999;mouse.y=-9999});
- resize();init();draw();
+  // Count-up stats
+  const counters = document.querySelectorAll("[data-count]");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (counters.length && "IntersectionObserver" in window && !reduce) {
+    const co = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target, end = +el.dataset.count, suffix = el.dataset.suffix || "";
+        const t0 = performance.now(), dur = 1200;
+        const step = t => {
+          const p = Math.min(1, (t - t0) / dur), eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(end * eased) + suffix;
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+        co.unobserve(el);
+      });
+    }, { threshold: 0.6 });
+    counters.forEach(el => co.observe(el));
+  }
+
+  // Gallery arrows
+  document.querySelectorAll("[data-gallery]").forEach(nav => {
+    const g = document.getElementById(nav.dataset.gallery);
+    if (!g) return;
+    nav.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+      g.scrollBy({ left: (b.dataset.dir === "prev" ? -1 : 1) * 320, behavior: "smooth" });
+    }));
+  });
+
+  // Year + clock
+  document.querySelectorAll("#year,[data-year]").forEach(el => el.textContent = new Date().getFullYear());
+  const clock = document.getElementById("clock");
+  if (clock) {
+    const tick = () => clock.textContent = new Date().toLocaleString("es-CR");
+    tick(); setInterval(tick, 1000);
+  }
 })();
