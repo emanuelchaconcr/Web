@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Storage Calculator | Emanuel Chacón</title>
-<meta name="description" content="Calculadora de capacidad de almacenamiento. Convierte tamaños en TB a estimaciones de crecimiento y consumo.">
+<meta name="description" content="Proyecta el crecimiento de capacidad, calcula espacio usable por nivel RAID, dimensiona backup y convierte TB/TiB.">
 <meta property="og:title" content="Storage Calculator | Emanuel Chacón">
-<meta property="og:description" content="Calculadora de capacidad de almacenamiento. Convierte tamaños en TB a estimaciones de crecimiento y consumo.">
+<meta property="og:description" content="Proyecta el crecimiento de capacidad, calcula espacio usable por nivel RAID, dimensiona backup y convierte TB/TiB.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/storage.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/storage.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,10 +31,125 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Storage Calculator</span></nav>
-  <header class="tool-head"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M5.5 13 8 4h8l2.5 9M6 17h.01M10 17h.01"/></svg></span><div><h1 class="headline-sm">Storage Calculator</h1><p>Calculadora de capacidad de almacenamiento. Convierte tamaños en TB a estimaciones de crecimiento y consumo.</p></div></header>
-<div class="toolbox"><div class="grid2"><div><label>Capacidad inicial (TB)</label><input id="cap" type="number" value="10"></div><div><label>Crecimiento mensual (%)</label><input id="growth" type="number" value="5"></div></div><label>Meses</label><input id="months" type="number" value="12"><button class="btn primary" style="margin-top:16px" onclick="go()">Calcular</button><div id="out" class="result"></div></div>
-</main><script>function go(){let c=+cap.value,g=+growth.value/100,m=+months.value;let end=c*Math.pow(1+g,m);out.textContent=`Capacidad inicial: ${c.toFixed(2)} TB\nCapacidad estimada: ${end.toFixed(2)} TB\nCrecimiento: ${(end-c).toFixed(2)} TB`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Utilidades</span><span>›</span><span>Storage Calculator</span></nav>
+  <header class="tool-head"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M5.5 13 8 4h8l2.5 9M6 17h.01M10 17h.01"/></svg></span><div><h1 class="headline-sm">Storage Calculator</h1><p>Proyecta el crecimiento de capacidad, calcula espacio usable por nivel RAID, dimensiona backup y convierte TB/TiB.</p><div class="badges"><span>Proyección</span><span>RAID</span><span>Backup</span><span>TB ↔ TiB</span></div></div></header>
+<div class="segmented" role="tablist"><button data-tab="growth" class="on">Proyección de crecimiento</button><button data-tab="raid">RAID / capacidad usable</button><button data-tab="backup">Capacidad de backup</button><button data-tab="units">Conversor TB / TiB</button></div>
+<div class="toolbox" data-panel="growth">
+  <div class="grid3">
+    <div><label for="gcap">Capacidad total (TB)</label><input id="gcap" type="number" value="50" step="0.1"></div>
+    <div><label for="gused">Usado hoy (TB)</label><input id="gused" type="number" value="31" step="0.1"></div>
+    <div><label for="gmode">Tipo de crecimiento</label><select id="gmode"><option value="pct">% mensual (compuesto)</option><option value="abs">TB por mes (lineal)</option></select></div>
+    <div><label for="grate">Crecimiento</label><input id="grate" type="number" value="3" step="0.1"></div>
+    <div><label for="gthr">Umbral de alerta (%)</label><input id="gthr" type="number" value="80"></div>
+    <div><label for="gmon">Meses a proyectar</label><input id="gmon" type="number" value="24"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="ggo">Proyectar</button></div>
+</div>
+<div class="toolbox" data-panel="raid" hidden>
+  <div class="grid3">
+    <div><label for="rn">Cantidad de discos</label><input id="rn" type="number" value="12" min="1"></div>
+    <div><label for="rs">Tamaño por disco (TB)</label><input id="rs" type="number" value="3.84" step="0.01"></div>
+    <div><label for="rl">Nivel RAID</label><select id="rl"><option value="0">RAID 0</option><option value="1">RAID 1</option><option value="5">RAID 5</option><option value="6" selected>RAID 6</option><option value="10">RAID 10</option><option value="50">RAID 50</option><option value="60">RAID 60</option></select></div>
+    <div><label for="rsp">Hot spares</label><input id="rsp" type="number" value="1" min="0"></div>
+    <div><label for="rg">Grupos (RAID 50/60)</label><input id="rg" type="number" value="2" min="2"></div>
+    <div><label for="rfree">Reserva de espacio libre (%)</label><input id="rfree" type="number" value="20"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="rgo">Calcular</button></div>
+</div>
+<div class="toolbox" data-panel="backup" hidden>
+  <div class="grid3">
+    <div><label for="bsrc">Datos a proteger (TB)</label><input id="bsrc" type="number" value="20" step="0.1"></div>
+    <div><label for="bchg">Cambio diario (%)</label><input id="bchg" type="number" value="3" step="0.1"></div>
+    <div><label for="bgrow">Crecimiento anual (%)</label><input id="bgrow" type="number" value="15"></div>
+    <div><label for="bd">Retención diarias (días)</label><input id="bd" type="number" value="30"></div>
+    <div><label for="bw">Semanales (full) retenidas</label><input id="bw" type="number" value="8"></div>
+    <div><label for="bm">Mensuales retenidas</label><input id="bm" type="number" value="12"></div>
+    <div><label for="bdd">Reducción dedupe + compresión (x:1)</label><input id="bdd" type="number" value="4" step="0.5"></div>
+    <div><label for="bwin">Ventana de backup (horas)</label><input id="bwin" type="number" value="8"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="bgo">Calcular</button></div>
+</div>
+<div class="toolbox" data-panel="units" hidden>
+  <div class="grid3">
+    <div><label for="uval">Valor</label><input id="uval" type="number" value="10" step="any"></div>
+    <div><label for="uunit">Unidad</label><select id="uunit"><option>GB</option><option selected>TB</option><option>PB</option><option>GiB</option><option>TiB</option><option>PiB</option></select></div>
+  </div>
+  <p class="hint">Los fabricantes de discos usan unidades decimales (1 TB = 10¹² bytes); sistemas operativos y vSphere muestran binarias (1 TiB = 2⁴⁰ bytes). Por eso un disco de 1 TB se ve como ~931 GB.</p>
+</div>
+<div id="out"></div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const $ = id => document.getElementById(id), n = id => parseFloat($(id).value);
+T.tabs(document.querySelector(".segmented"), id => ({ growth, raid, backup, units })[id]());
+const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+const label = k => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + k); return MES[d.getMonth()] + " " + d.getFullYear(); };
+const bar = (pct, thr) => `<div class="meter"><span style="width:${Math.min(100, pct)}%;background:${pct >= 95 ? "#ff3b30" : pct >= thr ? "#ff9f0a" : "#30d158"}"></span></div>`;
+
+function growth() {
+  const cap = n("gcap"), used = n("gused"), rate = n("grate"), thr = n("gthr"), mon = Math.min(120, Math.max(1, Math.round(n("gmon")))), pct = $("gmode").value === "pct";
+  if (!(cap > 0) || !(used >= 0) || used > cap) return T.show("out", T.alert("err", "Revisa capacidad y uso (el uso no puede superar la capacidad)."));
+  const at = k => pct ? used * Math.pow(1 + rate / 100, k) : used + rate * k;
+  let hitThr = null, hitFull = null; const rows = [];
+  for (let k = 0; k <= mon; k++) {
+    const u = at(k), p = u / cap * 100;
+    if (hitThr === null && p >= thr) hitThr = k;
+    if (hitFull === null && p >= 100) hitFull = k;
+    rows.push({ _cls: p >= 100 ? "crit" : p >= thr ? "warn" : "", cells: [k === 0 ? "Hoy" : label(k), T.num(u, 2) + " TB", T.num(Math.max(0, cap - u), 2) + " TB", T.num(p, 1) + " %"] });
+  }
+  const findMonth = target => { if (rate <= 0) return null; const k = pct ? Math.log(target / used) / Math.log(1 + rate / 100) : (target - used) / rate; return k < 0 ? 0 : k; };
+  const kThr = findMonth(cap * thr / 100), kFull = findMonth(cap);
+  const when = k => k == null || !isFinite(k) ? "No se alcanza" : k === 0 ? "Ya alcanzado" : `${label(Math.floor(k))} (~${T.num(k, 1)} meses)`;
+  const need = at(36) / (thr / 100) - cap;
+  T.show("out", T.card("Proyección de capacidad",
+    `<div class="big-stats"><div class="big-stat"><small>Uso actual</small><b>${T.num(used / cap * 100, 1)} %</b>${bar(used / cap * 100, thr)}</div><div class="big-stat"><small>Llega al ${thr} %</small><b style="font-size:18px">${when(kThr)}</b></div><div class="big-stat"><small>Se llena (100 %)</small><b style="font-size:18px">${when(kFull)}</b></div></div>` +
+    (need > 0 ? T.alert("info", `Para mantenerse bajo ${thr} % durante los próximos 36 meses se necesitan <b>${T.num(need, 1)} TB</b> adicionales (total ${T.num(cap + need, 1)} TB).`) : T.alert("ok", `La capacidad actual alcanza para 36 meses manteniéndose bajo ${thr} %.`)) +
+    `<h3>Detalle mensual</h3>` + T.table(["Mes", "Usado", "Libre", "Uso"], rows)));
+}
+function raid() {
+  const N = Math.round(n("rn")), S = n("rs"), L = +$("rl").value, sp = Math.max(0, Math.round(n("rsp"))), G = Math.max(2, Math.round(n("rg"))), free = n("rfree");
+  const d = N - sp; let data, tol, min, note = "";
+  const req = { 0: 1, 1: 2, 5: 3, 6: 4, 10: 4, 50: 6, 60: 8 }[L];
+  if (d < req) return T.show("out", T.alert("err", `RAID ${L} requiere al menos ${req} discos de datos (sin contar spares).`));
+  switch (L) {
+    case 0: data = d; tol = "0 discos"; note = "Sin protección: la falla de un disco pierde todo el arreglo."; break;
+    case 1: if (d !== 2) note = "RAID 1 clásico usa 2 discos; con más se asume espejo (equivalente a RAID 10)."; data = d / 2; tol = d === 2 ? "1 disco" : "1 por espejo"; break;
+    case 5: data = d - 1; tol = "1 disco"; note = d * S > 8 ? "Con discos grandes, la reconstrucción de RAID 5 tarda mucho y aumenta el riesgo de una segunda falla. Considera RAID 6." : ""; break;
+    case 6: data = d - 2; tol = "2 discos"; break;
+    case 10: if (d % 2) return T.show("out", T.alert("err", "RAID 10 requiere un número par de discos.")); data = d / 2; tol = "1 por espejo (hasta " + d / 2 + " en el mejor caso)"; break;
+    case 50: case 60: { if (d % G) return T.show("out", T.alert("err", `Los ${d} discos deben repartirse en partes iguales entre ${G} grupos.`)); const per = d / G, par = L === 50 ? 1 : 2; if (per < par + 2) return T.show("out", T.alert("err", "Muy pocos discos por grupo.")); data = d - G * par; tol = `${par} por grupo`; break; }
+  }
+  const raw = N * S, usable = data * S, tib = usable * 1e12 / 2 ** 40, eff = usable / raw * 100, wp = { 0: 1, 1: 2, 5: 4, 6: 6, 10: 2, 50: 4, 60: 6 }[L];
+  T.show("out", T.card(`RAID ${L} · ${N} × ${S} TB`,
+    `<div class="big-stats"><div class="big-stat"><small>Capacidad usable</small><b>${T.num(usable, 2)} TB</b></div><div class="big-stat"><small>Visible en el SO</small><b>${T.num(tib, 2)} TiB</b></div><div class="big-stat"><small>Eficiencia</small><b>${T.num(eff, 1)} %</b></div><div class="big-stat"><small>Tolerancia a fallas</small><b style="font-size:17px">${tol}</b></div></div>` +
+    T.kv([["Capacidad bruta", T.num(raw, 2) + " TB", { mono: false }], ["Discos de datos / spares", `${d} / ${sp}`, { mono: false }], ["Penalización de escritura", wp + " operaciones de I/O por escritura", { mono: false, copy: false }], [`Recomendado a usar (−${free} %)`, T.num(usable * (1 - free / 100), 2) + " TB · " + T.num(tib * (1 - free / 100), 2) + " TiB", { mono: false, hl: true }]]) +
+    (note ? T.alert("warn", note) : "")));
+}
+function backup() {
+  const src = n("bsrc"), chg = n("bchg") / 100, g = n("bgrow") / 100, D = n("bd"), Wk = n("bw"), M = n("bm"), dd = Math.max(1, n("bdd")), win = n("bwin");
+  const full = src, incr = src * chg;
+  const logical = full * (Wk + M) + incr * D;
+  const phys = logical / dd, phys3 = phys * Math.pow(1 + g, 3);
+  const thrFull = full * 1e6 / (win * 3600), thrInc = incr * 1e6 / (win * 3600);
+  T.show("out", T.card("Dimensionamiento de backup",
+    `<div class="big-stats"><div class="big-stat"><small>Datos lógicos retenidos</small><b>${T.num(logical, 1)} TB</b></div><div class="big-stat"><small>Almacenamiento físico hoy</small><b>${T.num(phys, 1)} TB</b></div><div class="big-stat"><small>Físico en 3 años</small><b>${T.num(phys3, 1)} TB</b></div></div>` +
+    T.kv([["Full", T.num(full, 2) + " TB", { mono: false }], ["Incremental diario", T.num(incr, 2) + " TB", { mono: false }], ["Throughput para full en " + win + " h", T.num(thrFull, 0) + " MB/s (" + T.num(thrFull * 8 / 1000, 2) + " Gbps)", { mono: false, hl: true }], ["Throughput para incremental", T.num(thrInc, 0) + " MB/s", { mono: false }], ["Copia offsite / inmutable (regla 3-2-1)", "≈ " + T.num(phys, 1) + " TB adicionales", { mono: false }]]) +
+    T.alert("info", "Estimación teórica: la reducción real depende del tipo de datos (bases de datos y video deduplican poco). Valida con los reportes de tu plataforma (NetBackup, Veeam, etc.).")));
+}
+function units() {
+  const v = n("uval"), u = $("uunit").value;
+  const F = { GB: 1e9, TB: 1e12, PB: 1e15, GiB: 2 ** 30, TiB: 2 ** 40, PiB: 2 ** 50 };
+  if (!isFinite(v)) return;
+  const b = v * F[u];
+  T.show("out", T.card(`${T.num(v, 4)} ${u}`, T.kv(Object.keys(F).map(k => [k, T.num(b / F[k], 4)]).concat([["Bytes", T.num(b, 0)]]))));
+}
+$("ggo").onclick = growth; $("rgo").onclick = raid; $("bgo").onclick = backup;
+["uval", "uunit"].forEach(id => $(id).oninput = units);
+$("rl").onchange = raid;
+growth();
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -49,6 +164,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

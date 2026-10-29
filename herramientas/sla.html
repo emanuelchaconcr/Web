@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SLA Calculator | Emanuel Chacón</title>
-<meta name="description" content="Calculadora de SLA/Downtime. Calcula tiempo permitido según objetivo de disponibilidad y periodo.">
+<meta name="description" content="Convierte SLA a tiempo de caída permitido, calcula disponibilidad real a partir de incidentes y el SLA compuesto de una arquitectura.">
 <meta property="og:title" content="SLA Calculator | Emanuel Chacón">
-<meta property="og:description" content="Calculadora de SLA/Downtime. Calcula tiempo permitido según objetivo de disponibilidad y periodo.">
+<meta property="og:description" content="Convierte SLA a tiempo de caída permitido, calcula disponibilidad real a partir de incidentes y el SLA compuesto de una arquitectura.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/sla.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/sla.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,10 +31,90 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>SLA / Downtime Calculator</span></nav>
-  <header class="tool-head"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></span><div><h1 class="headline-sm">SLA / Downtime Calculator</h1><p>Calculadora de SLA/Downtime. Calcula tiempo permitido según objetivo de disponibilidad y periodo.</p></div></header>
-<div class="toolbox"><label>SLA objetivo (%)</label><input id="sla" type="number" step="0.001" value="99.9"><label>Periodo</label><select id="period"><option value="525600">Año</option><option value="43200">Mes de 30 días</option><option value="10080">Semana</option><option value="1440">Día</option></select><button class="btn primary" style="margin-top:16px" onclick="go()">Calcular</button><div id="out" class="result"></div></div>
-</main><script>function go(){let s=+sla.value,p=+period.value,d=p*(1-s/100);out.textContent=`SLA: ${s}%\nDowntime permitido: ${d.toFixed(2)} minutos\n≈ ${(d/60).toFixed(2)} horas`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Utilidades</span><span>›</span><span>SLA Calculator</span></nav>
+  <header class="tool-head"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></span><div><h1 class="headline-sm">SLA Calculator</h1><p>Convierte SLA a tiempo de caída permitido, calcula disponibilidad real a partir de incidentes y el SLA compuesto de una arquitectura.</p><div class="badges"><span>Nueves</span><span>Presupuesto de error</span><span>MTTR / MTBF</span><span>SLA compuesto</span></div></div></header>
+<div class="segmented" role="tablist"><button data-tab="s2d" class="on">SLA → tiempo de caída</button><button data-tab="d2s">Caídas → disponibilidad</button><button data-tab="comp">SLA compuesto</button></div>
+<div class="toolbox" data-panel="s2d">
+  <label for="sla">SLA objetivo (%)</label>
+  <input id="sla" type="number" step="0.001" value="99.9">
+  <div class="chips small" id="nines" style="margin-top:12px"></div>
+</div>
+<div class="toolbox" data-panel="d2s" hidden>
+  <div class="grid3">
+    <div><label for="per">Periodo</label><select id="per"><option value="month">Mes actual</option><option value="30">30 días</option><option value="90">Trimestre (90 días)</option><option value="365">Año (365 días)</option><option value="custom">Personalizado (días)</option></select></div>
+    <div><label for="days">Días (si es personalizado)</label><input id="days" type="number" value="30"></div>
+    <div><label for="target">SLA comprometido (%)</label><input id="target" type="number" step="0.01" value="99.9"></div>
+  </div>
+  <label for="inc">Incidentes (minutos de caída, uno por línea; puedes agregar descripción)</label>
+  <textarea id="inc" style="min-height:110px">25 Falla de energía en rack B
+12 Reinicio no planificado del cluster
+8 Corte de enlace WAN</textarea>
+  <label class="toggle"><input type="checkbox" id="maint" checked> Excluir mantenimientos programados (líneas que contengan «mant»)</label>
+  <div class="row-actions"><button class="btn primary" id="dgo">Calcular</button></div>
+</div>
+<div class="toolbox" data-panel="comp" hidden>
+  <label for="comps">Componentes (nombre: SLA %, uno por línea)</label>
+  <textarea id="comps">Balanceador: 99.99
+Servidor web: 99.9
+Base de datos: 99.95
+Almacenamiento: 99.999</textarea>
+  <div class="grid2">
+    <div><label for="arch">Arquitectura</label><select id="arch"><option value="series">En serie (todos son necesarios)</option><option value="parallel">En paralelo (redundantes, basta uno)</option></select></div>
+    <div><label for="red">Réplicas por componente (paralelo)</label><input id="red" type="number" value="2" min="1"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="cgo">Calcular</button></div>
+</div>
+<div id="out"></div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const $ = id => document.getElementById(id);
+T.tabs(document.querySelector(".segmented"), id => ({ s2d, d2s, comp })[id]());
+const fmt = min => { if (min < 1) return T.num(min * 60, 1) + " s"; const d = Math.floor(min / 1440), h = Math.floor(min % 1440 / 60), m = Math.round(min % 60); return [d ? d + " d" : "", h ? h + " h" : "", m || (!d && !h) ? m + " min" : ""].filter(Boolean).join(" "); };
+const PER = [["Día", 1440], ["Semana", 10080], ["Mes (30 días)", 43200], ["Trimestre (91,25 días)", 131400], ["Año (365 días)", 525600]];
+$("nines").innerHTML = ["99", "99.5", "99.9", "99.95", "99.99", "99.999"].map(v => `<button type="button" class="chip">${v} %</button>`).join("");
+$("nines").onclick = e => { const b = e.target.closest(".chip"); if (b) { $("sla").value = parseFloat(b.textContent); s2d(); } };
+function s2d() {
+  const s = parseFloat($("sla").value);
+  if (!(s > 0 && s <= 100)) return T.show("out", T.alert("err", "El SLA debe estar entre 0 y 100."));
+  const down = 1 - s / 100;
+  T.$$(".chip", $("nines")).forEach(b => b.classList.toggle("on", parseFloat(b.textContent) === s));
+  T.show("out", T.card(`Disponibilidad ${s} %`,
+    `<div class="big-stats"><div class="big-stat"><small>Caída máxima al mes</small><b>${fmt(43200 * down)}</b></div><div class="big-stat"><small>Caída máxima al año</small><b>${fmt(525600 * down)}</b></div><div class="big-stat"><small>Nueves</small><b>${(-Math.log10(down)).toFixed(1)}</b></div></div>` +
+    T.table(["Periodo", "Caída permitida", "Minutos"], PER.map(([l, m]) => [l, fmt(m * down), T.num(m * down, 2)])) +
+    `<h3>Referencia</h3>` + T.table(["SLA", "Caída / año", "Caída / mes"], [99, 99.5, 99.9, 99.95, 99.99, 99.999].map(v => ({ _cls: v === s ? "hl" : "", cells: [v + " %", fmt(525600 * (1 - v / 100)), fmt(43200 * (1 - v / 100))] })))));
+}
+function d2s() {
+  const p = $("per").value; let days;
+  if (p === "month") { const d = new Date(); days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); } else if (p === "custom") days = parseFloat($("days").value); else days = +p;
+  const tgt = parseFloat($("target").value), excl = $("maint").checked;
+  const items = $("inc").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const m = l.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/); return m ? { min: parseFloat(m[1].replace(",", ".")), d: m[2] || "—", maint: /mant/i.test(m[2]) } : null; }).filter(Boolean);
+  const total = days * 1440, counted = items.filter(i => !(excl && i.maint)), down = counted.reduce((a, i) => a + i.min, 0);
+  const avail = (1 - down / total) * 100, budget = total * (1 - tgt / 100), ok = avail >= tgt;
+  const mttr = counted.length ? down / counted.length : 0, mtbf = counted.length ? (total - down) / counted.length : total;
+  T.show("out", T.card(`Disponibilidad en ${days} días`,
+    `<div class="big-stats"><div class="big-stat"><small>Disponibilidad</small><b style="color:${ok ? "var(--green)" : "#ff3b30"}">${avail.toFixed(4)} %</b></div><div class="big-stat"><small>Caída contabilizada</small><b>${fmt(down)}</b></div><div class="big-stat"><small>Presupuesto de error restante</small><b>${budget - down >= 0 ? fmt(budget - down) : "−" + fmt(down - budget)}</b></div></div>` +
+    T.alert(ok ? "ok" : "err", ok ? `Cumple el SLA de ${tgt} %. Consumido ${T.num(down / budget * 100, 0)} % del presupuesto de caída (${fmt(budget)}).` : `No cumple el SLA de ${tgt} %. Se excedió el presupuesto de ${fmt(budget)} por ${fmt(down - budget)}.`) +
+    T.kv([["Incidentes contabilizados", String(counted.length), { mono: false, copy: false }], ["MTTR (tiempo medio de recuperación)", fmt(mttr), { mono: false, copy: false }], ["MTBF (tiempo medio entre fallas)", fmt(mtbf), { mono: false, copy: false }]]) +
+    `<h3>Incidentes</h3>` + T.table(["Minutos", "Descripción", "¿Cuenta?"], items.map(i => ({ _cls: excl && i.maint ? "" : "warn", cells: [String(i.min), i.d, excl && i.maint ? "No (mantenimiento)" : "Sí"] })))));
+}
+function comp() {
+  const L = $("comps").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const m = l.match(/^(.*?)[:=]?\s*(\d+(?:[.,]\d+)?)\s*%?$/); return m ? { n: m[1].trim() || "Componente", a: parseFloat(m[2].replace(",", ".")) / 100 } : null; }).filter(Boolean);
+  if (!L.length) return T.show("out", T.alert("err", "Formato: «Nombre: 99.9» en cada línea."));
+  const k = Math.max(1, Math.round(parseFloat($("red").value))), par = $("arch").value === "parallel";
+  const eff = L.map(c => ({ ...c, e: par ? 1 - Math.pow(1 - c.a, k) : c.a }));
+  const total = eff.reduce((a, c) => a * c.e, 1) * 100;
+  const weakest = eff.reduce((a, c) => c.e < a.e ? c : a);
+  T.show("out", T.card(`SLA compuesto: ${total.toFixed(4)} %`,
+    `<div class="big-stats"><div class="big-stat"><small>Disponibilidad total</small><b>${total.toFixed(4)} %</b></div><div class="big-stat"><small>Caída / año</small><b>${fmt(525600 * (1 - total / 100))}</b></div><div class="big-stat"><small>Eslabón más débil</small><b style="font-size:17px">${T.esc(weakest.n)}</b></div></div>` +
+    T.table(["Componente", "SLA individual", par ? `Con ${k} réplicas` : "Aporte"], eff.map(c => [c.n, (c.a * 100).toFixed(3) + " %", (c.e * 100).toFixed(5) + " %"])) +
+    T.alert("info", par ? "Cada componente se multiplica en paralelo: falla solo si fallan todas sus réplicas a la vez. Luego los componentes se combinan en serie." : "En serie, la disponibilidad total siempre es menor que la del componente más débil. Agregar redundancia al eslabón más débil es lo que más mejora el total.")));
+}
+$("sla").oninput = s2d; $("dgo").onclick = d2s; $("cgo").onclick = comp;
+s2d();
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -49,6 +129,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

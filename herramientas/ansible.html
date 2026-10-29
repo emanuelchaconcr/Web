@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ansible Builder | Emanuel Chacón</title>
-<meta name="description" content="Constructor de playbooks de Ansible. Genera YAML a partir de nombre, hosts y comando.">
-<meta property="og:title" content="Ansible Builder | Emanuel Chacón">
-<meta property="og:description" content="Constructor de playbooks de Ansible. Genera YAML a partir de nombre, hosts y comando.">
+<title>Ansible Playbook Builder | Emanuel Chacón</title>
+<meta name="description" content="Construye playbooks para Linux y Windows con módulos reales, plantillas listas e inventario de ejemplo.">
+<meta property="og:title" content="Ansible Playbook Builder | Emanuel Chacón">
+<meta property="og:description" content="Construye playbooks para Linux y Windows con módulos reales, plantillas listas e inventario de ejemplo.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/ansible.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/ansible.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,10 +31,122 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Ansible Playbook Builder</span></nav>
-  <header class="tool-head"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span><div><h1 class="headline-sm">Ansible Playbook Builder</h1><p>Constructor de playbooks de Ansible. Genera YAML a partir de nombre, hosts y comando.</p></div></header>
-<div class="toolbox"><div class="grid2"><div><label>Nombre</label><input id="name" value="Infrastructure Task"></div><div><label>Hosts</label><input id="hosts" value="servers"></div></div><label>Comando</label><input id="cmd" value="uptime"><button class="btn primary" style="margin-top:16px" onclick="go()">Generar YAML</button><div id="out" class="result"></div></div>
-</main><script>function go(){let esc=s=>s.replace(/'/g,"''");out.textContent=`---\n- name: ${esc(document.getElementById('name').value)}\n  hosts: ${esc(hosts.value)}\n  become: true\n  tasks:\n    - name: Run command\n      ansible.builtin.command: '${esc(cmd.value)}'\n      register: result\n\n    - name: Show result\n      ansible.builtin.debug:\n        var: result.stdout`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Utilidades</span><span>›</span><span>Ansible Playbook Builder</span></nav>
+  <header class="tool-head"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span><div><h1 class="headline-sm">Ansible Playbook Builder</h1><p>Construye playbooks para Linux y Windows con módulos reales, plantillas listas e inventario de ejemplo.</p><div class="badges"><span>Linux y Windows</span><span>Plantillas</span><span>Descargar YAML</span></div></div></header>
+<div class="toolbox">
+  <span class="field-label">Plantillas</span>
+  <div class="chips small" id="presets"></div>
+  <div class="grid3" style="margin-top:6px">
+    <div><label for="pname">Nombre del playbook</label><input id="pname" value="Mantenimiento de servidores"></div>
+    <div><label for="phosts">Hosts / grupo</label><input id="phosts" value="linux_servers"></div>
+    <div><label for="pos">Sistema destino</label><select id="pos"><option value="linux">Linux</option><option value="windows">Windows</option></select></div>
+  </div>
+  <div class="toggles" style="margin-top:12px">
+    <label class="toggle"><input type="checkbox" id="pbecome" checked> become (sudo)</label>
+    <label class="toggle"><input type="checkbox" id="pfacts" checked> gather_facts</label>
+    <label class="toggle"><input type="checkbox" id="pserial"> Ejecutar de a 1 host (serial: 1)</label>
+  </div>
+</div>
+<div class="toolbox">
+  <div class="out-head" style="margin-bottom:6px"><h2 style="font-size:19px">Tareas</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><select id="addmod" style="min-height:38px;padding:7px 36px 7px 12px;width:auto"></select><button class="btn primary small" id="add">Agregar tarea</button></div></div>
+  <div id="tasks"></div>
+</div>
+<div id="out"></div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const $ = id => document.getElementById(id);
+const MODS = {
+  linux: {
+    "ansible.builtin.package": { l: "Instalar / quitar paquete", f: [["name", "Paquete(s)", "chrony"], ["state", "Estado", "present", ["present", "latest", "absent"]]] },
+    "ansible.builtin.dnf": { l: "Actualizar todo (RHEL/Oracle)", f: [["name", "Paquetes", "*"], ["state", "Estado", "latest", ["latest"]], ["security", "Solo seguridad", "false", ["false", "true"]]] },
+    "ansible.builtin.apt": { l: "Actualizar todo (Ubuntu/Debian)", f: [["upgrade", "Tipo", "dist", ["dist", "safe", "full"]], ["update_cache", "Actualizar caché", "true", ["true", "false"]]] },
+    "ansible.builtin.service": { l: "Servicio", f: [["name", "Servicio", "chronyd"], ["state", "Estado", "started", ["started", "restarted", "stopped", "reloaded"]], ["enabled", "Habilitado al arranque", "true", ["true", "false"]]] },
+    "ansible.builtin.copy": { l: "Copiar archivo", f: [["src", "Origen (controlador)", "files/motd"], ["dest", "Destino", "/etc/motd"], ["owner", "Dueño", "root"], ["mode", "Permisos", "0644"], ["backup", "Respaldo", "true", ["true", "false"]]] },
+    "ansible.builtin.template": { l: "Plantilla Jinja2", f: [["src", "Plantilla", "templates/chrony.conf.j2"], ["dest", "Destino", "/etc/chrony.conf"], ["mode", "Permisos", "0644"]] },
+    "ansible.builtin.lineinfile": { l: "Editar línea en archivo", f: [["path", "Archivo", "/etc/ssh/sshd_config"], ["regexp", "Regex", "^#?PermitRootLogin"], ["line", "Línea", "PermitRootLogin no"], ["backup", "Respaldo", "true", ["true", "false"]]] },
+    "ansible.builtin.file": { l: "Archivo / directorio", f: [["path", "Ruta", "/opt/app"], ["state", "Estado", "directory", ["directory", "file", "touch", "absent", "link"]], ["mode", "Permisos", "0755"]] },
+    "ansible.builtin.user": { l: "Usuario", f: [["name", "Usuario", "operador"], ["groups", "Grupos", "wheel"], ["append", "Agregar a grupos", "true", ["true", "false"]], ["shell", "Shell", "/bin/bash"], ["state", "Estado", "present", ["present", "absent"]]] },
+    "ansible.posix.authorized_key": { l: "Llave SSH", f: [["user", "Usuario", "operador"], ["key", "Llave pública", "ssh-ed25519 AAAA... admin@empresa"], ["state", "Estado", "present", ["present", "absent"]]] },
+    "ansible.posix.firewalld": { l: "Firewall (firewalld)", f: [["port", "Puerto/protocolo", "443/tcp"], ["permanent", "Permanente", "true", ["true", "false"]], ["immediate", "Inmediato", "true", ["true", "false"]], ["state", "Estado", "enabled", ["enabled", "disabled"]]] },
+    "ansible.builtin.command": { l: "Comando", f: [["cmd", "Comando", "uptime"]], reg: true },
+    "ansible.builtin.shell": { l: "Shell (pipes y redirecciones)", f: [["cmd", "Comando", "df -h | grep -v tmpfs"]], reg: true },
+    "ansible.builtin.reboot": { l: "Reiniciar", f: [["reboot_timeout", "Timeout (s)", "600"], ["msg", "Mensaje", "Reinicio por mantenimiento"]] },
+    "ansible.builtin.debug": { l: "Mostrar variable", f: [["var", "Variable", "result.stdout_lines"]] }
+  },
+  windows: {
+    "ansible.windows.win_updates": { l: "Windows Update", f: [["category_names", "Categorías", "SecurityUpdates,CriticalUpdates"], ["reboot", "Reiniciar si hace falta", "true", ["true", "false"]], ["state", "Estado", "installed", ["installed", "searched", "downloaded"]]], reg: true },
+    "ansible.windows.win_service": { l: "Servicio", f: [["name", "Servicio", "Spooler"], ["state", "Estado", "started", ["started", "restarted", "stopped"]], ["start_mode", "Inicio", "auto", ["auto", "delayed", "manual", "disabled"]]] },
+    "ansible.windows.win_feature": { l: "Rol / característica", f: [["name", "Característica", "Web-Server"], ["state", "Estado", "present", ["present", "absent"]], ["include_management_tools", "Herramientas", "true", ["true", "false"]]] },
+    "chocolatey.chocolatey.win_chocolatey": { l: "Paquete (Chocolatey)", f: [["name", "Paquete", "7zip"], ["state", "Estado", "present", ["present", "latest", "absent"]]] },
+    "ansible.windows.win_copy": { l: "Copiar archivo", f: [["src", "Origen", "files/app.config"], ["dest", "Destino", "C:\\App\\app.config"]] },
+    "ansible.windows.win_file": { l: "Carpeta / archivo", f: [["path", "Ruta", "C:\\Temp\\Logs"], ["state", "Estado", "directory", ["directory", "absent", "touch"]]] },
+    "community.windows.win_firewall_rule": { l: "Regla de firewall", f: [["name", "Nombre", "Permitir HTTPS"], ["localport", "Puerto", "443"], ["protocol", "Protocolo", "tcp", ["tcp", "udp"]], ["direction", "Dirección", "in", ["in", "out"]], ["action", "Acción", "allow", ["allow", "block"]], ["state", "Estado", "present", ["present", "absent"]], ["enabled", "Habilitada", "true", ["true", "false"]]] },
+    "ansible.windows.win_powershell": { l: "Script PowerShell", f: [["script", "Script", "Get-Service | Where Status -eq 'Stopped' | Select -First 5"]], reg: true },
+    "ansible.windows.win_reboot": { l: "Reiniciar", f: [["reboot_timeout", "Timeout (s)", "900"]] },
+    "ansible.builtin.debug": { l: "Mostrar variable", f: [["var", "Variable", "result"]] }
+  }
+};
+const PRESETS = {
+  "Parches Linux": { os: "linux", hosts: "linux_servers", name: "Aplicar parches de seguridad", serial: true, tasks: [["ansible.builtin.dnf", { security: "true", __name: "Instalar actualizaciones de seguridad" }], ["ansible.builtin.reboot", { __name: "Reiniciar el servidor" }], ["ansible.builtin.command", { cmd: "uptime", __name: "Confirmar que el servidor volvió" }]] },
+  "Hardening SSH": { os: "linux", hosts: "all", name: "Hardening básico de SSH", tasks: [["ansible.builtin.lineinfile", { __name: "Deshabilitar login de root" }], ["ansible.builtin.lineinfile", { regexp: "^#?PasswordAuthentication", line: "PasswordAuthentication no", __name: "Deshabilitar autenticación por contraseña" }], ["ansible.builtin.service", { name: "sshd", state: "restarted", __name: "Reiniciar sshd" }]] },
+  "Configurar NTP": { os: "linux", hosts: "all", name: "Configurar chrony", tasks: [["ansible.builtin.package", { __name: "Instalar chrony" }], ["ansible.builtin.template", { __name: "Desplegar chrony.conf" }], ["ansible.builtin.service", { __name: "Iniciar y habilitar chronyd" }]] },
+  "Windows Update": { os: "windows", hosts: "windows_servers", name: "Instalar actualizaciones de Windows", serial: true, tasks: [["ansible.windows.win_updates", { __name: "Instalar actualizaciones críticas y de seguridad" }], ["ansible.builtin.debug", { var: "result.installed_update_count", __name: "Cantidad de actualizaciones instaladas" }]] },
+  "Health check": { os: "linux", hosts: "all", name: "Health check de servidores", become: false, tasks: [["ansible.builtin.shell", { cmd: "df -h | grep -vE 'tmpfs|overlay'", __name: "Uso de discos" }], ["ansible.builtin.debug", { __name: "Mostrar uso de discos" }], ["ansible.builtin.command", { cmd: "uptime", __name: "Uptime y carga" }]] }
+};
+let tasks = [];
+const os = () => $("pos").value;
+const fillMods = () => { $("addmod").innerHTML = Object.entries(MODS[os()]).map(([k, v]) => `<option value="${k}">${v.l}</option>`).join(""); };
+const newTask = (mod, vals = {}) => { const m = MODS[os()][mod]; const v = {}; m.f.forEach(([k, , d]) => v[k] = vals[k] != null ? vals[k] : d); return { mod, name: vals.__name || m.l, v, reg: !!m.reg }; };
+function drawTasks() {
+  $("tasks").innerHTML = tasks.length ? tasks.map((t, i) => { const m = MODS[os()][t.mod]; return `<div class="out-card" style="margin-top:12px;padding:18px 20px;box-shadow:none" data-i="${i}">
+    <div class="out-head" style="margin-bottom:4px"><b style="font-size:15px">${i + 1}. <code style="font-family:var(--mono);font-size:13px;color:var(--muted)">${t.mod}</code></b><span style="display:flex;gap:6px"><button class="pill" data-act="up" ${i ? "" : "disabled"}>↑</button><button class="pill" data-act="down" ${i < tasks.length - 1 ? "" : "disabled"}>↓</button><button class="pill ghost" data-act="del">Quitar</button></span></div>
+    <div class="grid3"><div class="span2"><label>Nombre de la tarea</label><input data-k="__name" value="${T.esc(t.name)}"></div>${m.f.map(([k, l, , opts]) => `<div><label>${l}</label>${opts ? `<select data-k="${k}">${opts.map(o => `<option ${o === t.v[k] ? "selected" : ""}>${o}</option>`).join("")}</select>` : `<input data-k="${k}" value="${T.esc(t.v[k])}" spellcheck="false">`}</div>`).join("")}</div></div>`; }).join("")
+    : `<p class="hint">Agrega tareas desde el selector o usa una plantilla.</p>`;
+}
+const q = v => { const s = String(v); if (/^(true|false|\d+)$/.test(s)) return s; if (s === "" ) return '""'; if (/^[\w./-][\w./*-]*$/.test(s) && !/^0\d/.test(s)) return s; return "'" + s.replace(/'/g, "''") + "'"; };
+function yaml() {
+  const L = [`---`, `- name: ${q($("pname").value)}`, `  hosts: ${$("phosts").value || "all"}`];
+  if (os() === "linux") L.push(`  become: ${$("pbecome").checked}`);
+  L.push(`  gather_facts: ${$("pfacts").checked}`);
+  if ($("pserial").checked) L.push(`  serial: 1`);
+  L.push(`  tasks:`);
+  tasks.forEach(t => {
+    L.push(`    - name: ${q(t.name)}`, `      ${t.mod}:`);
+    Object.entries(t.v).forEach(([k, v]) => {
+      if (v === "" || (k === "security" && v === "false")) return;
+      if (k === "category_names") { L.push(`        ${k}:`); v.split(/\s*,\s*/).forEach(c => L.push(`          - ${c}`)); }
+      else if (k === "script") L.push(`        ${k}: |`, `          ${v}`);
+      else L.push(`        ${k}: ${q(v)}`);
+    });
+    if (t.reg) L.push(`      register: result`);
+    if (t.mod.endsWith("command") || t.mod.endsWith("shell")) L.push(`      changed_when: false`);
+  });
+  return L.join("\n");
+}
+function render() {
+  const y = yaml(), g = $("phosts").value || "all", win = os() === "windows";
+  const inv = win ? `[${g}]\nsrv-win01.empresa.local\nsrv-win02.empresa.local\n\n[${g}:vars]\nansible_connection=winrm\nansible_port=5986\nansible_winrm_transport=kerberos\nansible_winrm_server_cert_validation=ignore` : `[${g}]\nsrv-app01.empresa.local\nsrv-app02.empresa.local\n\n[${g}:vars]\nansible_user=ansible\nansible_ssh_private_key_file=~/.ssh/id_ed25519`;
+  T.show("out", T.card("playbook.yml", T.code(y, "YAML") +
+    `<div class="row-actions"><button class="pill" id="dl">Descargar playbook.yml</button></div>` +
+    T.code(inv, "inventory.ini (ejemplo)") +
+    T.code(`# 1) Validar sintaxis\nansible-playbook -i inventory.ini playbook.yml --syntax-check\n\n# 2) Simulación sin cambios (dry-run) mostrando diferencias\nansible-playbook -i inventory.ini playbook.yml --check --diff\n\n# 3) Probar contra un solo host\nansible-playbook -i inventory.ini playbook.yml --limit <host>\n\n# 4) Ejecutar${!win && $("pbecome").checked ? " (pide la contraseña sudo)" : ""}\nansible-playbook -i inventory.ini playbook.yml${!win && $("pbecome").checked ? " -K" : ""}`, "Ejecutar de forma segura") +
+    (tasks.some(t => /command|shell|powershell/.test(t.mod)) ? T.alert("info", "Prefiere módulos específicos sobre <b>command/shell</b>: son idempotentes y reportan cambios correctamente.") : "")));
+  $("dl").onclick = () => T.download("playbook.yml", y + "\n", "text/yaml");
+}
+$("tasks").addEventListener("input", e => { const c = e.target.closest("[data-i]"); if (!c || !e.target.dataset.k) return; const t = tasks[c.dataset.i]; if (e.target.dataset.k === "__name") t.name = e.target.value; else t.v[e.target.dataset.k] = e.target.value; render(); });
+$("tasks").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b) return; const i = +b.closest("[data-i]").dataset.i, a = b.dataset.act; if (a === "del") tasks.splice(i, 1); if (a === "up") [tasks[i - 1], tasks[i]] = [tasks[i], tasks[i - 1]]; if (a === "down") [tasks[i + 1], tasks[i]] = [tasks[i], tasks[i + 1]]; drawTasks(); render(); });
+$("add").onclick = () => { tasks.push(newTask($("addmod").value)); drawTasks(); render(); };
+$("pos").onchange = () => { tasks = []; fillMods(); $("phosts").value = os() === "windows" ? "windows_servers" : "linux_servers"; $("pbecome").closest("label").style.display = os() === "windows" ? "none" : ""; drawTasks(); render(); };
+["pname", "phosts", "pbecome", "pfacts", "pserial"].forEach(id => $(id).addEventListener("input", render));
+$("presets").innerHTML = Object.keys(PRESETS).map(k => `<button type="button" class="chip">${k}</button>`).join("");
+const loadPreset = k => { const p = PRESETS[k]; $("pos").value = p.os; fillMods(); $("pbecome").closest("label").style.display = p.os === "windows" ? "none" : ""; $("pname").value = p.name; $("phosts").value = p.hosts; $("pserial").checked = !!p.serial; $("pbecome").checked = p.become !== false; tasks = p.tasks.map(([m, v]) => newTask(m, v)); T.$$(".chip", $("presets")).forEach(b => b.classList.toggle("on", b.textContent === k)); drawTasks(); render(); };
+$("presets").onclick = e => { const b = e.target.closest(".chip"); if (b) loadPreset(b.textContent); };
+fillMods(); loadPreset("Parches Linux");
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -49,6 +161,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

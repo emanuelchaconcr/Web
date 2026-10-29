@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Linux Service Troubleshooter | Emanuel Chacón | Emanuel Chacón</title>
-<meta name="description" content="Herramienta de troubleshooting de servicios Linux. Provee comandos systemctl, journalctl y otros para inspeccionar el estado de un servicio.">
-<meta property="og:title" content="Linux Service Troubleshooter | Emanuel Chacón | Emanuel Chacón">
-<meta property="og:description" content="Herramienta de troubleshooting de servicios Linux. Provee comandos systemctl, journalctl y otros para inspeccionar el estado de un servicio.">
+<title>Linux Troubleshooter | Emanuel Chacón</title>
+<meta name="description" content="Checklists guiados para servicios, rendimiento, red, acceso SSH y almacenamiento, con explicación de cada paso.">
+<meta property="og:title" content="Linux Troubleshooter | Emanuel Chacón">
+<meta property="og:description" content="Checklists guiados para servicios, rendimiento, red, acceso SSH y almacenamiento, con explicación de cada paso.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/linux.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/linux.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,12 +31,152 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Linux Service Troubleshooter</span></nav>
-  <header class="tool-head"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m6 9 3 3-3 3M12 15h5"/></svg></span><div><h1 class="headline-sm">Linux Service Troubleshooter</h1><p>Herramienta de troubleshooting de servicios Linux. Provee comandos systemctl, journalctl y otros para inspeccionar el estado de un servicio.</p></div></header>
-<div class="toolbox">
-<label>Servicio</label><input id="svc" value="sshd">
-<button class="btn primary" onclick="go()">Generar checklist</button><div id="out" class="result"></div></div>
-</main><script>function go(){let s=svc.value.trim();out.textContent=`systemctl status ${s} --no-pager\nsystemctl is-enabled ${s}\nsystemctl is-active ${s}\njournalctl -u ${s} --since "1 hour ago" --no-pager\nsystemctl cat ${s}\nss -lntup\nps aux | grep ${s}`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Sistemas</span><span>›</span><span>Linux Troubleshooter</span></nav>
+  <header class="tool-head"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m6 9 3 3-3 3M12 15h5"/></svg></span><div><h1 class="headline-sm">Linux Troubleshooter</h1><p>Checklists guiados para servicios, rendimiento, red, acceso SSH y almacenamiento, con explicación de cada paso.</p><div class="badges"><span>systemd</span><span>Rendimiento</span><span>Red</span><span>SSH</span><span>LVM</span><span><span id="count"></span></span></div></div></header>
+<div id="ts"></div>
+<div class="tool-help">
+  <div><h3>Cómo usarlo</h3><p>Elige el componente y el problema. Completa los datos de tu entorno y se insertarán en los comandos. Marca cada paso al terminarlo: el progreso se guarda en este navegador.</p></div>
+  <div><h3>Documentar el caso</h3><p>Usa <b>Notas del caso</b> para registrar hallazgos y descarga el checklist en <b>.md</b> para adjuntarlo al ticket o al informe de incidente.</p></div>
+  <div><h3>Enlace directo</h3><p>La dirección de la página cambia con cada escenario, así puedes compartir el checklist exacto con tu equipo.</p></div>
+</div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const SH = "Bash";
+const DATA = [
+{ id: "service", name: "Servicios (systemd)", icon: "⚙️", where: SH, scenarios: [
+  { id: "wont-start", name: "Servicio no inicia", desc: "Un servicio systemd falla al iniciar o se reinicia en bucle.",
+    summary: "Diagnóstico de {svc}: estado, logs, configuración, puertos y permisos.",
+    steps: [
+      { t: "Ver estado del servicio", d: "Muestra si está activo, el último código de salida y las últimas líneas del log.", c: "systemctl status {svc} --no-pager -l", e: "«Active: active (running)». Si dice «failed», anota el código de salida (status=1, 203/EXEC, 217/USER…)." },
+      { t: "Logs del arranque actual", d: "journalctl muestra la salida completa del servicio y suele indicar el archivo o parámetro problemático.", c: "journalctl -u {svc} -b --no-pager -n 100\njournalctl -u {svc} --since \"30 min ago\" -p warning --no-pager", e: "Mensajes como «Permission denied», «Address already in use» o «No such file or directory»." },
+      { t: "Revisar la unidad y sus overrides", d: "Confirma qué ejecuta realmente systemd, con qué usuario y qué overrides existen.", c: "systemctl cat {svc}\nsystemctl show {svc} -p ExecStart,User,WorkingDirectory,Restart", e: "Rutas de ExecStart existentes y usuario correcto." },
+      { t: "Validar la configuración del servicio", d: "Muchos servicios traen un comando de prueba de configuración.", c: "# Ejemplos:\nsshd -t\nnginx -t\napachectl configtest\nnamed-checkconf", e: "«Syntax OK» o sin salida. Si hay error, indica archivo y línea." },
+      { t: "¿El puerto ya está en uso?", d: "Otro proceso ocupando el puerto impide el arranque.", c: "ss -lntup | grep -E \":{port}\\b\"", e: "Ningún otro proceso en el puerto {port}, o el proceso esperado." },
+      { t: "Permisos y SELinux", d: "En RHEL/Oracle Linux, SELinux bloquea accesos a rutas o puertos no estándar.", c: "getenforce\nausearch -m avc -ts recent | tail -n 20\nls -lZ <ruta de configuración o datos>", e: "Sin denegaciones AVC. Si las hay, corrige contexto (restorecon -Rv) o el puerto (semanage port -a).", w: "No desactives SELinux como solución permanente: corrige el contexto." },
+      { t: "Recargar e iniciar", d: "Si modificaste la unidad, recarga systemd antes de iniciar.", c: "systemctl daemon-reload\nsystemctl restart {svc}\nsystemctl is-active {svc}", e: "«active»." },
+      { t: "Habilitar en el arranque", d: "Asegura que el servicio sobreviva a reinicios.", c: "systemctl enable {svc}\nsystemctl is-enabled {svc}", e: "«enabled»." }
+    ]},
+  { id: "failed", name: "Unidades fallidas y arranque lento", desc: "Revisar servicios fallidos y qué retrasa el arranque del sistema.",
+    summary: "Lista unidades fallidas y analiza los tiempos de arranque.",
+    steps: [
+      { t: "Unidades fallidas", d: "Resumen de todo lo que falló desde el último arranque.", c: "systemctl --failed\nsystemctl list-units --state=failed --no-pager", e: "0 loaded units listed." },
+      { t: "Tiempo total de arranque", d: "Mide cuánto tardó el kernel y el espacio de usuario.", c: "systemd-analyze\nsystemd-analyze blame | head -n 15", e: "Servicios que tardan más de 30 s son candidatos a revisar." },
+      { t: "Cadena crítica", d: "Muestra qué dependencias retrasan el objetivo de arranque.", c: "systemd-analyze critical-chain", e: "Unidades con «+XXs» altos en la cadena." },
+      { t: "Errores del arranque actual", d: "Mensajes de prioridad error o mayor.", c: "journalctl -b -p err --no-pager | tail -n 40", e: "Sin errores de discos, montajes o red." },
+      { t: "Reiniciar contadores de fallos", d: "Limpia el estado «failed» tras corregir.", c: "systemctl reset-failed", e: "systemctl --failed queda vacío." }
+    ]}
+]},
+{ id: "system", name: "Rendimiento", icon: "📈", where: SH, scenarios: [
+  { id: "cpu", name: "CPU / carga alta", desc: "Load average alto, sistema lento o procesos al 100 %.",
+    summary: "Encuentra qué consume CPU y si la carga es por CPU o por I/O.",
+    steps: [
+      { t: "Carga y núcleos", d: "El load average debe compararse con el número de CPUs.", c: "uptime\nnproc", e: "Load (1 min) menor al número de CPUs. Si es mayor de forma sostenida, hay saturación." },
+      { t: "Procesos que más consumen", d: "Ordena por uso de CPU.", c: "ps -eo pid,user,%cpu,%mem,etime,cmd --sort=-%cpu | head -n 15\ntop -b -n 1 | head -n 25", e: "Proceso dominante y su usuario." },
+      { t: "¿CPU o espera de disco?", d: "En vmstat, «wa» alto significa que los procesos esperan I/O, no CPU.", c: "vmstat 2 5", e: "us+sy altos = CPU. wa > 10 = disco. r mayor que nproc = cola de CPU." },
+      { t: "Por núcleo", d: "Detecta un proceso monohilo saturando un solo núcleo.", c: "mpstat -P ALL 2 3   # paquete sysstat", e: "Un núcleo al 100 % y el resto libres indica cuello de botella de un solo hilo." },
+      { t: "Steal time (VMs)", d: "En máquinas virtuales, «st» alto indica que el hipervisor no entrega CPU.", c: "top -b -n 1 | grep Cpu", e: "st cercano a 0. Si es mayor de 5 %, revisa el host (CPU Ready)." },
+      { t: "Detalle del proceso", d: "Hilos, archivos abiertos y origen del proceso.", c: "top -H -p <PID>\nls -l /proc/<PID>/exe\nlsof -p <PID> | head", e: "Confirma si es una carga legítima o un proceso inesperado." }
+    ]},
+  { id: "memory", name: "Memoria / OOM", desc: "Memoria agotada, swap alto o procesos terminados por el OOM killer.",
+    summary: "Revisa uso real, swap y eventos del OOM killer.",
+    steps: [
+      { t: "Uso de memoria", d: "«available» es la memoria realmente disponible (incluye caché recuperable).", c: "free -h", e: "available mayor al 10 % del total. Uso de swap estable." },
+      { t: "Procesos que más memoria usan", d: "RSS es la memoria física usada.", c: "ps -eo pid,user,rss,%mem,cmd --sort=-rss | head -n 15", e: "Proceso con mayor RSS y si crece con el tiempo (posible fuga)." },
+      { t: "Eventos del OOM killer", d: "El kernel termina procesos cuando se queda sin memoria.", c: "journalctl -k --no-pager | grep -iE \"out of memory|oom-kill|killed process\" | tail\ndmesg -T | grep -i oom", e: "Si aparece, verás qué proceso se terminó y cuánta memoria usaba." },
+      { t: "Actividad de swap", d: "si/so distintos de cero de forma sostenida indican presión de memoria.", c: "vmstat 2 5\nswapon --show", e: "si y so en 0 casi siempre." },
+      { t: "Límites de cgroup (contenedores y servicios)", d: "Un servicio puede tener un límite de memoria propio.", c: "systemctl show {svc} -p MemoryMax,MemoryCurrent", e: "MemoryMax = infinity o un valor suficiente." }
+    ]},
+  { id: "disk", name: "Disco lleno", desc: "Sistema de archivos al 100 % o «No space left on device».",
+    summary: "Ubica qué ocupa espacio (o inodos) y libéralo de forma segura.",
+    steps: [
+      { t: "Uso por sistema de archivos", d: "Identifica el punto de montaje lleno.", c: "df -hT", e: "Montaje en 90–100 %." },
+      { t: "Inodos agotados", d: "Puede haber espacio libre pero sin inodos (muchos archivos pequeños).", c: "df -i", e: "IUse% menor a 90 %. Si está lleno, busca directorios con millones de archivos." },
+      { t: "Directorios más grandes", d: "Recorre solo el sistema de archivos afectado (-x).", c: "du -xh {path} --max-depth=2 2>/dev/null | sort -rh | head -n 20", e: "Directorios típicos: /var/log, /var/lib/docker, /tmp, /home." },
+      { t: "Archivos grandes", d: "Busca archivos de más de 500 MB.", c: "find {path} -xdev -type f -size +500M -exec ls -lh {} \\; 2>/dev/null | sort -k5 -rh | head", e: "Lista de archivos candidatos a limpiar o mover." },
+      { t: "Archivos borrados aún abiertos", d: "Si borraste un log pero el proceso lo mantiene abierto, el espacio no se libera.", c: "lsof +L1 2>/dev/null | head -n 20", e: "Si aparecen, reinicia el servicio dueño para liberar el espacio." },
+      { t: "Limpiar journal y caché de paquetes", d: "Limpieza segura de logs del sistema y paquetes descargados.", c: "journalctl --disk-usage\njournalctl --vacuum-time=14d\ndnf clean all   # RHEL / Oracle\napt clean       # Ubuntu / Debian", e: "Espacio recuperado.", w: "No borres archivos dentro de /var/lib (bases de datos, contenedores) sin conocer la aplicación." },
+      { t: "Rotación de logs", d: "Asegura que los logs no vuelvan a crecer sin control.", c: "cat /etc/logrotate.conf\nls /etc/logrotate.d/\nlogrotate -d /etc/logrotate.conf", e: "La aplicación que llenó el disco tiene su regla de rotación." }
+    ]}
+]},
+{ id: "network", name: "Red", icon: "🌐", where: SH, scenarios: [
+  { id: "connectivity", name: "Sin conectividad", desc: "El servidor no llega a otra red, a Internet o a un servicio remoto.",
+    summary: "Recorre las capas: interfaz, IP, ruta, DNS y puerto hacia {peer}.",
+    steps: [
+      { t: "Interfaces y direcciones", d: "Verifica que la interfaz esté UP y con la IP correcta.", c: "ip -br link\nip -br addr", e: "Interfaz «UP» con la IP/máscara esperada." },
+      { t: "Rutas", d: "Debe existir una ruta por defecto o una ruta específica al destino.", c: "ip route\nip route get {peer}", e: "Ruta por defecto vía el gateway correcto." },
+      { t: "Gateway y destino", d: "Prueba capa 3 hacia el gateway y luego al destino.", c: "ping -c 4 $(ip route | awk '/default/ {print $3; exit}')\nping -c 4 {peer}", e: "Respuestas sin pérdida. Si el gateway no responde, revisa VLAN/cableado." },
+      { t: "Resolución DNS", d: "Muchos «no hay red» son en realidad fallos de DNS.", c: "cat /etc/resolv.conf\nresolvectl status 2>/dev/null | head -n 20\ngetent hosts {peer}", e: "Servidores DNS correctos y el nombre resuelve." },
+      { t: "Puerto remoto", d: "Comprueba si el servicio remoto acepta conexiones.", c: "nc -vz -w 3 {peer} {port}\ncurl -v --max-time 5 telnet://{peer}:{port}", e: "«succeeded» / «Connected». «refused» = servicio no escucha. Timeout = firewall en el camino." },
+      { t: "Ruta de red", d: "Identifica el salto donde se pierde el tráfico.", c: "tracepath {peer}\nmtr -rwc 10 {peer}   # si está instalado", e: "El último salto que responde indica dónde está el bloqueo." },
+      { t: "Firewall local", d: "Revisa reglas que bloqueen la salida o la entrada.", c: "firewall-cmd --list-all   # RHEL / Oracle\nufw status verbose       # Ubuntu\nnft list ruleset | head -n 60", e: "El puerto o servicio necesario está permitido." }
+    ]},
+  { id: "listening", name: "Puertos en escucha", desc: "Verificar qué escucha el servidor y si es accesible desde fuera.",
+    summary: "Lista sockets en escucha, procesos dueños y reglas de firewall.",
+    steps: [
+      { t: "Sockets en escucha", d: "Muestra TCP/UDP con el proceso dueño.", c: "ss -lntup", e: "El servicio escucha en 0.0.0.0 o en la IP correcta (no solo en 127.0.0.1)." },
+      { t: "Conexiones establecidas a un puerto", d: "Útil para ver clientes conectados.", c: "ss -ntp state established '( sport = :{port} )'", e: "Clientes esperados." },
+      { t: "Abrir el puerto en firewalld", d: "Permite el puerto de forma permanente.", c: "firewall-cmd --permanent --add-port={port}/tcp\nfirewall-cmd --reload\nfirewall-cmd --list-ports", e: "{port}/tcp aparece en la lista." },
+      { t: "Abrir el puerto en UFW", d: "Equivalente en Ubuntu/Debian.", c: "ufw allow {port}/tcp\nufw status numbered", e: "Regla ALLOW para {port}/tcp." }
+    ]}
+]},
+{ id: "access", name: "Acceso y seguridad", icon: "🔐", where: SH, scenarios: [
+  { id: "ssh", name: "No puedo entrar por SSH", desc: "Conexión rechazada, timeout o «Permission denied».",
+    summary: "Diagnostica SSH desde el cliente y desde el servidor.",
+    steps: [
+      { t: "Prueba detallada desde el cliente", d: "El modo verbose muestra en qué fase falla (red, intercambio de claves o autenticación).", where: "Cliente", c: "ssh -vvv {user}@{peer}", e: "«Connection refused» = sshd no escucha. Timeout = red/firewall. «Permission denied» = credenciales, llaves o política." },
+      { t: "Servicio sshd en el servidor", d: "Accede por consola (iDRAC/iLO/vSphere) si SSH no funciona.", c: "systemctl status sshd --no-pager\nss -lntp | grep ssh", e: "sshd activo y escuchando en el puerto 22 (o el configurado)." },
+      { t: "Validar la configuración", d: "Un error de sintaxis impide que sshd reinicie.", c: "sshd -t\nsshd -T | grep -iE \"port|permitrootlogin|passwordauthentication|allowusers|allowgroups\"", e: "Sin errores y política acorde (por ejemplo PasswordAuthentication no, AllowGroups admins)." },
+      { t: "Logs de autenticación", d: "Indican el motivo exacto del rechazo.", c: "journalctl -u sshd --since \"1 hour ago\" --no-pager | tail -n 30\ntail -n 30 /var/log/secure      # RHEL\ntail -n 30 /var/log/auth.log    # Ubuntu", e: "Mensajes como «Invalid user», «Authentication refused: bad ownership» o «User not allowed because not listed in AllowUsers»." },
+      { t: "Permisos de llaves", d: "sshd rechaza llaves si los permisos son demasiado abiertos.", c: "ls -ld ~{user} ~{user}/.ssh\nls -l ~{user}/.ssh/authorized_keys\nchmod 700 ~{user}/.ssh && chmod 600 ~{user}/.ssh/authorized_keys", e: ".ssh con 700 y authorized_keys con 600, dueño = {user}." },
+      { t: "Cuenta bloqueada o expirada", d: "Revisa el estado de la cuenta y bloqueos por intentos fallidos.", c: "passwd -S {user}\nchage -l {user}\nfaillock --user {user}", e: "Cuenta activa (PS/P), sin expiración y sin bloqueos. Desbloquea con: faillock --user {user} --reset" },
+      { t: "fail2ban / firewall", d: "Tu IP puede estar bloqueada por intentos fallidos.", c: "fail2ban-client status sshd 2>/dev/null\nfirewall-cmd --list-all", e: "Tu IP no está en la lista de baneados." }
+    ]},
+  { id: "audit", name: "Revisión de seguridad rápida", desc: "Chequeo básico de usuarios, sudo, puertos y actualizaciones.",
+    summary: "Checklist rápido de hardening para un servidor Linux.",
+    steps: [
+      { t: "Usuarios con shell y UID 0", d: "Solo root debe tener UID 0.", c: "awk -F: '$3==0 {print $1}' /etc/passwd\nawk -F: '$7 !~ /(nologin|false)/ {print $1\": \"$7}' /etc/passwd", e: "Solo «root» con UID 0 y únicamente cuentas conocidas con shell." },
+      { t: "Privilegios sudo", d: "Revisa quién puede elevar privilegios.", c: "getent group wheel sudo\nsudo -l -U {user}\nls /etc/sudoers.d/", e: "Solo administradores autorizados." },
+      { t: "Últimos accesos", d: "Detecta accesos inesperados.", c: "last -n 20\nlastb -n 20 2>/dev/null", e: "Accesos desde IPs y horarios esperados." },
+      { t: "Servicios expuestos", d: "Todo lo que escucha en interfaces externas debe estar justificado.", c: "ss -lntup | grep -v 127.0.0.1", e: "Solo los servicios necesarios." },
+      { t: "Actualizaciones pendientes", d: "Parches de seguridad pendientes.", c: "dnf updateinfo list security   # RHEL / Oracle\napt list --upgradable           # Ubuntu", e: "Sin actualizaciones de seguridad críticas pendientes." },
+      { t: "SELinux / AppArmor", d: "La protección obligatoria de acceso debe estar activa.", c: "getenforce 2>/dev/null\naa-status 2>/dev/null | head -n 5", e: "SELinux «Enforcing» o AppArmor con perfiles cargados." }
+    ]}
+]},
+{ id: "storage", name: "Almacenamiento", icon: "💽", where: SH, scenarios: [
+  { id: "extend", name: "Ampliar disco / LVM", desc: "Ampliar un volumen después de agrandar el disco en el hipervisor.",
+    summary: "Detecta el nuevo tamaño, extiende la partición, el PV, el LV y el sistema de archivos.",
+    steps: [
+      { t: "Ver discos y volúmenes", d: "Identifica el disco, la partición y el LV a ampliar.", c: "lsblk -f\npvs && vgs && lvs", e: "Disco (ej. /dev/sda), partición (ej. sda3), VG y LV." },
+      { t: "Re-escanear el disco", d: "Detecta el nuevo tamaño sin reiniciar.", c: "echo 1 > /sys/class/block/sda/device/rescan\nlsblk /dev/sda", e: "lsblk muestra el tamaño nuevo del disco." },
+      { t: "Ampliar la partición", d: "growpart (cloud-utils-growpart) extiende la partición al final del disco.", c: "growpart /dev/sda 3", e: "«CHANGED: partition=3»." },
+      { t: "Ampliar el PV", d: "Informa a LVM del nuevo tamaño.", c: "pvresize /dev/sda3\nvgs", e: "VFree aumenta." },
+      { t: "Ampliar LV y sistema de archivos", d: "La opción -r redimensiona también el sistema de archivos (xfs o ext4).", c: "lvextend -r -l +100%FREE /dev/<vg>/<lv>", e: "df -h muestra el nuevo tamaño en el montaje.", w: "XFS solo se puede ampliar, nunca reducir. Toma snapshot o backup antes." }
+    ]},
+  { id: "mount", name: "Montaje / fstab", desc: "Un volumen no monta al arrancar o el sistema entra en modo de emergencia.",
+    summary: "Valida /etc/fstab antes de reiniciar para evitar un arranque fallido.",
+    steps: [
+      { t: "Ver UUIDs", d: "Usa UUID en fstab en lugar de /dev/sdX, que puede cambiar.", c: "blkid\nlsblk -f", e: "UUID del volumen a montar." },
+      { t: "Revisar fstab", d: "Cada línea: dispositivo, punto de montaje, tipo, opciones, dump, pass.", c: "cat /etc/fstab", e: "Sin líneas a dispositivos inexistentes. Para volúmenes opcionales usa la opción nofail." },
+      { t: "Probar el fstab sin reiniciar", d: "Monta todo lo declarado y muestra errores.", c: "systemctl daemon-reload\nmount -a\nfindmnt --verify", e: "Sin errores. Si mount -a falla, corrige antes de reiniciar.", tag: "crit" },
+      { t: "Montajes NFS/CIFS", d: "Los montajes de red necesitan _netdev para esperar a la red.", c: "findmnt -t nfs,nfs4,cifs\nshowmount -e <servidor-nfs>", e: "Opciones _netdev y nofail en recursos de red." }
+    ]}
+]}
+];
+T.troubleshooter(document.getElementById("ts"), {
+  key: "linux", data: DATA,
+  fields: [
+    { id: "svc", label: "Servicio", ph: "sshd" },
+    { id: "port", label: "Puerto", ph: "22" },
+    { id: "peer", label: "Host / IP remoto", ph: "10.0.0.20" },
+    { id: "user", label: "Usuario", ph: "admin" },
+    { id: "path", label: "Ruta / montaje", ph: "/var" }
+  ]
+});
+document.getElementById("count").textContent = DATA.reduce((a, c) => a + c.scenarios.length, 0) + " escenarios · " + DATA.reduce((a, c) => a + c.scenarios.reduce((b, s) => b + s.steps.length, 0), 0) + " pasos guiados";
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -51,6 +191,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

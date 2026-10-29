@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>DNS Record Builder | Emanuel Chacón | Emanuel Chacón</title>
-<meta name="description" content="Generador de consultas DNS. Crea comandos nslookup, dig y PowerShell para resolver registros DNS.">
-<meta property="og:title" content="DNS Record Builder | Emanuel Chacón | Emanuel Chacón">
-<meta property="og:description" content="Generador de consultas DNS. Crea comandos nslookup, dig y PowerShell para resolver registros DNS.">
+<title>DNS Toolkit | Emanuel Chacón</title>
+<meta name="description" content="Consulta DNS pública en vivo, genera comandos de diagnóstico, crea registros para BIND y Windows DNS y valida SPF/DMARC.">
+<meta property="og:title" content="DNS Toolkit | Emanuel Chacón">
+<meta property="og:description" content="Consulta DNS pública en vivo, genera comandos de diagnóstico, crea registros para BIND y Windows DNS y valida SPF/DMARC.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/dns.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/dns.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,13 +31,172 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>DNS Record Builder</span></nav>
-  <header class="tool-head"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></span><div><h1 class="headline-sm">DNS Record Builder</h1><p>Generador de consultas DNS. Crea comandos nslookup, dig y PowerShell para resolver registros DNS.</p></div></header>
-<div class="toolbox">
-<label>Dominio</label><input id="domain" value="example.com">
-<label>Tipo</label><select id="type"><option>A</option><option>AAAA</option><option>CNAME</option><option>MX</option><option>TXT</option></select>
-<button class="btn primary" onclick="go()">Generar comandos</button><div id="out" class="result"></div></div>
-</main><script>function go(){let d=domain.value.trim(),t=type.value;out.textContent=`Windows / nslookup:\nnslookup -type=${t} ${d}\n\nLinux / dig:\ndig ${d} ${t}\n\nPowerShell:\nResolve-DnsName ${d} -Type ${t}` }</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Red</span><span>›</span><span>DNS Toolkit</span></nav>
+  <header class="tool-head"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></span><div><h1 class="headline-sm">DNS Toolkit</h1><p>Consulta DNS pública en vivo, genera comandos de diagnóstico, crea registros para BIND y Windows DNS y valida SPF/DMARC.</p><div class="badges"><span>Consulta en vivo</span><span>Registros</span><span>SPF / DMARC</span><span>Checklist</span></div></div></header>
+<div class="segmented" role="tablist"><button data-tab="live" class="on">Consulta en vivo</button><button data-tab="cmd">Comandos</button><button data-tab="rec">Crear registro</button><button data-tab="mail">Correo (SPF/DMARC)</button><button data-tab="ts">Troubleshooting</button></div>
+<div class="toolbox" data-panel="live">
+  <div class="grid3">
+    <div class="span2"><label for="ld">Dominio o IP</label><input id="ld" value="emanuelchacon.cr" spellcheck="false" autocomplete="off"></div>
+    <div><label for="lt">Tipo</label><select id="lt"><option>A</option><option>AAAA</option><option>CNAME</option><option>MX</option><option>TXT</option><option>NS</option><option>SOA</option><option>CAA</option><option>SRV</option><option>PTR</option><option value="ALL">Todos los comunes</option></select></div>
+  </div>
+  <p class="hint">Consulta pública mediante DNS-over-HTTPS (Google Public DNS). No ve zonas internas: para dominios <b>.local</b> usa la pestaña Comandos.</p>
+  <div class="row-actions"><button class="btn primary" id="lgo">Consultar</button></div>
+</div>
+<div class="toolbox" data-panel="cmd" hidden>
+  <div class="grid3">
+    <div><label for="cd">Dominio / host</label><input id="cd" value="empresa.local" spellcheck="false"></div>
+    <div><label for="ct">Tipo de registro</label><select id="ct"><option>A</option><option>AAAA</option><option>CNAME</option><option>MX</option><option>TXT</option><option>NS</option><option>SOA</option><option>SRV</option><option>PTR</option><option>CAA</option><option>ANY</option></select></div>
+    <div><label for="cs">Servidor DNS (opcional)</label><input id="cs" placeholder="10.0.0.10" spellcheck="false"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="cgo">Generar comandos</button></div>
+</div>
+<div class="toolbox" data-panel="rec" hidden>
+  <div class="grid3">
+    <div><label for="rt">Tipo</label><select id="rt"><option>A</option><option>AAAA</option><option>CNAME</option><option>MX</option><option>TXT</option><option>SRV</option><option>PTR</option><option>CAA</option></select></div>
+    <div><label for="rz">Zona</label><input id="rz" value="empresa.local" spellcheck="false"></div>
+    <div><label for="rn">Nombre</label><input id="rn" value="app01" spellcheck="false"><p class="hint">Usa <b>@</b> para la raíz de la zona.</p></div>
+    <div class="span2"><label for="rv" id="rvl">Valor</label><input id="rv" value="10.0.10.25" spellcheck="false"></div>
+    <div><label for="rttl">TTL (segundos)</label><input id="rttl" type="number" value="3600"></div>
+    <div id="rextra" class="span2 grid3" style="grid-column:1/-1"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="rgo">Generar registro</button></div>
+</div>
+<div class="toolbox" data-panel="mail" hidden>
+  <div class="grid2">
+    <div><label for="md">Dominio</label><input id="md" value="empresa.com" spellcheck="false"></div>
+    <div><label for="mprov">Proveedor de correo</label><select id="mprov"><option value="m365">Microsoft 365</option><option value="google">Google Workspace</option><option value="none">Otro / servidor propio</option></select></div>
+    <div><label for="mips">IPs adicionales que envían correo</label><input id="mips" placeholder="203.0.113.10, 198.51.100.0/24" spellcheck="false"></div>
+    <div><label for="mpol">Política DMARC</label><select id="mpol"><option value="none">none (solo monitorear)</option><option value="quarantine">quarantine (spam)</option><option value="reject">reject (rechazar)</option></select></div>
+    <div class="span2"><label for="mrua">Correo para reportes DMARC</label><input id="mrua" value="dmarc@empresa.com" spellcheck="false"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="mgo">Generar registros</button><button class="btn ghost" id="mchk">Verificar en vivo</button></div>
+</div>
+<div id="out"></div>
+<div id="tsbox" class="checklist" data-panel="ts" hidden></div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const out = id => document.getElementById(id);
+T.tabs(document.querySelector(".segmented"), id => { out("out").innerHTML = ""; if (id === "ts") ts(); });
+const TYPES = { A: 1, NS: 2, CNAME: 5, SOA: 6, PTR: 12, MX: 15, TXT: 16, AAAA: 28, SRV: 33, CAA: 257 };
+const RC = { 0: "NOERROR", 1: "FORMERR", 2: "SERVFAIL", 3: "NXDOMAIN (no existe)", 5: "REFUSED" };
+const ptrName = ip => ip.split(".").reverse().join(".") + ".in-addr.arpa";
+
+async function doh(name, type) {
+  const r = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(name)}&type=${type}`, { headers: { accept: "application/dns-json" } });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+async function live() {
+  let name = T.val("ld").trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  let type = T.val("lt");
+  if (!name) return;
+  if (T.ip.parse(name) != null) { name = ptrName(name); if (type !== "ALL") type = "PTR"; }
+  const types = type === "ALL" ? ["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "CAA"] : [type];
+  T.show("out", T.card("Consultando…", `<p>${T.esc(name)}</p>`));
+  try {
+    const res = await Promise.all(types.map(t => doh(name, t).then(j => [t, j])));
+    const rows = []; let status = "";
+    res.forEach(([t, j]) => {
+      status = status || (j.Status !== 0 ? RC[j.Status] || j.Status : "");
+      (j.Answer || []).forEach(a => rows.push([Object.keys(TYPES).find(k => TYPES[k] === a.type) || a.type, a.name, String(a.TTL), a.data]));
+    });
+    T.show("out", T.card(`${T.esc(name)}`,
+      (rows.length ? T.table(["Tipo", "Nombre", "TTL", "Valor"], rows) : T.alert(status ? "err" : "warn", status ? `Respuesta: <b>${T.esc(status)}</b>` : "Sin registros de ese tipo.")) +
+      `<p class="hint" style="margin-top:12px">Resuelto con Google Public DNS (8.8.8.8) · DNSSEC validado: ${res[0][1].AD ? "sí" : "no"} · ${new Date().toLocaleTimeString("es-CR")}</p>`));
+  } catch (e) {
+    T.show("out", T.alert("err", "No se pudo consultar el DNS público desde el navegador (" + T.esc(e.message) + "). Usa la pestaña Comandos."));
+  }
+}
+function cmds() {
+  const d = T.val("cd").trim(), t = T.val("ct"), sv = T.val("cs").trim();
+  const isIp = T.ip.parse(d) != null, tt = isIp ? "PTR" : t;
+  const q = isIp ? d : d;
+  T.show("out", T.card(`${tt} · ${d}${sv ? " @ " + sv : ""}`,
+    T.code(`nslookup -type=${tt} ${q}${sv ? " " + sv : ""}\nnslookup -debug -type=${tt} ${q}${sv ? " " + sv : ""}   # detalle con TTL`, "Windows · CMD") +
+    T.code(`Resolve-DnsName ${isIp ? d : d} -Type ${tt}${sv ? ` -Server ${sv}` : ""}\nResolve-DnsName ${d} -Type ${tt}${sv ? ` -Server ${sv}` : ""} -DnsOnly -NoHostsFile   # ignora caché y archivo hosts\nGet-DnsClientCache | Where Entry -like "*${isIp ? d : d.split(".")[0]}*"\nClear-DnsClientCache`, "Windows · PowerShell") +
+    T.code(`dig ${isIp ? "-x " + d : d + " " + tt}${sv ? " @" + sv : ""} +noall +answer\ndig ${isIp ? "-x " + d : d + " " + tt}${sv ? " @" + sv : ""} +trace   # recorre la delegación desde la raíz\ndig ${isIp ? "-x " + d : d} SOA +short${sv ? " @" + sv : ""}   # serial de la zona\nhost ${isIp ? d : "-t " + tt + " " + d}${sv ? " " + sv : ""}`, "Linux / macOS") +
+    (!isIp && /\.local$|\.lan$|\.corp$|\.internal$/.test(d) ? T.code(`nslookup -type=SRV _ldap._tcp.dc._msdcs.${d}${sv ? " " + sv : ""}\nnslookup -type=SRV _kerberos._tcp.${d}${sv ? " " + sv : ""}\ndcdiag /test:dns /v /s:<DC>`, "Active Directory · registros SRV") : "")));
+}
+function recExtra() {
+  const t = T.val("rt"), x = out("rextra"), lab = out("rvl"), v = out("rv");
+  const f = (id, l, val) => `<div><label for="${id}">${l}</label><input id="${id}" value="${val}"></div>`;
+  x.innerHTML = t === "MX" ? f("rpri", "Prioridad", "10") : t === "SRV" ? f("rpri", "Prioridad", "0") + f("rw", "Peso", "100") + f("rport", "Puerto", "443") : t === "CAA" ? f("rflag", "Flag", "0") + `<div><label for="rtag">Etiqueta</label><select id="rtag"><option>issue</option><option>issuewild</option><option>iodef</option></select></div>` : "";
+  const map = { A: ["Dirección IPv4", "10.0.10.25"], AAAA: ["Dirección IPv6", "2001:db8::25"], CNAME: ["Apunta a (FQDN)", "srv-web01.empresa.local."], MX: ["Servidor de correo (FQDN)", "mail.empresa.local."], TXT: ["Texto", "v=spf1 mx -all"], SRV: ["Destino (FQDN)", "srv-app01.empresa.local."], PTR: ["Nombre del host (FQDN)", "app01.empresa.local."], CAA: ["Autoridad certificadora", "letsencrypt.org"] };
+  lab.textContent = map[t][0]; v.value = map[t][1];
+  if (t === "SRV") out("rn").value = "_https._tcp"; else if (t === "PTR") { out("rn").value = "25"; out("rz").value = "10.0.10.in-addr.arpa"; } else if (out("rn").value.startsWith("_") || /^\d+$/.test(out("rn").value)) { out("rn").value = "app01"; out("rz").value = "empresa.local"; }
+}
+out("rt").onchange = recExtra;
+function rec() {
+  const t = T.val("rt"), z = T.val("rz").trim().replace(/\.$/, ""), n = T.val("rn").trim() || "@", v = T.val("rv").trim(), ttl = +T.val("rttl") || 3600;
+  const g = id => T.val(id).trim();
+  if (t === "A" && T.ip.parse(v) == null) return T.show("out", T.alert("err", "La IPv4 no es válida."));
+  const fq = x => x.endsWith(".") ? x : x + ".";
+  let rdata = v, ps = "";
+  const zn = `-ZoneName "${z}" -Name "${n}" -TimeToLive ([TimeSpan]::FromSeconds(${ttl}))`;
+  switch (t) {
+    case "A": ps = `Add-DnsServerResourceRecordA ${zn} -IPv4Address "${v}" -CreatePtr`; break;
+    case "AAAA": ps = `Add-DnsServerResourceRecordAAAA ${zn} -IPv6Address "${v}"`; break;
+    case "CNAME": rdata = fq(v); ps = `Add-DnsServerResourceRecordCName ${zn} -HostNameAlias "${fq(v)}"`; break;
+    case "MX": rdata = `${g("rpri")} ${fq(v)}`; ps = `Add-DnsServerResourceRecordMX ${zn} -MailExchange "${fq(v)}" -Preference ${g("rpri")}`; break;
+    case "TXT": rdata = `"${v.replace(/"/g, '\\"')}"`; ps = `Add-DnsServerResourceRecord -Txt ${zn} -DescriptiveText "${v.replace(/"/g, '`"')}"`; break;
+    case "SRV": { const [svc, proto] = n.split("."); rdata = `${g("rpri")} ${g("rw")} ${g("rport")} ${fq(v)}`; ps = `Add-DnsServerResourceRecord -Srv -ZoneName "${z}" -Name "${n}" -DomainName "${fq(v)}" -Priority ${g("rpri")} -Weight ${g("rw")} -Port ${g("rport")}`; break; }
+    case "PTR": rdata = fq(v); ps = `Add-DnsServerResourceRecordPtr ${zn} -PtrDomainName "${fq(v)}"`; break;
+    case "CAA": rdata = `${g("rflag")} ${g("rtag")} "${v}"`; ps = `# Windows Server 2016+ no tiene cmdlet CAA nativo: usa el registro genérico o tu proveedor DNS público`; break;
+  }
+  const bind = `${n.padEnd(20)} ${String(ttl).padEnd(6)} IN  ${t.padEnd(6)} ${rdata}`;
+  const fqdn = n === "@" ? z : `${n}.${z}`;
+  T.show("out", T.card(`Registro ${t} · ${fqdn}`,
+    T.code(bind, "Archivo de zona (BIND)") + T.code(ps, "Windows DNS Server · PowerShell") +
+    T.code(`dnscmd <servidor-dns> /RecordAdd ${z} ${n} /${ttl} ${t} ${rdata}`, "Windows · dnscmd") +
+    T.code(`Resolve-DnsName ${t === "PTR" ? fqdn : fqdn} -Type ${t} -Server <servidor-dns>\ndig ${fqdn} ${t} +short @<servidor-dns>`, "Verificar") +
+    (t === "CNAME" ? T.alert("warn", "Un CNAME no puede coexistir con otros registros del mismo nombre ni usarse en la raíz (@) de la zona.") : "") +
+    (t === "MX" ? T.alert("info", "El destino de un MX debe ser un nombre con registro A/AAAA, nunca un CNAME ni una IP.") : "")));
+}
+function mail() {
+  const d = T.val("md").trim(), p = T.val("mprov"), ips = T.val("mips").split(/[,\s]+/).filter(Boolean), pol = T.val("mpol"), rua = T.val("mrua").trim();
+  const inc = p === "m365" ? " include:spf.protection.outlook.com" : p === "google" ? " include:_spf.google.com" : " mx";
+  const spf = `v=spf1${inc}${ips.map(i => (i.includes(":") ? " ip6:" : " ip4:") + i).join("")} ${pol === "none" ? "~all" : "-all"}`;
+  const dmarc = `v=DMARC1; p=${pol}; rua=mailto:${rua}; adkim=r; aspf=r; pct=100`;
+  const dkim = p === "m365" ? `selector1._domainkey  CNAME  selector1-${d.replace(/\./g, "-")}._domainkey.<tenant>.onmicrosoft.com.\nselector2._domainkey  CNAME  selector2-${d.replace(/\./g, "-")}._domainkey.<tenant>.onmicrosoft.com.` : p === "google" ? `google._domainkey  TXT  "v=DKIM1; k=rsa; p=<clave pública desde la consola de Google Admin>"` : `<selector>._domainkey  TXT  "v=DKIM1; k=rsa; p=<clave pública de tu servidor>"`;
+  T.show("out", T.card(`Autenticación de correo · ${d}`,
+    T.kv([["SPF (TXT en @)", spf, { hl: true }], ["DMARC (TXT en _dmarc)", dmarc, { hl: true }]]) +
+    T.code(`@       3600 IN TXT "${spf}"\n_dmarc  3600 IN TXT "${dmarc}"\n${dkim}`, "Zona DNS") +
+    (spf.split(" ").filter(x => /^(include|a|mx|exists|redirect)/.test(x)).length > 10 ? T.alert("err", "SPF supera 10 búsquedas DNS: el registro será inválido.") : "") +
+    T.alert("info", "Recomendación: empieza con <b>p=none</b>, revisa los reportes 2–4 semanas y luego pasa a <b>quarantine</b> y <b>reject</b>.")));
+}
+async function mailCheck() {
+  const d = T.val("md").trim();
+  try {
+    const [spf, dmarc, mx] = await Promise.all([doh(d, "TXT"), doh("_dmarc." + d, "TXT"), doh(d, "MX")]);
+    const txt = j => (j.Answer || []).map(a => a.data.replace(/^"|"$/g, "").replace(/" "/g, ""));
+    const s = txt(spf).filter(x => x.startsWith("v=spf1")), m = txt(dmarc).filter(x => x.startsWith("v=DMARC1"));
+    T.show("out", T.card(`Estado actual · ${d}`, T.kv([
+      ["MX", (mx.Answer || []).map(a => a.data).join(" · ") || "No configurado", { mono: true }],
+      ["SPF", s.join(" | ") || "No configurado"],
+      ["DMARC", m.join(" | ") || "No configurado"]
+    ]) + (s.length > 1 ? T.alert("err", "Hay más de un registro SPF: solo debe existir uno.") : "") + (!s.length || !m.length ? T.alert("warn", "Falta SPF o DMARC: el correo del dominio puede terminar en spam o ser suplantado.") : T.alert("ok", "SPF y DMARC publicados."))));
+  } catch (e) { T.show("out", T.alert("err", "No se pudo consultar: " + T.esc(e.message))); }
+}
+function ts() {
+  T.checklist(out("tsbox"), { key: "dns-client", title: "Un equipo no resuelve nombres", eyebrow: "Cliente Windows / Linux · 7 pasos", summary: "Aísla si el problema es del cliente, del servidor DNS o de la zona.", file: "dns-troubleshooting", steps: [
+    { t: "Confirmar qué servidor DNS usa el cliente", d: "Muchos fallos vienen de un DNS público o equivocado configurado en el equipo.", c: "Get-DnsClientServerAddress -AddressFamily IPv4\n# Linux\nresolvectl status | grep -A2 \"DNS Servers\"", where: "Cliente", e: "Solo servidores DNS internos en equipos unidos al dominio." },
+    { t: "Probar la resolución directa al servidor", d: "Consulta al servidor DNS explícito, sin caché local.", c: "Resolve-DnsName <host> -Server <dns> -DnsOnly -NoHostsFile\nnslookup <host> <dns>", where: "Cliente", e: "Si responde aquí pero no sin -Server, el problema es la configuración del cliente." },
+    { t: "Revisar el archivo hosts", d: "Una entrada antigua en hosts tiene prioridad sobre el DNS.", c: "Get-Content C:\\Windows\\System32\\drivers\\etc\\hosts | Select-String -NotMatch '^#'\n# Linux\ngrep -v '^#' /etc/hosts", where: "Cliente", e: "Sin entradas para el nombre que falla." },
+    { t: "Vaciar caché y volver a registrar", d: "Elimina respuestas negativas cacheadas y registra el equipo en DNS.", c: "ipconfig /flushdns\nipconfig /registerdns\n# Linux\nresolvectl flush-caches", where: "Cliente", e: "La siguiente consulta va al servidor." },
+    { t: "Verificar el puerto 53 hacia el servidor", d: "DNS usa UDP 53 y TCP 53 para respuestas grandes.", c: "Test-NetConnection <dns> -Port 53", where: "Cliente", e: "TcpTestSucceeded = True." },
+    { t: "Revisar el registro en el servidor", d: "Confirma que el registro existe, está actualizado y sin duplicados.", c: "Get-DnsServerResourceRecord -ZoneName <zona> -Name <host>", where: "Servidor DNS", e: "Un registro con la IP actual. Registros antiguos indican scavenging deshabilitado." },
+    { t: "Validar reenviadores y resolución externa", d: "Si fallan solo nombres de Internet, revisa los reenviadores.", c: "Get-DnsServerForwarder\nResolve-DnsName www.microsoft.com -Server <dns>", where: "Servidor DNS", e: "Los reenviadores responden y la consulta externa resuelve." }
+  ]});
+}
+out("lgo").onclick = live; out("cgo").onclick = cmds; out("rgo").onclick = rec; out("mgo").onclick = mail; out("mchk").onclick = mailCheck;
+T.onEnter(document.querySelector('[data-panel="live"]'), live);
+T.onEnter(document.querySelector('[data-panel="cmd"]'), cmds);
+recExtra();
+live();
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -52,6 +211,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

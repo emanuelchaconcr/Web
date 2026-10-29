@@ -16,7 +16,7 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -41,11 +41,11 @@
   <div class="container">
     <h2 class="headline-sm reveal" style="margin-bottom:32px">Red.</h2>
     <div class="grid-3">
-      <a class="tile tool-card reveal d0" href="subnet.html"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span><h3>Subnet Calculator</h3><p>IPv4 / CIDR</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d1" href="ip.html"><span class="icon c-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 3 8 21M16 3l-2 18"/></svg></span><h3>IP Converter</h3><p>IPv4 / decimal / binary</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d2" href="cidr-range.html"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 19 5"/></svg></span><h3>IP Range Calculator</h3><p>Network / Broadcast / Hosts</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d0" href="ports.html"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></svg></span><h3>Port Diagnostics</h3><p>Comandos TCP/UDP</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d1" href="dns.html"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></span><h3>DNS Helper</h3><p>nslookup / dig / PowerShell</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d0" href="subnet.html"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span><h3>IPv4 Subnet Calculator</h3><p>CIDR y máscara, Subnetting, VLSM</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d1" href="ip.html"><span class="icon c-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 3 8 21M16 3l-2 18"/></svg></span><h3>IP Converter</h3><p>Formatos múltiples, Análisis por lote, PTR</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d2" href="cidr-range.html"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 19 5"/></svg></span><h3>IP Range Calculator</h3><p>CIDR ↔ rango, Pertenencia, Reglas de firewall</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d0" href="ports.html"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></svg></span><h3>Port Diagnostics</h3><p>Perfiles por servicio, Firewall, Referencia de puertos</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d1" href="dns.html"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg></span><h3>DNS Toolkit</h3><p>Consulta en vivo, Registros, SPF / DMARC</p><span class="link">Abrir</span></a>
     </div>
   </div>
 </section>
@@ -53,9 +53,10 @@
   <div class="container">
     <h2 class="headline-sm reveal" style="margin-bottom:32px">Sistemas.</h2>
     <div class="grid-3">
-      <a class="tile tool-card reveal d0" href="ntp.html"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h3>NTP / Chrony</h3><p>Configuración y troubleshooting</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d1" href="linux.html"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m6 9 3 3-3 3M12 15h5"/></svg></span><h3>Linux Troubleshooter</h3><p>systemd / journalctl / sockets</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d2" href="vmware.html"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span><h3>VMware Helper</h3><p>ESXi / vCenter diagnostics</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d0" href="ntp.html"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h3>NTP / Chrony Helper</h3><p>7 plataformas, Checklist, Medir desfase</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d1" href="linux.html"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m6 9 3 3-3 3M12 15h5"/></svg></span><h3>Linux Troubleshooter</h3><p>systemd, Rendimiento, Red</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d2" href="windows.html"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></span><h3>Windows Server Helper</h3><p>PowerShell, Active Directory, RDP</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d0" href="vmware.html"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span><h3>VMware Troubleshooting</h3><p>ESXi, vCenter, VMs</p><span class="link">Abrir</span></a>
     </div>
   </div>
 </section>
@@ -63,10 +64,10 @@
   <div class="container">
     <h2 class="headline-sm reveal" style="margin-bottom:32px">Utilidades.</h2>
     <div class="grid-3">
-      <a class="tile tool-card reveal d0" href="password.html"><span class="icon c-pink" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3>Password Generator</h3><p>Generador local y seguro</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d1" href="storage.html"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M5.5 13 8 4h8l2.5 9M6 17h.01M10 17h.01"/></svg></span><h3>Storage Calculator</h3><p>Proyección de capacidad</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d2" href="sla.html"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></span><h3>SLA Calculator</h3><p>Downtime permitido</p><span class="link">Abrir</span></a>
-      <a class="tile tool-card reveal d0" href="ansible.html"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span><h3>Ansible Builder</h3><p>Generador de playbooks</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d0" href="password.html"><span class="icon c-pink" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3>Password Generator</h3><p>Criptográficamente seguro, Frases de paso, Evaluador</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d1" href="storage.html"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M5.5 13 8 4h8l2.5 9M6 17h.01M10 17h.01"/></svg></span><h3>Storage Calculator</h3><p>Proyección, RAID, Backup</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d2" href="sla.html"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></span><h3>SLA Calculator</h3><p>Nueves, Presupuesto de error, MTTR / MTBF</p><span class="link">Abrir</span></a>
+      <a class="tile tool-card reveal d0" href="ansible.html"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span><h3>Ansible Playbook Builder</h3><p>Linux y Windows, Plantillas, Descargar YAML</p><span class="link">Abrir</span></a>
     </div>
   </div>
 </section>
@@ -85,6 +86,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

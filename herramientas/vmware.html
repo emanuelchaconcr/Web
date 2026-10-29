@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>VMware Troubleshooting Helper | Emanuel Chacón | Emanuel Chacón</title>
-<meta name="description" content="Ayudante de troubleshooting VMware. Genera checklists para ESXi Host, vCenter, VM y Datastore.">
-<meta property="og:title" content="VMware Troubleshooting Helper | Emanuel Chacón | Emanuel Chacón">
-<meta property="og:description" content="Ayudante de troubleshooting VMware. Genera checklists para ESXi Host, vCenter, VM y Datastore.">
+<title>VMware Troubleshooting | Emanuel Chacón</title>
+<meta name="description" content="Guía paso a paso para ESXi, vCenter, máquinas virtuales, datastores, clúster (HA/DRS/vMotion) y vSAN, con comandos y qué revisar en cada paso.">
+<meta property="og:title" content="VMware Troubleshooting | Emanuel Chacón">
+<meta property="og:description" content="Guía paso a paso para ESXi, vCenter, máquinas virtuales, datastores, clúster (HA/DRS/vMotion) y vSAN, con comandos y qué revisar en cada paso.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/vmware.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/vmware.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,12 +31,317 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>VMware Troubleshooting Helper</span></nav>
-  <header class="tool-head"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span><div><h1 class="headline-sm">VMware Troubleshooting Helper</h1><p>Ayudante de troubleshooting VMware. Genera checklists para ESXi Host, vCenter, VM y Datastore.</p></div></header>
-<div class="toolbox">
-<label>VMware componente</label><select id="comp"><option>ESXi Host</option><option>vCenter</option><option>VM</option><option>Datastore</option></select>
-<button class="btn primary" onclick="go()">Generar checklist</button><div id="out" class="result"></div></div>
-</main><script>function go(){let c=comp.value;let m={"ESXi Host":"esxcli system version get\nesxcli hardware platform get\nesxcli network ip interface list\nesxcli storage filesystem list\nesxcli vm process list\nvmkping <target>","vCenter":"service-control --status --all\nvmware-vmon-cli -h\nCheck vpxd and vpxd-svcs logs","VM":"vim-cmd vmsvc/getallvms\nvim-cmd vmsvc/get.summary <VMID>\nvim-cmd vmsvc/power.getstate <VMID>","Datastore":"esxcli storage filesystem list\nesxcli storage core device list\nesxcli storage nmp device list"};out.textContent=m[c]}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Sistemas</span><span>›</span><span>VMware Troubleshooting</span></nav>
+  <header class="tool-head"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span><div><h1 class="headline-sm">VMware Troubleshooting</h1><p>Guía paso a paso para ESXi, vCenter, máquinas virtuales, datastores, clúster (HA/DRS/vMotion) y vSAN, con comandos y qué revisar en cada paso.</p><div class="badges"><span>ESXi</span><span>vCenter</span><span>VMs</span><span>Storage</span><span>HA / DRS</span><span>vSAN</span><span><span id="count"></span></span></div></div></header>
+<div id="ts"></div>
+<div class="tool-help">
+  <div><h3>Cómo usarlo</h3><p>Elige el componente y el problema. Completa los datos de tu entorno y se insertarán en los comandos. Marca cada paso al terminarlo: el progreso se guarda en este navegador.</p></div>
+  <div><h3>Documentar el caso</h3><p>Usa <b>Notas del caso</b> para registrar hallazgos y descarga el checklist en <b>.md</b> para adjuntarlo al ticket o al informe de incidente.</p></div>
+  <div><h3>Enlace directo</h3><p>La dirección de la página cambia con cada escenario, así puedes compartir el checklist exacto con tu equipo.</p></div>
+</div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const ESXI = "ESXi Shell / SSH", VCSA = "VCSA · shell bash", PCLI = "PowerCLI", GUI = "vSphere Client";
+const DATA = [
+{ id: "esxi", name: "Host ESXi", icon: "🖥️", where: ESXI, scenarios: [
+  { id: "health", name: "Health check general", desc: "Revisión rápida del estado de un host antes de un cambio o como diagnóstico inicial.",
+    summary: "Valida versión, uptime, hardware, red, almacenamiento, hora y alertas recientes de {host}.",
+    steps: [
+      { t: "Conectarse al host y confirmar versión y build", d: "Habilita SSH temporalmente (Host > Configurar > Servicios > SSH) y conéctate. Conocer el build exacto permite cruzarlo con la matriz de compatibilidad y las notas de versión.", c: "ssh root@{host}\nvmware -vl\nesxcli system version get", e: "Versión y build iguales a los demás hosts del clúster. Builds distintos explican diferencias de comportamiento y fallos de vMotion." },
+      { t: "Revisar uptime y modo mantenimiento", d: "Un reinicio inesperado reciente o un host olvidado en mantenimiento son causas frecuentes de problemas.", c: "uptime\nesxcli system maintenanceMode get", e: "Uptime coherente con el último mantenimiento planificado y modo mantenimiento en «Disabled»." },
+      { t: "Hardware y alarmas de sensores", d: "Identifica modelo, CPU y memoria. Las alarmas de hardware se ven mejor en la consola fuera de banda (iDRAC / iLO / XCC).", c: "esxcli hardware platform get\nesxcli hardware cpu global get\nesxcli hardware memory get", e: "Memoria total igual a la instalada físicamente. Si falta memoria, revisa DIMMs en el iDRAC/iLO." , w: "Si ves errores de memoria corregibles (ECC) repetidos, abre caso con el fabricante antes de que provoquen un PSOD." },
+      { t: "Estado de NICs físicas", d: "Lista las vmnic con su velocidad, dúplex y estado del enlace.", c: "esxcli network nic list", e: "Todas las vmnic esperadas en «Up», a la misma velocidad (10000/25000 Mbps) y Full Duplex." },
+      { t: "Interfaces VMkernel y conectividad a vCenter", d: "Verifica las IP de vmk y que el host llega a vCenter por la red de gestión.", c: "esxcli network ip interface ipv4 get\nvmkping -I vmk0 {vcenter}", e: "vmk0 con la IP de gestión correcta y respuestas de ping sin pérdida." },
+      { t: "Almacenamiento montado y espacio", d: "Comprueba que todos los datastores estén montados y con espacio libre suficiente.", c: "esxcli storage filesystem list", e: "Todos los volúmenes «Mounted: true». Más de 20 % libre en cada datastore." },
+      { t: "Ramdisks y particiones del sistema", d: "Un ramdisk lleno (/tmp, /var/log) puede impedir que arranquen servicios o que se escriban logs.", c: "vdf -h\nesxcli system visorfs ramdisk list", e: "Ningún ramdisk al 100 %. Si /tmp está lleno, busca archivos grandes con: find /tmp -size +10M" },
+      { t: "Sincronización de hora", d: "Una hora desfasada rompe la autenticación, HA, los certificados y la correlación de logs.", c: "esxcli system time get\nesxcli system ntp get", e: "Hora UTC correcta (±1 s) y servidores NTP configurados y habilitados." },
+      { t: "Errores recientes en logs", d: "Busca advertencias y errores de la última jornada en vmkernel y en el log de eventos observados (vobd).", c: "grep -iE \"error|warning|fail\" /var/log/vmkernel.log | tail -n 40\ntail -n 40 /var/log/vobd.log", e: "Sin errores repetitivos de storage (H:0x, SCSI sense), NIC down o pérdida de heartbeat." },
+      { t: "Cerrar SSH al terminar", d: "Deja el host con la misma superficie de ataque que antes del diagnóstico.", tag: "gui", where: GUI, c: "Host > Configurar > Sistema > Servicios > SSH > Detener", e: "Servicio SSH detenido y política «Iniciar y detener manualmente»." }
+    ]},
+  { id: "not-responding", name: "No responde / desconectado en vCenter", desc: "El host aparece como «Not Responding» o «Disconnected» en el inventario de vCenter.",
+    summary: "Determina si el problema es de red, de agentes de gestión (hostd/vpxa) o del propio vCenter.",
+    steps: [
+      { t: "Confirmar si las VMs siguen funcionando", d: "Un host desconectado de vCenter normalmente sigue ejecutando sus VMs. Verificarlo define la urgencia.", c: "ping <IP de una VM del host>", e: "Si las VMs responden, el problema es solo de gestión: no reinicies el host.", tag: "info" },
+      { t: "Probar conectividad de gestión desde vCenter", d: "Desde el appliance de vCenter verifica resolución DNS y alcance al host por los puertos de gestión.", where: VCSA, c: "nslookup {host}\nping -c 4 {host}\ncurl -k -s -o /dev/null -w \"%{http_code}\\n\" https://{host}/", e: "El nombre resuelve a la IP correcta y HTTPS responde (200/301). Si no hay respuesta, revisa VLAN, firewall o cableado de la red de gestión." },
+      { t: "Verificar el heartbeat (UDP 902)", d: "vCenter recibe latidos del host por UDP 902. Si un firewall lo bloquea, el host se desconecta unos 60 s después de conectarse.", c: "esxcli network firewall ruleset list | grep -i vpxHeartbeats\nnc -z -u {vcenter} 902", e: "El ruleset vpxHeartbeats está habilitado y no hay bloqueos de UDP 902 entre el host y vCenter." },
+      { t: "Estado de los agentes hostd y vpxa", d: "hostd gestiona el host y vpxa es el agente que habla con vCenter. Si alguno está colgado, el host aparece desconectado.", c: "/etc/init.d/hostd status\n/etc/init.d/vpxa status", e: "Ambos en «running»." },
+      { t: "Revisar logs de los agentes", d: "Busca errores de memoria, timeouts o fallos de autenticación justo antes de la desconexión.", c: "tail -n 100 /var/log/hostd.log\ntail -n 100 /var/log/vpxa.log", e: "Mensajes como «out of memory», «Failed to connect» o errores de SSL indican la causa." },
+      { t: "Reiniciar agentes de gestión", d: "Reiniciar hostd y vpxa no afecta a las VMs en ejecución y resuelve la mayoría de desconexiones.", c: "/etc/init.d/hostd restart\n/etc/init.d/vpxa restart", e: "El host vuelve a «Connected» en 1–3 minutos.", w: "No uses «services.sh restart» si hay vSAN o NSX en el host sin revisar antes la documentación: reinicia todos los servicios y puede afectar la red." },
+      { t: "Reconectar desde vCenter", d: "Si sigue desconectado, fuerza la reconexión. vCenter reinstala vpxa si hace falta.", where: GUI, tag: "gui", c: "Clic derecho sobre {host} > Conexión > Conectar", e: "El host vuelve a conectarse y aparecen sus VMs. Si pide credenciales, usa root del host." },
+      { t: "Revisar espacio y memoria del host", d: "Un ramdisk lleno o memoria agotada impide que hostd funcione.", c: "vdf -h\nesxcli hardware memory get", e: "Ramdisks por debajo del 90 % y memoria suficiente para el overhead de las VMs." }
+    ]},
+  { id: "psod", name: "PSOD (pantalla morada)", desc: "El host se detuvo con una Purple Screen of Death y se reinició o sigue mostrándola.",
+    summary: "Recolecta la evidencia correcta antes de reiniciar y prepara el caso para soporte.",
+    steps: [
+      { t: "Fotografiar la pantalla completa", d: "La PSOD muestra el backtrace con el módulo que falló. Es la evidencia más valiosa y se pierde al reiniciar.", tag: "crit", c: "Captura desde iDRAC / iLO / XCC o foto del monitor", e: "Se ven la línea «PANIC» o «#PF Exception», el build y el backtrace." },
+      { t: "Reiniciar y poner el host en mantenimiento", d: "Evita que DRS mueva cargas al host hasta tener el diagnóstico.", where: GUI, tag: "gui", c: "Reiniciar el host desde la consola fuera de banda\nvCenter > {host} > Modo mantenimiento > Entrar", e: "El host arranca y queda en mantenimiento sin VMs." },
+      { t: "Confirmar que se generó el core dump", d: "ESXi guarda el volcado en una partición o archivo de coredump. Sin él, soporte no puede analizar el fallo.", c: "esxcli system coredump partition get\nesxcli system coredump file list\nls -lh /var/core/", e: "Partición o archivo de coredump activo y un archivo vmkernel-zdump reciente en /var/core." },
+      { t: "Extraer el log del volcado", d: "El zdump contiene el vmkernel.log del momento del fallo.", c: "cd /var/core && vmkdump_extract -l vmkernel-zdump.1\ngrep -iE \"panic|exception|backtrace\" vmkernel-log.1 | head", e: "Nombre del módulo o driver involucrado (por ejemplo nmlx5, lpfc, qedentv)." },
+      { t: "Comparar drivers y firmware con la HCL", d: "La mayoría de PSOD se deben a combinaciones de driver y firmware no soportadas.", c: "esxcli software vib list | grep -iE \"nmlx|lpfc|qed|bnxt|i40|ixg|nvme\"\nesxcli network nic get -n vmnic0", e: "Driver y firmware coinciden con la VMware Compatibility Guide (HCL) para tu modelo de NIC/HBA." },
+      { t: "Generar paquete de soporte", d: "Incluye logs, configuración y el core dump para abrir el caso con Broadcom/VMware o con el fabricante.", c: "vm-support -w /vmfs/volumes/{ds}/", e: "Se crea un .tgz en el datastore. Descárgalo desde el navegador de datastores.", w: "El paquete puede pesar varios GB: elige un datastore con espacio." },
+      { t: "Revisar hardware fuera de banda", d: "Errores de memoria, CPU o PCIe en el registro del iDRAC/iLO confirman una causa física.", where: "iDRAC / iLO", c: "Lifecycle Log / IML: buscar eventos en la hora de la PSOD", e: "Sin eventos de hardware → probable driver. Con eventos (MCE, DIMM, PCIe) → caso al fabricante." }
+    ]},
+  { id: "perf", name: "Rendimiento (CPU / memoria)", desc: "Las VMs del host están lentas o hay alarmas de uso de CPU o memoria.",
+    summary: "Usa esxtop para distinguir contención de CPU, memoria, disco o red.",
+    steps: [
+      { t: "Abrir esxtop en vista CPU", d: "esxtop es la herramienta en tiempo real del host. Pulsa «c» para CPU, «V» para ver solo VMs y «s 2» para refrescar cada 2 s.", c: "esxtop", e: "Ubica las VMs con mayor %USED." },
+      { t: "Revisar %RDY y %CSTP", d: "%RDY es el tiempo que una vCPU esperó por una CPU física; %CSTP aparece cuando una VM con muchas vCPU espera para co-planificarse.", e: "%RDY menor a 5 % por vCPU (más de 10 % es problema). %CSTP menor a 3 %: si es mayor, la VM tiene demasiadas vCPU.", w: "En VMs con varias vCPU, %RDY es la suma; divide entre el número de vCPU (expande con «e»)." },
+      { t: "Vista de memoria (tecla «m»)", d: "Busca señales de sobreasignación: balloon, compresión y swap.", e: "MCTLSZ (balloon) = 0, ZIP/s = 0 y SWCUR = 0. Valores mayores indican presión de memoria." },
+      { t: "Estado de memoria del host", d: "Verifica el estado de memoria libre global del host.", c: "esxcli hardware memory get\nvsish -e get /memory/comprehensive", e: "Estado «high» = sano. «clear/soft/hard/low» indican reclamación progresiva de memoria." },
+      { t: "Vista de disco (teclas «d», «u», «v»)", d: "Latencias altas de disco suelen parecer problemas de CPU dentro del guest.", e: "DAVG < 20 ms (array), KAVG < 2 ms (kernel), GAVG = DAVG + KAVG. KAVG alto suele indicar colas llenas." },
+      { t: "Vista de red (tecla «n»)", d: "Revisa paquetes descartados por VM y por vmnic.", e: "%DRPTX y %DRPRX en 0. Valores mayores indican saturación o un buffer pequeño en el guest." },
+      { t: "Capturar evidencia en modo batch", d: "Graba 5 minutos de métricas para analizarlas luego o adjuntarlas a un caso.", c: "esxtop -b -d 5 -n 60 > /vmfs/volumes/{ds}/esxtop-{host}.csv", e: "Archivo CSV que puedes abrir con Windows Perfmon o Excel." },
+      { t: "Revisar el consumo de las VMs con PowerCLI", d: "Identifica VMs sobredimensionadas o con snapshots que afectan el rendimiento.", where: PCLI, c: "Get-VMHost {host} | Get-VM | Select Name,NumCpu,MemoryGB,@{N='Snapshots';E={(Get-Snapshot -VM $_).Count}} | Sort NumCpu -Descending", e: "VMs con más vCPU de las necesarias o con snapshots antiguos son candidatas a ajustarse." }
+    ]},
+  { id: "network", name: "Red / vSwitch / VLAN", desc: "Pérdida de conectividad de VMs o VMkernel, uplinks caídos o problemas de VLAN/MTU.",
+    summary: "Recorre la ruta: NIC física → vSwitch → portgroup/VLAN → VMkernel → destino.",
+    steps: [
+      { t: "Estado de uplinks físicos", d: "Confirma enlace, velocidad y driver de cada vmnic.", c: "esxcli network nic list\nesxcli network nic stats get -n vmnic0", e: "Uplinks «Up» y contadores de errores (Receive CRC errors, Total receive errors) sin crecer." },
+      { t: "Configuración de vSwitches estándar", d: "Revisa uplinks asignados, MTU y portgroups.", c: "esxcli network vswitch standard list\nesxcli network vswitch standard portgroup list", e: "Cada portgroup con la VLAN correcta y el vSwitch con al menos 2 uplinks activos." },
+      { t: "Switches distribuidos (vDS)", d: "Si usas vDS, revisa la vista local del host.", c: "esxcli network vswitch dvs vmware list\nnet-dvs -l | head -n 60", e: "El host es miembro del vDS y la MTU coincide con la configurada en vCenter." },
+      { t: "CDP / LLDP: ¿a qué puerto físico conecta?", d: "Confirma el switch y puerto físico de cada vmnic para revisar la configuración del lado de red.", c: "vim-cmd hostsvc/net/query_networkhint --pnic-name=vmnic0", e: "Nombre del switch, puerto y VLAN nativa. La VLAN del portgroup debe estar permitida en el trunk." },
+      { t: "Probar VMkernel y MTU", d: "vmkping con -d (sin fragmentar) y -s valida jumbo frames de extremo a extremo.", c: "vmkping -I {vmk} {peer}\nvmkping -I {vmk} -d -s 8972 {peer}", e: "Ambos responden. Si solo falla el de 8972, la MTU 9000 no está configurada en todo el camino.", w: "Usa -s 1472 para MTU 1500. 8972 = 9000 − 28 bytes de cabecera IP/ICMP." },
+      { t: "Puerto de una VM específica", d: "Ubica la VM y su puerto en el vSwitch para ver estadísticas y VLAN efectiva.", c: "esxcli network vm list\nesxcli network vm port list -w <WorldID>", e: "La VM aparece con el portgroup esperado y su MAC/IP." },
+      { t: "Captura de paquetes", d: "pktcap-uw captura tráfico en un uplink o en el puerto de una VM para confirmar si el tráfico sale o entra.", c: "pktcap-uw --uplink vmnic0 --vlan <VLAN> -o /tmp/uplink.pcap -c 500\npktcap-uw --switchport <PortID> -o /tmp/vm.pcap -c 500", e: "Archivo .pcap para abrir en Wireshark. Si el tráfico sale por el uplink pero no vuelve, el problema está en la red física.", w: "Limita la captura con -c para no llenar /tmp." },
+      { t: "Política de teaming y failover", d: "Una política «Route based on IP hash» requiere EtherChannel estático en el switch; una combinación incorrecta causa pérdida intermitente.", c: "esxcli network vswitch standard policy failover get -v vSwitch0", e: "Política alineada con la configuración del switch físico. Para LACP usa vDS con LAG." }
+    ]},
+  { id: "storage", name: "Almacenamiento / rutas (APD / PDL)", desc: "Datastores inaccesibles, LUN perdidas, rutas muertas o errores All Paths Down / Permanent Device Loss.",
+    summary: "Identifica si la pérdida es temporal (APD) o permanente (PDL) y en qué capa (HBA, fabric, array).",
+    steps: [
+      { t: "Buscar eventos APD / PDL en logs", d: "APD = todas las rutas caídas sin respuesta del array (puede volver). PDL = el array informó que el dispositivo ya no existe.", c: "grep -iE \"APD|PDL|permanently|lost access\" /var/log/vmkernel.log | tail -n 30\ngrep -i \"lost access\" /var/log/vobd.log | tail", e: "Hora exacta del evento y dispositivo naa.* afectado." },
+      { t: "Estado de adaptadores (HBA / iSCSI)", d: "Comprueba que los adaptadores de almacenamiento estén en línea.", c: "esxcli storage core adapter list\nesxcli storage san fc list\nesxcli iscsi session list", e: "Adaptadores «online» y sesiones iSCSI establecidas con todos los targets." },
+      { t: "Rutas por dispositivo", d: "Cada LUN debe tener varias rutas activas según la política de multipath.", c: "esxcli storage core path list | grep -E \"Device:|State:\" | paste - -\nesxcli storage nmp device list", e: "Ninguna ruta «dead». Política (PSP) recomendada por el fabricante, normalmente VMW_PSP_RR." },
+      { t: "Volver a escanear adaptadores", d: "Descubre LUN nuevas o rutas restauradas después de corregir zoning o masking.", c: "esxcli storage core adapter rescan --all\nesxcli storage filesystem rescan", e: "Las rutas vuelven a «active» y el datastore reaparece." },
+      { t: "Verificar volúmenes VMFS", d: "Confirma que el datastore está montado y sus extents presentes.", c: "esxcli storage filesystem list\nesxcli storage vmfs extent list", e: "El datastore aparece montado. Si aparece como snapshot/unresolved, ver el paso siguiente." },
+      { t: "Volúmenes detectados como snapshot", d: "Si el array cambió el ID de la LUN, ESXi la detecta como copia y no la monta.", c: "esxcli storage vmfs snapshot list\nesxcli storage vmfs snapshot mount -l {ds}", e: "El volumen se monta conservando su firma.", w: "No uses «resignature» sobre una LUN en producción sin entender el impacto: cambia el UUID y rompe el registro de las VMs." },
+      { t: "Detalles y profundidad de cola de la LUN", d: "Una cola pequeña o un dispositivo en estado degradado causan latencia.", c: "esxcli storage core device list -d naa.XXXXXXXX", e: "Status «on», «Is Perennially Reserved» correcto para RDM de clúster y Device Max Queue Depth acorde al fabricante." },
+      { t: "Correlacionar con el array y el fabric", d: "Pide al equipo de storage revisar los logs del array y los puertos del switch SAN a la misma hora.", tag: "info", c: "Revisar: eventos del array, errores CRC/link reset en switch FC, cambios de zoning", e: "Una causa común: mantenimiento de controladora, firmware de switch o cable/SFP defectuoso." }
+    ]},
+  { id: "agents", name: "Servicios del host (SSH, NTP, firewall)", desc: "Revisar o habilitar servicios y reglas de firewall del host.",
+    summary: "Lista servicios, su política de arranque y reglas de firewall activas.",
+    steps: [
+      { t: "Listar servicios del host", d: "Muestra servicios y si están corriendo.", c: "chkconfig --list\nesxcli system process list | head -n 30", e: "Servicios críticos (hostd, vpxa, ntpd, vmsyslogd) en «on»." },
+      { t: "Revisar firewall del host", d: "ESXi tiene firewall propio por rulesets.", c: "esxcli network firewall get\nesxcli network firewall ruleset list", e: "Firewall habilitado. Solo los rulesets necesarios en «true»." },
+      { t: "Permitir solo IPs de gestión a un ruleset", d: "Restringe por ejemplo SSH a la red de administración.", c: "esxcli network firewall ruleset set -r sshServer --allowed-all false\nesxcli network firewall ruleset allowedip add -r sshServer -i 10.0.0.0/24\nesxcli network firewall ruleset allowedip list -r sshServer", e: "El ruleset sshServer acepta solo la red indicada.", w: "Verifica primero que tu propia IP está en el rango: podrías perder el acceso SSH." },
+      { t: "Syslog remoto", d: "Enviar logs a un servidor central conserva evidencia después de un reinicio.", c: "esxcli system syslog config get\nesxcli system syslog config set --loghost='udp://syslog.lab.local:514'\nesxcli system syslog reload\nesxcli network firewall ruleset set -r syslog -e true", e: "Remote Host configurado y eventos visibles en el servidor syslog." },
+      { t: "Reiniciar un servicio puntual", d: "Útil cuando un servicio deja de responder.", c: "/etc/init.d/ntpd restart\n/etc/init.d/vmsyslogd restart", e: "El servicio regresa a «running»." }
+    ]}
+]},
+{ id: "vcenter", name: "vCenter (VCSA)", icon: "🏢", where: VCSA, scenarios: [
+  { id: "services", name: "Servicios caídos / vSphere Client no carga", desc: "La interfaz web no abre, da error 503 o algunas funciones no responden.",
+    summary: "Revisa los servicios del appliance, el espacio en disco y los logs del servicio vpxd.",
+    steps: [
+      { t: "Revisar salud en la VAMI", d: "La interfaz de administración del appliance (puerto 5480) muestra salud general, de base de datos y de almacenamiento.", where: GUI, tag: "gui", c: "https://{vcenter}:5480", e: "Todo en verde. Un ícono amarillo/rojo en «Database» o «Storage» indica la causa." },
+      { t: "Entrar al shell del appliance", d: "Conéctate por SSH y pasa del appliance shell a bash.", c: "ssh root@{vcenter}\nshell", e: "Prompt de bash: root@{vcenter} [ ~ ]#" },
+      { t: "Estado de todos los servicios", d: "Lista los servicios y su estado actual.", c: "service-control --status --all", e: "Los servicios con arranque automático aparecen en «Running». Anota los «Stopped» que deberían estar arriba (vpxd, vsphere-ui, vmware-stsd)." },
+      { t: "Revisar espacio en disco", d: "Una partición llena es la causa número uno de servicios que no arrancan.", c: "df -h | grep -E \"Filesystem|storage|/$\"", e: "Ninguna partición por encima del 90 %, en especial /storage/log, /storage/db y /storage/seat." },
+      { t: "Iniciar los servicios detenidos", d: "Inicia todo el conjunto o un servicio específico.", c: "service-control --start --all\nservice-control --start vmware-vpxd", e: "El comando termina sin errores. Si un servicio falla, ve al paso de logs." },
+      { t: "Logs del servicio principal (vpxd)", d: "vpxd es el corazón de vCenter. Los errores de arranque aparecen al final del log.", c: "tail -n 100 /var/log/vmware/vpxd/vpxd.log\ngrep -iE \"error|fatal|panic\" /var/log/vmware/vpxd/vpxd.log | tail -n 30", e: "Errores de conexión a base de datos, certificados o espacio en disco." },
+      { t: "Logs de la interfaz web", d: "Si vpxd funciona pero el cliente no carga, revisa vsphere-ui.", c: "tail -n 80 /var/log/vmware/vsphere-ui/logs/vsphere_client_virgo.log\nservice-control --restart vsphere-ui", e: "Tras reiniciar vsphere-ui (tarda 3–5 min) el cliente carga." },
+      { t: "DNS y hora del appliance", d: "vCenter depende de DNS directo/inverso y hora correcta para SSO y certificados.", c: "hostname -f\nnslookup $(hostname -f)\ntimedatectl", e: "El FQDN resuelve a la IP del appliance y la hora está sincronizada." }
+    ]},
+  { id: "disk", name: "Disco lleno en VCSA", desc: "Alarma de espacio o servicios que se detienen porque una partición del appliance está llena.",
+    summary: "Identifica qué partición se llenó, libera espacio de forma segura o amplía el disco.",
+    steps: [
+      { t: "Identificar la partición llena", d: "Cada partición tiene un disco virtual (VMDK) propio en la VM del appliance.", c: "df -h\nlsblk", e: "Partición en 95–100 %. Las más comunes: /storage/log, /storage/seat (eventos/tareas) y /storage/db." },
+      { t: "Encontrar qué ocupa más", d: "Ordena los directorios por tamaño.", c: "du -xh /storage/log --max-depth=3 2>/dev/null | sort -rh | head -n 20", e: "Suelen crecer logs de sso, vpxd, rhttpproxy o los dumps en /storage/core." },
+      { t: "Limpiar logs comprimidos antiguos", d: "Los logs rotados (.gz) se pueden eliminar sin afectar servicios.", c: "find /storage/log -name \"*.gz\" -mtime +7 -exec ls -lh {} \\;\nfind /storage/log -name \"*.gz\" -mtime +7 -delete", e: "Espacio liberado. Ejecuta primero el comando con -exec ls para revisar qué se va a borrar.", w: "No elimines logs activos (.log sin comprimir) ni archivos de /storage/db." },
+      { t: "Revisar core dumps", d: "Los volcados de servicios caídos pueden ocupar mucho.", c: "ls -lh /storage/core/", e: "Si hay archivos core antiguos y el problema ya se atendió, se pueden mover fuera o eliminar." },
+      { t: "Ampliar el disco si es recurrente", d: "Aumenta el VMDK correspondiente en la VM del appliance y expande la partición en caliente.", where: VCSA, c: "# 1) Ampliar el disco de la VM del vCenter desde el host/otro vCenter\n# 2) En el appliance:\n/usr/lib/applmgmt/support/scripts/autogrow.sh", e: "df -h muestra el nuevo tamaño sin reiniciar.", w: "Toma un snapshot o backup del appliance antes de ampliar discos." },
+      { t: "Reducir la retención de eventos y tareas", d: "Si /storage/seat se llena, la base de datos guarda demasiado histórico.", where: GUI, tag: "gui", c: "vCenter > Configurar > Ajustes generales > Base de datos > Retención de tareas y eventos (ej. 30 días)", e: "/storage/seat deja de crecer tras el próximo ciclo de limpieza." }
+    ]},
+  { id: "certs", name: "Certificados (expirados o por vencer)", desc: "Errores de conexión entre servicios, alarmas de certificado o cliente que no carga por certificados expirados.",
+    summary: "Lista los almacenes de certificados (VECS), revisa fechas de vencimiento y planifica la renovación.",
+    steps: [
+      { t: "Listar almacenes de VECS", d: "VMware Endpoint Certificate Store guarda los certificados de máquina y de soluciones.", c: "/usr/lib/vmware-vmafd/bin/vecs-cli store list", e: "Almacenes como MACHINE_SSL_CERT, machine, vpxd, vpxd-extension, vsphere-webclient." },
+      { t: "Revisar la expiración de cada certificado", d: "Recorre todos los almacenes y muestra la fecha «Not After».", c: "for s in $(/usr/lib/vmware-vmafd/bin/vecs-cli store list | grep -v TRUSTED_ROOT_CRLS); do echo \"== $s\"; /usr/lib/vmware-vmafd/bin/vecs-cli entry list --store $s --text | grep -E \"Alias|Not After\"; done", e: "Fechas futuras. Cualquier certificado vencido o a menos de 30 días debe renovarse." },
+      { t: "Revisar el certificado STS", d: "El certificado de firma del servicio de tokens (STS) vence por separado y, si expira, nadie puede iniciar sesión.", tag: "crit", c: "Revisión con el script oficial de Broadcom para STS (checksts.py) descargado del KB correspondiente", e: "El script muestra la fecha de vencimiento del STS. Renuévalo si faltan menos de 6 meses." },
+      { t: "Hacer backup antes de renovar", d: "Renovar certificados reinicia servicios y puede afectar integraciones (NSX, backup, vROps).", tag: "warn", where: GUI, c: "VAMI https://{vcenter}:5480 > Backup > Hacer backup ahora\n+ snapshot offline de la VM del vCenter", e: "Backup y snapshot completados." },
+      { t: "Renovar con Certificate Manager", d: "La herramienta guiada permite regenerar certificados con VMCA o con una CA corporativa.", c: "/usr/lib/vmware-vmca/bin/certificate-manager", e: "Opción 8 (resetear todos con VMCA) es la más usada en entornos sin CA externa. El proceso reinicia todos los servicios.", w: "Si usas certificados de CA corporativa, usa las opciones 1–2 con tus archivos .crt/.key." },
+      { t: "Volver a registrar integraciones", d: "Soluciones como backup, NSX o Aria pueden necesitar aceptar el nuevo certificado.", tag: "info", c: "Revisar en cada solución: conexión a vCenter > aceptar nueva huella (thumbprint)", e: "Todas las integraciones vuelven a conectarse." }
+    ]},
+  { id: "sso", name: "Login SSO falla", desc: "No se puede iniciar sesión en el vSphere Client con usuarios locales o de dominio.",
+    summary: "Separa el problema entre identidad (AD/LDAP), servicio STS, hora y cuenta bloqueada.",
+    steps: [
+      { t: "Probar con el usuario local de SSO", d: "Si administrator@vsphere.local funciona, el problema está en la fuente de identidad externa (AD/LDAP).", where: GUI, c: "Usuario: administrator@vsphere.local", e: "Funciona → revisar AD. No funciona → revisar servicio STS, hora o certificados." },
+      { t: "Servicio de tokens (STS)", d: "El STS emite los tokens de autenticación.", c: "service-control --status vmware-stsd\nservice-control --restart vmware-stsd", e: "Servicio «Running» tras el reinicio." },
+      { t: "Hora del appliance y del controlador de dominio", d: "Kerberos y SAML fallan con más de 5 minutos de diferencia.", c: "timedatectl\ndate -u", e: "Hora alineada con los DC (menos de 1 minuto de diferencia)." },
+      { t: "Logs de SSO", d: "Muestran el motivo exacto del rechazo (credenciales, cuenta bloqueada, LDAP inaccesible).", c: "tail -n 100 /var/log/vmware/sso/vmware-identity-sts.log\ngrep -iE \"error|locked|expired|LDAP\" /var/log/vmware/sso/*.log | tail -n 30", e: "Mensajes como «User account is locked», «Password expired» o «Can't contact LDAP server»." },
+      { t: "Desbloquear o restablecer la cuenta local", d: "Si administrator@vsphere.local está bloqueada o vencida, usa la herramienta de directorio.", c: "/usr/lib/vmware-vmdir/bin/vdcadmintool", e: "Opción 3 genera una contraseña temporal para el usuario indicado.", w: "Cambia la contraseña temporal en cuanto ingreses y revisa la política de bloqueo." },
+      { t: "Conectividad a la fuente de identidad", d: "Comprueba que el appliance llega a los controladores de dominio por LDAP/LDAPS.", c: "nslookup <dominio.local>\ncurl -v telnet://<dc01.dominio.local>:636 --max-time 5", e: "El dominio resuelve y el puerto 389 o 636 responde." }
+    ]},
+  { id: "backup", name: "Backup y salud de base de datos", desc: "Configurar o validar el backup basado en archivos del appliance y revisar la base de datos.",
+    summary: "Garantiza que puedes restaurar vCenter ante una falla.",
+    steps: [
+      { t: "Revisar el backup programado en VAMI", d: "vCenter incluye backup basado en archivos hacia SFTP, FTPS, HTTPS, NFS o SMB.", where: GUI, tag: "gui", c: "https://{vcenter}:5480 > Backup > Programación", e: "Programación diaria, retención mínima de 7 copias y último estado «Completado»." },
+      { t: "Probar conectividad al destino", d: "Antes de programar, valida que el appliance llega al servidor de backup.", c: "curl -v sftp://<servidor-backup>/ --max-time 5 -u usuario", e: "Conexión establecida (puede pedir clave)." },
+      { t: "Tamaño de la base de datos", d: "Un crecimiento grande de VCDB suele venir de eventos, tareas y estadísticas.", c: "du -sh /storage/db /storage/seat", e: "Crecimiento estable entre revisiones." },
+      { t: "Estado del servicio de base de datos", d: "vPostgres debe estar en ejecución.", c: "service-control --status vmware-vpostgres", e: "«Running»." },
+      { t: "Documentar datos para restauración", d: "Para restaurar necesitas el instalador ISO de la misma versión y los datos de red.", tag: "info", c: "Versión: VAMI > Resumen\nFQDN, IP, máscara, gateway, DNS y contraseña de backup", e: "Datos guardados en tu gestor de contraseñas o documentación." }
+    ]}
+]},
+{ id: "vm", name: "Máquina virtual", icon: "📦", where: ESXI, scenarios: [
+  { id: "power", name: "No enciende", desc: "La VM falla al encender con errores de archivo bloqueado, falta de espacio o recursos.",
+    summary: "Revisa el mensaje de error, el log de la VM, el espacio en el datastore y los bloqueos de archivos.",
+    steps: [
+      { t: "Leer el error exacto en Tareas recientes", d: "El mensaje indica la causa en la mayoría de los casos.", where: GUI, tag: "gui", c: "vSphere Client > Tareas recientes > clic en la tarea fallida", e: "Mensajes típicos: «Failed to lock the file», «Insufficient space», «Insufficient resources», «File not found»." },
+      { t: "Ubicar la VM en el host", d: "Obtén el VMID que usan los comandos vim-cmd.", c: "vim-cmd vmsvc/getallvms | grep -i \"{vm}\"", e: "Primera columna = VMID. La ruta muestra el datastore real de la VM." },
+      { t: "Revisar vmware.log", d: "El log de la VM está en su carpeta y muestra el motivo del fallo de encendido.", c: "tail -n 60 /vmfs/volumes/{ds}/{vm}/vmware.log", e: "Las últimas líneas antes de «Power on failure» explican el problema." },
+      { t: "Espacio para el archivo de swap", d: "Al encender, ESXi crea un .vswp del tamaño de la RAM menos la reserva. Si no hay espacio, la VM no enciende.", c: "esxcli storage filesystem list | grep -E \"Mount|{ds}\"\nls -lh /vmfs/volumes/{ds}/{vm}/", e: "Espacio libre mayor que la RAM configurada. Si no, libera espacio o configura una reserva de memoria." },
+      { t: "Archivos bloqueados", d: "Si otro host todavía tiene abierto un archivo de la VM (por ejemplo tras una caída), aparece «Failed to lock the file».", c: "vmfsfilelockinfo -p /vmfs/volumes/{ds}/{vm}/{vm}.vmx\nvmkfstools -D /vmfs/volumes/{ds}/{vm}/{vm}-flat.vmdk", e: "La salida muestra la MAC/host que tiene el bloqueo. Esa máquina debe liberar el archivo." },
+      { t: "Liberar el bloqueo", d: "Normalmente basta con reiniciar los agentes en el host dueño del bloqueo o eliminar la VM huérfana de su inventario.", c: "# En el host que tiene el lock:\nvim-cmd vmsvc/getallvms\n/etc/init.d/hostd restart", e: "El bloqueo desaparece y la VM enciende.", w: "Nunca borres archivos .lck manualmente si la VM podría estar encendida en otro host: puedes corromper el disco." },
+      { t: "Encender desde el host", d: "Intenta encender directamente en el host para descartar problemas de vCenter.", c: "vim-cmd vmsvc/power.on <VMID>\nvim-cmd vmsvc/power.getstate <VMID>", e: "«Powered on»." }
+    ]},
+  { id: "snapshots", name: "Snapshots / consolidación", desc: "VM con snapshots antiguos, mensaje «Consolidation needed» o discos delta que crecen.",
+    summary: "Inventaria snapshots, verifica espacio y consolida de forma segura.",
+    steps: [
+      { t: "Inventario de snapshots", d: "Lista todos los snapshots del entorno con su antigüedad y tamaño.", where: PCLI, c: "Connect-VIServer {vcenter}\nGet-VM | Get-Snapshot | Select VM,Name,Created,@{N='SizeGB';E={[math]::Round($_.SizeGB,1)}} | Sort Created", e: "Ningún snapshot de más de 72 horas. Los snapshots no son backups." },
+      { t: "Ver cadena de snapshots en el host", d: "Muestra el árbol de snapshots de una VM.", c: "vim-cmd vmsvc/snapshot.get <VMID>\nls -lh /vmfs/volumes/{ds}/{vm}/ | grep -E \"0000|delta|sesparse\"", e: "Los archivos -00000X.vmdk son deltas. Muchos niveles afectan el rendimiento." },
+      { t: "Verificar espacio libre antes de consolidar", d: "La consolidación necesita espacio temporal; en el peor caso igual al tamaño de los deltas.", c: "esxcli storage filesystem list", e: "Espacio libre mayor que la suma de los deltas.", tag: "warn" },
+      { t: "Eliminar snapshots o consolidar", d: "Ejecuta en horario de baja carga: la VM puede tener pausas breves (stun).", where: GUI, tag: "gui", c: "VM > Snapshots > Administrar > Eliminar todo\nó: VM > Snapshots > Consolidar", e: "La tarea termina y desaparece la alarma «Consolidation needed»." },
+      { t: "Alternativa por línea de comandos", d: "Útil si vCenter no está disponible.", c: "vim-cmd vmsvc/snapshot.removeall <VMID>", e: "Retorna sin error y no quedan deltas." },
+      { t: "Si la consolidación falla por bloqueo", d: "Casi siempre el software de backup dejó el disco montado (hot-add) en su proxy.", c: "Revisar la VM proxy de backup: quitar discos de la VM afectada (sin borrarlos)", e: "Al liberar el disco, vuelve a ejecutar «Consolidar».", w: "Al quitar discos del proxy elige «Quitar de la máquina virtual», nunca «Eliminar del disco»." }
+    ]},
+  { id: "perf", name: "Rendimiento lento", desc: "Usuarios reportan lentitud en una VM específica.",
+    summary: "Compara lo que ve el sistema operativo con lo que ve el hipervisor.",
+    steps: [
+      { t: "Revisar gráficas de rendimiento", d: "Compara CPU, memoria, disco y red en la última hora y el último día.", where: GUI, tag: "gui", c: "VM > Supervisar > Rendimiento > Avanzado", e: "Identifica qué recurso coincide con la hora de la lentitud." },
+      { t: "CPU Ready de la VM", d: "Alto CPU Ready indica que la VM espera por CPU física (host saturado o demasiadas vCPU).", where: PCLI, c: "Get-Stat -Entity (Get-VM {vm}) -Stat cpu.ready.summation -Realtime -MaxSamples 15 | Select Timestamp,Instance,Value", e: "Valor en ms cada 20 s: (Value / 20000) × 100 = % Ready. Más de 5 % por vCPU es problema." },
+      { t: "Memoria: balloon y swap", d: "Si la VM tiene balloon o swap, el host le está quitando memoria.", where: PCLI, c: "Get-Stat -Entity (Get-VM {vm}) -Stat mem.vmmemctl.average,mem.swapped.average -Realtime -MaxSamples 5", e: "Ambos en 0. Si no, el host está sobreasignado o hay un límite de memoria configurado." },
+      { t: "Límites y reservas", d: "Un límite de CPU o memoria olvidado (por plantilla) restringe la VM.", where: PCLI, c: "Get-VM {vm} | Get-VMResourceConfiguration | Select VM,CpuLimitMhz,MemLimitGB,CpuReservationMhz,MemReservationGB", e: "Límites en «Unlimited» (-1) salvo que haya una razón documentada." },
+      { t: "Latencia de disco de la VM", d: "Revisa esxtop en vista de disco por VM (tecla «v»).", c: "esxtop", e: "LAT/rd y LAT/wr menores a 20 ms." },
+      { t: "Snapshots y VMware Tools", d: "Snapshots grandes y Tools desactualizadas degradan el rendimiento.", where: PCLI, c: "Get-VM {vm} | Get-Snapshot\nGet-VM {vm} | Select Name,@{N='Tools';E={$_.ExtensionData.Guest.ToolsVersionStatus2}}", e: "Sin snapshots y Tools en «guestToolsCurrent»." },
+      { t: "Revisar dentro del sistema operativo", d: "Confirma el proceso que consume recursos dentro del guest.", where: "Guest OS", c: "Windows: Get-Process | Sort CPU -Descending | Select -First 10\nLinux:   top -o %CPU", e: "Si el guest ve CPU alta pero el host no, el problema es de la aplicación." }
+    ]},
+  { id: "tools", name: "VMware Tools", desc: "Tools no instaladas, desactualizadas o sin ejecutarse.",
+    summary: "Verifica estado, versión e instalación de VMware Tools / open-vm-tools.",
+    steps: [
+      { t: "Estado de Tools en todo el entorno", d: "Lista VMs con Tools desactualizadas o sin ejecutarse.", where: PCLI, c: "Get-VM | Where PowerState -eq 'PoweredOn' | Select Name,@{N='Estado';E={$_.ExtensionData.Guest.ToolsRunningStatus}},@{N='Version';E={$_.ExtensionData.Guest.ToolsVersionStatus2}} | Sort Version", e: "Todas en «guestToolsRunning» y «guestToolsCurrent» o «guestToolsSupportedNew»." },
+      { t: "Estado desde el host", d: "Consulta rápida para una VM.", c: "vim-cmd vmsvc/get.guest <VMID> | grep -iE \"toolsStatus|toolsVersion|ipAddress\"", e: "toolsStatus = «toolsOk»." },
+      { t: "Servicio dentro de Windows", d: "Verifica el servicio en el guest.", where: "Guest Windows", c: "Get-Service VMTools\nRestart-Service VMTools", e: "Estado «Running»." },
+      { t: "Servicio dentro de Linux", d: "En Linux se recomienda open-vm-tools desde el repositorio de la distribución.", where: "Guest Linux", c: "systemctl status vmtoolsd\nvmware-toolbox-cmd -v\nsudo dnf install -y open-vm-tools   # RHEL/Oracle\nsudo apt install -y open-vm-tools   # Ubuntu/Debian", e: "Servicio activo y versión reportada." },
+      { t: "Actualizar Tools", d: "En Windows puede requerir reinicio. Planifícalo en ventana de mantenimiento.", where: GUI, tag: "gui", c: "VM > Sistema operativo invitado > Actualizar VMware Tools", e: "La versión pasa a «Current».", w: "Desmarca el reinicio automático si la VM es crítica y reinicia en la ventana acordada." }
+    ]},
+  { id: "network", name: "Sin red", desc: "La VM no tiene conectividad o no obtiene IP.",
+    summary: "Verifica de afuera hacia adentro: adaptador, portgroup/VLAN, vSwitch y guest.",
+    steps: [
+      { t: "Adaptador conectado", d: "Una NIC virtual desconectada es más común de lo que parece (por ejemplo tras clonar).", where: GUI, tag: "gui", c: "VM > Editar configuración > Adaptador de red > «Conectado» y «Conectar al encender» marcados", e: "Ambas casillas marcadas y el portgroup correcto." },
+      { t: "Ubicar la VM en el vSwitch", d: "Confirma portgroup, MAC y puerto.", c: "esxcli network vm list | grep -i \"{vm}\"\nesxcli network vm port list -w <WorldID>", e: "Portgroup esperado y MAC que coincide con la del guest." },
+      { t: "VLAN del portgroup", d: "La VLAN debe estar permitida en el trunk del switch físico.", c: "esxcli network vswitch standard portgroup list", e: "VLAN ID correcto. 0 = sin etiqueta, 4095 = modo trunk al guest (VGT)." },
+      { t: "Comparar con otra VM en el mismo portgroup", d: "Si otra VM funciona en el mismo host y portgroup, el problema está dentro del guest.", c: "ping <IP de otra VM en la misma VLAN>", e: "Funciona → revisar guest. No funciona → revisar uplinks/VLAN (escenario Host ESXi > Red)." },
+      { t: "Configuración IP en el guest", d: "Revisa IP, máscara, gateway y DNS.", where: "Guest OS", c: "Windows: ipconfig /all\nLinux:   ip a && ip r && cat /etc/resolv.conf", e: "IP en el rango correcto. Una IP 169.254.x.x indica que no llegó al DHCP." },
+      { t: "Captura en el puerto de la VM", d: "Confirma si los paquetes salen de la VM hacia el vSwitch.", c: "pktcap-uw --switchport <PortID> --dir 2 -o /tmp/{vm}.pcap -c 200", e: "Ves tráfico ARP/ICMP saliendo. Si no sale nada, el problema es del guest (driver o firewall)." }
+    ]},
+  { id: "unregistered", name: "Registrar / recuperar VM", desc: "La VM aparece como «inaccesible» o «huérfana», o necesitas registrarla desde el datastore.",
+    summary: "Vuelve a registrar una VM desde su archivo .vmx sin perder datos.",
+    steps: [
+      { t: "Confirmar dónde está el .vmx", d: "Ubica la carpeta de la VM en el datastore.", c: "find /vmfs/volumes/{ds}/ -maxdepth 2 -name \"*.vmx\" | grep -i \"{vm}\"", e: "Ruta completa del .vmx." },
+      { t: "Quitar la entrada huérfana del inventario", d: "Elimina solo la referencia en vCenter, sin tocar archivos.", where: GUI, tag: "gui", c: "Clic derecho en la VM > Quitar del inventario", e: "La VM desaparece del inventario.", w: "Nunca elijas «Eliminar del disco»." },
+      { t: "Registrar la VM", d: "Registra el .vmx en un host que vea el datastore.", c: "vim-cmd solo/registervm /vmfs/volumes/{ds}/{vm}/{vm}.vmx", e: "Devuelve el nuevo VMID." },
+      { t: "Responder a la pregunta «movida o copiada»", d: "Al encender, ESXi pregunta si la VM fue movida o copiada.", tag: "info", c: "Responder: «I moved it» (la moví)", e: "Conserva UUID y MAC. «I copied it» genera nuevos y puede afectar licencias o DHCP." }
+    ]}
+]},
+{ id: "datastore", name: "Datastore", icon: "🗄️", where: ESXI, scenarios: [
+  { id: "full", name: "Datastore lleno", desc: "Alarma de espacio o VMs pausadas por falta de espacio.",
+    summary: "Encuentra qué consume espacio y libéralo sin afectar VMs.",
+    steps: [
+      { t: "Ver uso de cada datastore", d: "Identifica el datastore afectado.", c: "esxcli storage filesystem list", e: "Uso por encima del 90 % requiere acción inmediata.", tag: "crit" },
+      { t: "Carpetas que más ocupan", d: "Ordena por tamaño las carpetas del datastore.", c: "du -sh /vmfs/volumes/{ds}/* 2>/dev/null | sort -rh | head -n 20", e: "Las carpetas de VM más grandes y posibles carpetas huérfanas." },
+      { t: "Buscar snapshots y deltas", d: "Los snapshots son la causa más frecuente de llenado inesperado.", c: "find /vmfs/volumes/{ds}/ \\( -name \"*-delta.vmdk\" -o -name \"*-sesparse.vmdk\" \\) -exec ls -lh {} \\;", e: "Deltas grandes → consolidar (escenario VM > Snapshots)." },
+      { t: "Buscar archivos huérfanos", d: "Discos o ISOs que ninguna VM usa.", where: PCLI, c: "Get-Datastore {ds} | Get-HardDisk -ErrorAction SilentlyContinue  # discos registrados\n# Compara con el contenido del datastore en el navegador de archivos", e: "Archivos sin VM asociada que pueden moverse o eliminarse tras validarlo.", w: "Confirma con el dueño de la carga antes de borrar: un disco puede pertenecer a una VM de otro vCenter." },
+      { t: "Archivos de swap y logs", d: "Los .vswp ocupan tanto como la RAM no reservada de cada VM encendida.", c: "find /vmfs/volumes/{ds}/ -name \"*.vswp\" -exec ls -lh {} \\;", e: "Si los .vswp ocupan mucho, considera mover el swap a otro datastore o reservar memoria." },
+      { t: "Recuperar espacio en thin provisioning (UNMAP)", d: "Libera en el array los bloques que VMFS ya no usa.", c: "esxcli storage vmfs reclaim config get -l {ds}\nesxcli storage vmfs unmap -l {ds}", e: "El espacio usado en el array baja. En VMFS6 el reclaim es automático." },
+      { t: "Mover VMs con Storage vMotion", d: "Si no hay nada que limpiar, mueve VMs a otro datastore en caliente.", where: GUI, tag: "gui", c: "VM > Migrar > Cambiar solo almacenamiento", e: "El datastore baja del 80 %." }
+    ]},
+  { id: "latency", name: "Latencia alta", desc: "Alarmas de latencia o VMs lentas por I/O.",
+    summary: "Determina si la latencia viene del array (DAVG) o del kernel/colas (KAVG).",
+    steps: [
+      { t: "esxtop vista de dispositivos (tecla «u»)", d: "Muestra la latencia por LUN.", c: "esxtop", e: "DAVG/cmd < 20 ms y KAVG/cmd < 2 ms. QUED > 0 sostenido indica cola saturada." },
+      { t: "Identificar la VM ruidosa (tecla «v»)", d: "Una sola VM con mucho I/O puede afectar a todas las del datastore.", e: "VM con IOPS o MB/s muy superiores al resto." },
+      { t: "Profundidad de cola", d: "Compara la cola del dispositivo con la recomendación del fabricante.", c: "esxcli storage core device list -d naa.XXXXXXXX | grep -iE \"queue|Outstanding\"", e: "Device Max Queue Depth acorde a la HBA y al array (ej. 64 o 128)." },
+      { t: "Política de multipath", d: "Usar solo una ruta (Fixed/MRU) cuando el array soporta Round Robin limita el rendimiento.", c: "esxcli storage nmp device list -d naa.XXXXXXXX", e: "PSP = VMW_PSP_RR si el fabricante lo recomienda." },
+      { t: "Errores SCSI en vmkernel", d: "Reintentos y abortos indican problemas del fabric o del array.", c: "grep -iE \"H:0x|D:0x|abort|reset\" /var/log/vmkernel.log | tail -n 30", e: "Sin abortos ni resets. «H:0x5» o «H:0x8» suelen indicar problemas de fabric." },
+      { t: "Storage I/O Control", d: "SIOC reparte el I/O de forma justa cuando hay contención.", where: GUI, tag: "gui", c: "Datastore > Configurar > General > Storage I/O Control", e: "Habilitado en datastores compartidos con cargas mixtas." }
+    ]},
+  { id: "paths", name: "LUN no visible / multipath", desc: "Se presentó una LUN nueva y el host no la ve, o faltan rutas.",
+    summary: "Recorre zoning/masking, adaptadores, rescan y política de rutas.",
+    steps: [
+      { t: "Confirmar WWN / IQN del host", d: "El array debe tener mapeados estos identificadores.", c: "esxcli storage san fc list\nesxcli iscsi adapter get -A vmhba64", e: "Los WWPN/IQN coinciden con los del host group en el array." },
+      { t: "Rescan de adaptadores", d: "Busca dispositivos nuevos.", c: "esxcli storage core adapter rescan --all", e: "La LUN aparece en esxcli storage core device list." },
+      { t: "Verificar rutas", d: "Cada LUN debe tener las rutas esperadas (ej. 4 en FC con 2 HBA y 2 controladoras).", c: "esxcli storage core path list -d naa.XXXXXXXX", e: "Número de rutas correcto y ninguna «dead»." },
+      { t: "Configurar política Round Robin", d: "Aplica la política recomendada si no es la predeterminada.", c: "esxcli storage nmp device set -d naa.XXXXXXXX --psp VMW_PSP_RR", e: "La política cambia sin interrumpir el I/O." },
+      { t: "Crear el datastore", d: "Formatea la LUN como VMFS6 desde vCenter.", where: GUI, tag: "gui", c: "Host > Acciones > Almacenamiento > Nuevo datastore > VMFS > VMFS6", e: "Datastore montado en todos los hosts del clúster (haz rescan en todos)." }
+    ]}
+]},
+{ id: "cluster", name: "Clúster (HA / DRS / vMotion)", icon: "🔗", where: ESXI, scenarios: [
+  { id: "vmotion", name: "vMotion falla", desc: "La migración en caliente falla o se queda en un porcentaje.",
+    summary: "Valida red de vMotion, MTU, compatibilidad de CPU y acceso a almacenamiento.",
+    steps: [
+      { t: "Leer el error de la tarea", d: "Indica si el problema es de red, de CPU o de dispositivos.", where: GUI, tag: "gui", c: "Tareas recientes > Detalles del error", e: "Ejemplos: «timed out waiting for migration data» (red), «CPU incompatible» (EVC), «device not accessible» (ISO/USB)." },
+      { t: "Interfaz vMotion habilitada", d: "Ambos hosts necesitan una vmk con el servicio vMotion.", c: "esxcli network ip interface tag get -i {vmk}\nesxcli network ip interface ipv4 get -i {vmk}", e: "La vmk tiene la etiqueta «VMotion» y una IP en la red de vMotion." },
+      { t: "Conectividad y MTU entre hosts", d: "Prueba desde la vmk de vMotion hacia la del host destino.", c: "vmkping -I {vmk} {peer}\nvmkping -I {vmk} -d -s 8972 {peer}", e: "Ambos responden. Si solo falla 8972, ajusta la MTU de extremo a extremo." },
+      { t: "Pila TCP/IP de vMotion", d: "Si la vmk usa la pila «vmotion», hay que indicarla en el ping.", c: "esxcli network ip netstack list\nvmkping -S vmotion -I {vmk} {peer}", e: "Respuesta usando la pila correcta." },
+      { t: "Compatibilidad de CPU (EVC)", d: "Hosts con generaciones distintas de CPU necesitan EVC en el clúster.", where: GUI, tag: "gui", c: "Clúster > Configurar > VMware EVC", e: "EVC habilitado con el modo de la CPU más antigua del clúster." },
+      { t: "Dispositivos conectados a la VM", d: "Una ISO en datastore local o un dispositivo USB impiden migrar.", where: PCLI, c: "Get-VM {vm} | Get-CDDrive | Select Parent,IsoPath,ConnectionState", e: "Sin ISO de datastore local ni dispositivos del host conectados." },
+      { t: "Revisar logs de la migración", d: "Los detalles quedan en el vmkernel del host origen y destino.", c: "grep -i migrate /var/log/vmkernel.log | tail -n 30\ngrep -i vmotion /var/log/hostd.log | tail -n 30", e: "Mensajes de timeout o de conexión rechazada indican firewall o enrutamiento." }
+    ]},
+  { id: "ha", name: "vSphere HA con errores", desc: "Errores de configuración de HA, agente FDM caído o alarma de aislamiento.",
+    summary: "Revisa el agente FDM, heartbeats de red y datastore y la dirección de aislamiento.",
+    steps: [
+      { t: "Estado del agente FDM", d: "HA usa el agente Fault Domain Manager (FDM) en cada host.", c: "/etc/init.d/vmware-fdm status", e: "Agente en ejecución." },
+      { t: "Log de FDM", d: "Muestra elecciones de primario, pérdida de heartbeats y aislamiento.", c: "tail -n 100 /var/log/fdm.log\ngrep -iE \"isolat|partition|election\" /var/log/fdm.log | tail", e: "Sin particiones de red ni aislamientos inesperados." },
+      { t: "Reconfigurar HA en el host", d: "Reinstala y reinicia el agente desde vCenter.", where: GUI, tag: "gui", c: "Clic derecho en {host} > Reconfigurar para vSphere HA", e: "La alarma desaparece en 1–2 minutos." },
+      { t: "Datastores de heartbeat", d: "HA necesita al menos 2 datastores compartidos para heartbeat.", where: GUI, tag: "gui", c: "Clúster > Configurar > vSphere Availability > Heartbeat Datastores", e: "Dos o más datastores compartidos seleccionados." },
+      { t: "Dirección de aislamiento", d: "Por defecto es el gateway de gestión. Si no responde a ping, los hosts creen estar aislados.", c: "vmkping -I vmk0 <gateway de gestión>", e: "El gateway responde. Si no, define das.isolationaddress0 con una IP que siempre responda." },
+      { t: "Admission Control", d: "Asegura capacidad para reiniciar las VMs si falla un host.", where: GUI, tag: "gui", c: "Clúster > Configurar > vSphere Availability > Admission Control", e: "Política de porcentaje de recursos acorde a tolerar la falla de 1 host." }
+    ]},
+  { id: "drs", name: "DRS no balancea", desc: "Hosts desbalanceados o DRS que no aplica recomendaciones.",
+    summary: "Revisa nivel de automatización, umbral, reglas y VMs excluidas.",
+    steps: [
+      { t: "Configuración de DRS", d: "Confirma que DRS está habilitado y en modo automático.", where: PCLI, c: "Get-Cluster | Select Name,DrsEnabled,DrsAutomationLevel,HAEnabled", e: "DrsEnabled = True y nivel «FullyAutomated»." },
+      { t: "Recomendaciones pendientes", d: "En modo manual o parcial, las recomendaciones esperan aprobación.", where: GUI, tag: "gui", c: "Clúster > Supervisar > vSphere DRS > Recomendaciones", e: "Sin recomendaciones pendientes." },
+      { t: "Reglas de afinidad", d: "Reglas «debe» limitan las opciones de DRS.", where: PCLI, c: "Get-DrsRule -Cluster <Cluster> | Select Name,Enabled,Type,Mandatory", e: "Solo las reglas necesarias. Reglas obligatorias contradictorias impiden migraciones." },
+      { t: "VMs con automatización deshabilitada", d: "Overrides por VM pueden excluir VMs grandes del balanceo.", where: GUI, tag: "gui", c: "Clúster > Configurar > Overrides de VM", e: "Solo excepciones justificadas." },
+      { t: "Umbral de migración", d: "Un umbral conservador (1–2) solo mueve VMs ante desbalance alto.", where: GUI, tag: "gui", c: "Clúster > Configurar > vSphere DRS > Editar > Umbral de migración", e: "Nivel 3 (predeterminado) para la mayoría de entornos." }
+    ]}
+]},
+{ id: "vsan", name: "vSAN", icon: "🧊", where: ESXI, scenarios: [
+  { id: "health", name: "Salud del clúster vSAN", desc: "Alarmas en Skyline Health / vSAN Health o validación previa a un cambio.",
+    summary: "Valida membresía, red, discos y objetos del clúster vSAN.",
+    steps: [
+      { t: "Skyline Health en vCenter", d: "Ejecuta las pruebas de salud integradas.", where: GUI, tag: "gui", c: "Clúster > Supervisar > vSAN > Skyline Health > Volver a probar", e: "Todas las pruebas en verde." },
+      { t: "Membresía del clúster", d: "Todos los hosts deben ver el mismo número de miembros.", c: "esxcli vsan cluster get", e: "«Sub-Cluster Member Count» igual al número de hosts y estado «HEALTHY»." },
+      { t: "Red de vSAN", d: "Verifica la vmk de vSAN y la conectividad con MTU correcta.", c: "esxcli vsan network list\nvmkping -I {vmk} -d -s 8972 {peer}", e: "vmk con tráfico vSAN y ping exitoso al resto de hosts." },
+      { t: "Discos del host", d: "Revisa los discos de caché y capacidad.", c: "esxcli vsan storage list | grep -E \"Device:|Is SSD|In CMMDS|Health\"", e: "Todos los discos «In CMMDS: true»." },
+      { t: "Resumen de salud de objetos", d: "Muestra objetos sanos, degradados o inaccesibles.", c: "esxcli vsan debug object health summary get", e: "Todos en «healthy». Objetos «reduced-availability» indican componentes faltantes." },
+      { t: "Resincronización en curso", d: "Antes de un mantenimiento, espera a que termine el resync.", c: "esxcli vsan debug resync summary get", e: "0 objetos y 0 bytes pendientes de resincronizar." }
+    ]},
+  { id: "maintenance", name: "Mantenimiento de un host vSAN", desc: "Poner un host vSAN en mantenimiento sin poner en riesgo los datos.",
+    summary: "Elige el modo de evacuación correcto y valida antes y después.",
+    steps: [
+      { t: "Verificar salud y resync", d: "Nunca inicies un mantenimiento con resync en curso u objetos degradados.", tag: "crit", c: "esxcli vsan debug resync summary get\nesxcli vsan debug object health summary get", e: "Sin resync y todos los objetos sanos." },
+      { t: "Simular el impacto", d: "vCenter muestra qué pasaría con cada modo de evacuación.", where: GUI, tag: "gui", c: "Clúster > Supervisar > vSAN > Precomprobación de evacuación de datos > {host}", e: "«Asegurar accesibilidad» sin objetos inaccesibles." },
+      { t: "Entrar en mantenimiento", d: "«Asegurar accesibilidad» es el modo habitual para reinicios o parches.", where: GUI, tag: "gui", c: "{host} > Modo de mantenimiento > Entrar > Asegurar accesibilidad", e: "El host entra en mantenimiento sin VMs.", w: "Usa «Evacuación completa» solo si el host se retirará o estará fuera más de 60 minutos." },
+      { t: "Salir y esperar el resync", d: "Al regresar, vSAN sincroniza los cambios pendientes.", c: "esxcli vsan debug resync summary get", e: "El resync llega a 0 antes de pasar al siguiente host." }
+    ]}
+]}
+];
+T.troubleshooter(document.getElementById("ts"), {
+  key: "vmware", data: DATA,
+  fields: [
+    { id: "host", label: "Host ESXi", ph: "esxi01.lab.local" },
+    { id: "vcenter", label: "vCenter", ph: "vcsa.lab.local" },
+    { id: "vm", label: "Máquina virtual", ph: "SRV-APP01" },
+    { id: "ds", label: "Datastore", ph: "DS-PROD-01" },
+    { id: "vmk", label: "Interfaz VMkernel", ph: "vmk1" },
+    { id: "peer", label: "IP destino (pruebas)", ph: "10.0.20.12" }
+  ]
+});
+document.getElementById("count").textContent = DATA.reduce((a, c) => a + c.scenarios.length, 0) + " escenarios · " + DATA.reduce((a, c) => a + c.scenarios.reduce((b, s) => b + s.steps.length, 0), 0) + " pasos guiados";
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -51,6 +356,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

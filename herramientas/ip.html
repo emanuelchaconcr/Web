@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>IP Converter | Emanuel Chacón</title>
-<meta name="description" content="Convertidor de direcciones IP. Permite transformar una dirección IPv4 a decimal, binario y hexadecimal.">
+<meta name="description" content="Convierte direcciones IPv4 entre decimal, entero, hexadecimal y binario, e identifica su tipo (privada, pública, CGNAT, APIPA…).">
 <meta property="og:title" content="IP Converter | Emanuel Chacón">
-<meta property="og:description" content="Convertidor de direcciones IP. Permite transformar una dirección IPv4 a decimal, binario y hexadecimal.">
+<meta property="og:description" content="Convierte direcciones IPv4 entre decimal, entero, hexadecimal y binario, e identifica su tipo (privada, pública, CGNAT, APIPA…).">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/ip.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/ip.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,10 +31,87 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>IP Converter</span></nav>
-  <header class="tool-head"><span class="icon c-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 3 8 21M16 3l-2 18"/></svg></span><div><h1 class="headline-sm">IP Converter</h1><p>Convertidor de direcciones IP. Permite transformar una dirección IPv4 a decimal, binario y hexadecimal.</p></div></header>
-<div class="toolbox"><label>IPv4</label><input id="ip" value="192.168.1.10"><button class="btn primary" style="margin-top:16px" onclick="go()">Convertir</button><div id="out" class="result"></div></div>
-</main><script>function go(){let a=document.getElementById('ip').value.split('.').map(Number);if(a.length!==4||a.some(x=>!Number.isInteger(x)||x<0||x>255))return out.textContent='IP inválida';let n=((((a[0]*256)+a[1])*256+a[2])*256+a[3]);out.textContent=`Decimal: ${n}\nBinary: ${a.map(x=>x.toString(2).padStart(8,'0')).join('.')}\nHex: 0x${n.toString(16).toUpperCase().padStart(8,'0')}`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Red</span><span>›</span><span>IP Converter</span></nav>
+  <header class="tool-head"><span class="icon c-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 3 8 21M16 3l-2 18"/></svg></span><div><h1 class="headline-sm">IP Converter</h1><p>Convierte direcciones IPv4 entre decimal, entero, hexadecimal y binario, e identifica su tipo (privada, pública, CGNAT, APIPA…).</p><div class="badges"><span>Formatos múltiples</span><span>Análisis por lote</span><span>PTR</span></div></div></header>
+<div class="segmented" role="tablist"><button data-tab="one" class="on">Una dirección</button><button data-tab="many">Lista de direcciones</button></div>
+<div class="toolbox" data-panel="one">
+  <label for="ip">Dirección en cualquier formato</label>
+  <input id="ip" value="192.168.1.10" spellcheck="false" autocomplete="off">
+  <p class="hint">Formatos aceptados: decimal con puntos <b>10.1.2.3</b>, entero <b>167838211</b>, hexadecimal <b>0x0A010203</b>, binario <b>00001010.00000001.00000010.00000011</b> o IPv4 mapeada <b>::ffff:10.1.2.3</b>.</p>
+  <div class="row-actions"><button class="btn primary" id="go">Convertir</button></div>
+</div>
+<div class="toolbox" data-panel="many" hidden>
+  <label for="list">Una dirección por línea</label>
+  <textarea id="list">8.8.8.8
+10.20.30.40
+172.31.255.1
+192.168.0.1
+169.254.10.5
+100.64.1.1
+224.0.0.251</textarea>
+  <div class="row-actions"><button class="btn primary" id="mgo">Analizar lista</button></div>
+</div>
+<div id="out"></div>
+<div class="tool-help">
+  <div><h3>¿Para qué sirve el entero?</h3><p>Bases de datos, firewalls y logs a veces guardan la IP como número. Convertirla permite ordenar rangos o comparar direcciones.</p></div>
+  <div><h3>Rangos especiales</h3><p>La herramienta identifica redes privadas (RFC 1918), CGNAT, APIPA, loopback, multicast y rangos de documentación.</p></div>
+  <div><h3>PTR</h3><p>El nombre <code>in-addr.arpa</code> es el que debe existir en la zona inversa del DNS para que la IP resuelva a un nombre.</p></div>
+</div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+T.tabs(document.querySelector(".segmented"), () => document.getElementById("out").innerHTML = "");
+function parseAny(raw) {
+  let s = String(raw).trim().toLowerCase();
+  if (!s) return null;
+  s = s.replace(/^::ffff:/, "");
+  let n = T.ip.parse(s);
+  if (n != null) return n;
+  if (/^0x[0-9a-f]{1,8}$/.test(s)) return parseInt(s, 16) >>> 0;
+  const b = s.replace(/[.\s]/g, "");
+  if (/^[01]{32}$/.test(b)) return parseInt(b, 2) >>> 0;
+  if (/^\d{1,10}$/.test(s) && +s <= 4294967295) return +s >>> 0;
+  return null;
+}
+const ptr = n => T.ip.str(n).split(".").reverse().join(".") + ".in-addr.arpa";
+function one() {
+  const n = parseAny(T.val("ip"));
+  if (n == null) return T.show("out", T.alert("err", "No se reconoce el formato. Revisa los ejemplos debajo del campo."));
+  const o = T.ip.str(n).split(".").map(Number);
+  const hex6 = ((n >>> 16).toString(16).padStart(4, "0") + ":" + (n & 65535).toString(16).padStart(4, "0"));
+  T.show("out", T.card(T.ip.str(n),
+    `<div class="big-stats">
+      <div class="big-stat"><small>Tipo</small><b style="font-size:17px">${T.esc(T.ip.type(n))}</b></div>
+      <div class="big-stat"><small>Clase</small><b>${T.ip.cls(n)}</b></div>
+      <div class="big-stat"><small>Entero</small><b class="mono">${n}</b></div>
+    </div>` +
+    T.kv([
+      ["Decimal con puntos", T.ip.str(n), { hl: true }],
+      ["Entero sin signo", String(n)],
+      ["Hexadecimal", T.ip.hex(n)],
+      ["Hex por octeto", o.map(x => x.toString(16).toUpperCase().padStart(2, "0")).join(".")],
+      ["Binario", T.ip.bin(n)],
+      ["Octal por octeto", o.map(x => "0" + x.toString(8)).join(".")],
+      ["IPv6 mapeada", "::ffff:" + T.ip.str(n)],
+      ["IPv6 mapeada (hex)", "::ffff:" + hex6],
+      ["Prefijo 6to4", "2002:" + hex6 + "::/48"],
+      ["PTR (DNS inverso)", ptr(n)],
+      ["Máscara por clase", ({ A: "255.0.0.0 (/8)", B: "255.255.0.0 (/16)", C: "255.255.255.0 (/24)" })[T.ip.cls(n)] || "No aplica", { mono: false }]
+    ])));
+}
+function many() {
+  const lines = T.val("list").split(/\n/).map(x => x.trim()).filter(Boolean);
+  const rows = lines.map(l => { const n = parseAny(l); return n == null ? { _cls: "crit", cells: [l, "inválida", "", "", "", ""] } : [l, T.ip.str(n), String(n), T.ip.hex(n), T.ip.cls(n), T.ip.type(n)]; });
+  T.show("out", T.card(`${lines.length} direcciones`, T.table(["Entrada", "IPv4", "Entero", "Hex", "Clase", "Tipo"], rows) + `<div class="row-actions"><button class="pill" id="csv">Descargar CSV</button></div>`));
+  document.getElementById("csv").onclick = () => T.download("direcciones.csv", "Entrada,IPv4,Entero,Hex,Clase,Tipo\n" + rows.map(r => (r.cells || r).map(c => `"${c}"`).join(",")).join("\n"), "text/csv");
+}
+document.getElementById("go").onclick = one;
+document.getElementById("mgo").onclick = many;
+T.onEnter(document.querySelector('[data-panel="one"]'), one);
+one();
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -49,6 +126,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

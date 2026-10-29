@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Windows Server Helper | Emanuel Chacón</title>
+<meta name="description" content="Checklists guiados con PowerShell para salud del servidor, servicios, Active Directory, red, RDP, DNS y Windows Update.">
+<meta property="og:title" content="Windows Server Helper | Emanuel Chacón">
+<meta property="og:description" content="Checklists guiados con PowerShell para salud del servidor, servicios, Active Directory, red, RDP, DNS y Windows Update.">
+<meta property="og:url" content="https://emanuelchacon.cr/herramientas/windows.html">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
+<meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161617" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="https://emanuelchacon.cr/herramientas/windows.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="navbar">
+  <div class="container wide nav-inner">
+    <a class="brand" href="../" aria-label="Emanuel Chacón, inicio"><span class="brand-mark">EC</span>Emanuel Chacón</a>
+    <nav class="nav-links" id="site-nav" aria-label="Principal">
+      <a href="../#about">Perfil</a><a href="../#projects">Proyectos</a><a href="../#skills">Skills</a><a href="../#lab">Lab</a><a href="../herramientas/" aria-current="page">Herramientas</a><a href="../#contact">Contacto</a><a class="nav-cta" href="../enlaces/">Enlaces</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menú" aria-expanded="false" aria-controls="site-nav"><span></span><span></span></button>
+  </div>
+</header>
+<main id="main" class="tool-page">
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Sistemas</span><span>›</span><span>Windows Server Helper</span></nav>
+  <header class="tool-head"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></span><div><h1 class="headline-sm">Windows Server Helper</h1><p>Checklists guiados con PowerShell para salud del servidor, servicios, Active Directory, red, RDP, DNS y Windows Update.</p><div class="badges"><span>PowerShell</span><span>Active Directory</span><span>RDP</span><span>Windows Update</span><span><span id="count"></span></span></div></div></header>
+<div id="ts"></div>
+<div class="tool-help">
+  <div><h3>Cómo usarlo</h3><p>Elige el componente y el problema. Completa los datos de tu entorno y se insertarán en los comandos. Marca cada paso al terminarlo: el progreso se guarda en este navegador.</p></div>
+  <div><h3>Documentar el caso</h3><p>Usa <b>Notas del caso</b> para registrar hallazgos y descarga el checklist en <b>.md</b> para adjuntarlo al ticket o al informe de incidente.</p></div>
+  <div><h3>Enlace directo</h3><p>La dirección de la página cambia con cada escenario, así puedes compartir el checklist exacto con tu equipo.</p></div>
+</div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const PS = "PowerShell (como administrador)", CMD = "CMD (como administrador)";
+const DATA = [
+{ id: "health", name: "Salud general", icon: "🩺", where: PS, scenarios: [
+  { id: "check", name: "Health check del servidor", desc: "Revisión rápida del estado de {server} antes de un cambio o como diagnóstico inicial.",
+    summary: "Uptime, discos, servicios automáticos detenidos, eventos críticos y parches.",
+    steps: [
+      { t: "Información del sistema y uptime", d: "Versión, build y último arranque. Un reinicio inesperado se ve aquí.", c: "Get-ComputerInfo -Property CsName,OsName,OsVersion,OsBuildNumber,OsLastBootUpTime\n(Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime", e: "Build esperado y último arranque coherente con el mantenimiento planificado." },
+      { t: "Espacio en discos", d: "Discos por debajo del 15 % libre generan problemas de actualizaciones, logs y bases de datos.", c: "Get-CimInstance Win32_LogicalDisk -Filter \"DriveType=3\" | Select DeviceID,@{N='TamañoGB';E={[math]::Round($_.Size/1GB,1)}},@{N='LibreGB';E={[math]::Round($_.FreeSpace/1GB,1)}},@{N='Libre%';E={[math]::Round($_.FreeSpace/$_.Size*100,1)}}", e: "Libre% mayor a 15 en todos los volúmenes." },
+      { t: "Servicios automáticos detenidos", d: "Servicios configurados en automático que no están corriendo suelen indicar fallos.", c: "Get-CimInstance Win32_Service -Filter \"StartMode='Auto' AND State<>'Running'\" | Select Name,DisplayName,State,ExitCode", e: "Solo servicios de inicio diferido o por desencadenador (ej. gupdate, sppsvc, RemoteRegistry)." },
+      { t: "Eventos críticos y errores (24 h)", d: "Resumen de errores del sistema y aplicaciones agrupados por origen.", c: "Get-WinEvent -FilterHashtable @{LogName='System','Application';Level=1,2;StartTime=(Get-Date).AddDays(-1)} -ErrorAction SilentlyContinue | Group-Object ProviderName | Sort Count -Descending | Select Count,Name -First 15", e: "Sin orígenes con muchos errores repetidos (Disk, Ntfs, Service Control Manager, Kernel-Power)." },
+      { t: "Últimos parches instalados", d: "Confirma que el servidor recibe actualizaciones.", c: "Get-HotFix | Sort InstalledOn -Descending | Select -First 10 HotFixID,Description,InstalledOn", e: "Parche más reciente con menos de 45 días." },
+      { t: "Reinicio pendiente", d: "Un reinicio pendiente puede bloquear instalaciones y cambios.", c: "Test-Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Component Based Servicing\\RebootPending'\nTest-Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate\\Auto Update\\RebootRequired'", e: "Ambos «False». Si alguno es «True», agenda el reinicio." },
+      { t: "Hora y sincronización", d: "La hora incorrecta rompe Kerberos y la autenticación al dominio.", c: "w32tm /query /status\nw32tm /query /source", e: "Fuente = controlador de dominio o servidor NTP, con «Last Successful Sync Time» reciente." }
+    ]},
+  { id: "perf", name: "CPU / memoria alta", desc: "Servidor lento, CPU al 100 % o memoria agotada.",
+    summary: "Identifica el proceso responsable y mide los contadores clave.",
+    steps: [
+      { t: "Contadores principales", d: "Muestra CPU, memoria disponible y cola de disco en tiempo real.", c: "Get-Counter '\\Processor(_Total)\\% Processor Time','\\Memory\\Available MBytes','\\Memory\\Pages/sec','\\PhysicalDisk(_Total)\\Avg. Disk Queue Length' -SampleInterval 2 -MaxSamples 5", e: "CPU < 80 % sostenido, memoria disponible > 10 % y cola de disco < 2 por disco." },
+      { t: "Procesos por CPU", d: "Lista los procesos con más tiempo de CPU.", c: "Get-Process | Sort CPU -Descending | Select -First 10 Name,Id,CPU,@{N='MemMB';E={[math]::Round($_.WS/1MB)}}", e: "Proceso dominante." },
+      { t: "Procesos por memoria", d: "Working Set = memoria física en uso.", c: "Get-Process | Sort WS -Descending | Select -First 10 Name,Id,@{N='MemMB';E={[math]::Round($_.WS/1MB)}}", e: "Procesos con memoria creciente en el tiempo pueden tener fugas." },
+      { t: "Servicio dentro de svchost", d: "Si el proceso es svchost.exe, identifica qué servicio aloja.", c: "tasklist /svc /fi \"PID eq <PID>\"", where: CMD, e: "Nombre del servicio (ej. wuauserv = Windows Update)." },
+      { t: "Paginación y archivo de paginación", d: "Un pagefile pequeño o ausente provoca errores de memoria.", c: "Get-CimInstance Win32_PageFileUsage | Select Name,AllocatedBaseSize,CurrentUsage,PeakUsage", e: "PeakUsage lejos de AllocatedBaseSize." },
+      { t: "Recolectar evidencia (Perfmon)", d: "Graba contadores durante el periodo del problema para analizarlos luego.", c: "logman create counter PerfCaso -c \"\\Processor(_Total)\\% Processor Time\" \"\\Memory\\Available MBytes\" \"\\PhysicalDisk(*)\\Avg. Disk sec/Transfer\" -si 15 -o C:\\PerfLogs\\PerfCaso\nlogman start PerfCaso\n# ... reproducir el problema ...\nlogman stop PerfCaso", where: CMD, e: "Archivo .blg en C:\\PerfLogs para abrir con Performance Monitor." }
+    ]},
+  { id: "disk", name: "Disco lleno (C:)", desc: "Unidad del sistema sin espacio.",
+    summary: "Libera espacio de forma segura en la unidad {drive}.",
+    steps: [
+      { t: "Carpetas más grandes", d: "Ubica qué ocupa espacio en la raíz del disco.", c: "Get-ChildItem {drive}\\ -Directory -Force -ErrorAction SilentlyContinue | ForEach-Object { [pscustomobject]@{Carpeta=$_.FullName; GB=[math]::Round((Get-ChildItem $_.FullName -Recurse -Force -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB,2)} } | Sort GB -Descending | Select -First 10", e: "Carpetas típicas: Windows\\WinSxS, Windows\\SoftwareDistribution, Users, ProgramData, inetpub\\logs." },
+      { t: "Limpiar el almacén de componentes", d: "Elimina versiones anteriores de componentes reemplazados por actualizaciones.", c: "Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore\nDism.exe /Online /Cleanup-Image /StartComponentCleanup", where: CMD, e: "Espacio recuperado en WinSxS. Puede tardar varios minutos." },
+      { t: "Caché de Windows Update", d: "Las descargas de actualizaciones ya instaladas pueden eliminarse.", c: "Stop-Service wuauserv,bits -Force\nRemove-Item C:\\Windows\\SoftwareDistribution\\Download\\* -Recurse -Force\nStart-Service wuauserv,bits", e: "Carpeta Download vacía y servicios iniciados de nuevo." },
+      { t: "Logs de IIS", d: "Los logs de IIS no se rotan solos y crecen sin límite.", c: "Get-ChildItem C:\\inetpub\\logs\\LogFiles -Recurse -File | Where LastWriteTime -lt (Get-Date).AddDays(-30) | Remove-Item -WhatIf", e: "Revisa la lista que muestra -WhatIf y luego ejecuta sin -WhatIf.", w: "Confirma la política de retención de logs con el área de seguridad antes de borrar." },
+      { t: "Temporales", d: "Archivos temporales del sistema y de usuarios.", c: "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue\nRemove-Item C:\\Windows\\Temp\\* -Recurse -Force -ErrorAction SilentlyContinue", e: "Espacio liberado. Algunos archivos en uso no se podrán borrar (normal)." },
+      { t: "Volcados de memoria", d: "MEMORY.DMP puede ocupar tanto como la RAM.", c: "Get-ChildItem C:\\Windows\\MEMORY.DMP,C:\\Windows\\Minidump -ErrorAction SilentlyContinue | Select FullName,@{N='MB';E={[math]::Round($_.Length/1MB)}}", e: "Si ya se analizó el fallo, el volcado puede eliminarse o moverse." },
+      { t: "Ampliar el volumen", d: "Si el disco virtual se amplió en el hipervisor, extiende la partición.", c: "Update-HostStorageCache\n$max = (Get-PartitionSupportedSize -DriveLetter C).SizeMax\nResize-Partition -DriveLetter C -Size $max", e: "La unidad muestra el nuevo tamaño." }
+    ]}
+]},
+{ id: "services", name: "Servicios y eventos", icon: "⚙️", where: PS, scenarios: [
+  { id: "service", name: "Servicio no inicia", desc: "Un servicio de Windows se detiene o no arranca.",
+    summary: "Diagnóstico del servicio {svc}: estado, dependencias, cuenta y eventos.",
+    steps: [
+      { t: "Estado y configuración", d: "Muestra estado, tipo de inicio y cuenta con la que corre.", c: "Get-CimInstance Win32_Service -Filter \"Name='{svc}'\" | Select Name,State,StartMode,StartName,PathName,ExitCode", e: "StartName indica la cuenta. ExitCode distinto de 0 da pistas del fallo." },
+      { t: "Dependencias", d: "Si una dependencia no inicia, el servicio tampoco.", c: "Get-Service {svc} -RequiredServices\nGet-Service {svc} -DependentServices", e: "Todas las dependencias en «Running»." },
+      { t: "Eventos del Service Control Manager", d: "Registra por qué falló el inicio (eventos 7000, 7009, 7023, 7031, 7034, 7038).", c: "Get-WinEvent -FilterHashtable @{LogName='System';ProviderName='Service Control Manager';StartTime=(Get-Date).AddDays(-1)} | Where Message -match '{svc}' | Select TimeCreated,Id,Message -First 10 | Format-List", e: "7038 = contraseña de la cuenta de servicio incorrecta. 7000/7009 = timeout o error del ejecutable." },
+      { t: "Cuenta de servicio", d: "Contraseñas vencidas o cuentas bloqueadas son una causa frecuente.", c: "Get-ADUser <cuenta> -Properties LockedOut,PasswordExpired,PasswordLastSet,Enabled | Select Name,Enabled,LockedOut,PasswordExpired,PasswordLastSet", e: "Enabled = True, LockedOut = False y PasswordExpired = False." },
+      { t: "Iniciar y observar", d: "Intenta iniciar y lee el error devuelto.", c: "Start-Service {svc} -Verbose\nGet-Service {svc}", e: "Status = Running." },
+      { t: "Acciones de recuperación", d: "Configura reinicio automático ante fallos.", c: "sc.exe failure {svc} reset= 86400 actions= restart/60000/restart/60000/restart/60000\nsc.exe qfailure {svc}", where: CMD, e: "El servicio se reinicia automáticamente hasta 3 veces." }
+    ]},
+  { id: "events", name: "Análisis de eventos / reinicios", desc: "Encontrar por qué se reinició o se detuvo un servidor.",
+    summary: "Identifica reinicios planificados, caídas y pantallas azules.",
+    steps: [
+      { t: "Historial de apagados y reinicios", d: "Eventos 1074 (reinicio iniciado por usuario/proceso), 6006/6005 (apagado/arranque limpio), 6008 (apagado inesperado), 41 (Kernel-Power).", c: "Get-WinEvent -FilterHashtable @{LogName='System';Id=41,1074,6005,6006,6008} -MaxEvents 20 | Select TimeCreated,Id,ProviderName,@{N='Mensaje';E={$_.Message.Substring(0,[Math]::Min(160,$_.Message.Length))}} | Format-Table -Wrap", e: "1074 muestra quién reinició y por qué. 41 + 6008 = pérdida de energía o cuelgue." },
+      { t: "Pantallas azules (BugCheck)", d: "El evento 1001 de BugCheck incluye el código de error.", c: "Get-WinEvent -FilterHashtable @{LogName='System';ProviderName='Microsoft-Windows-WER-SystemErrorReporting';Id=1001} -MaxEvents 5 | Format-List TimeCreated,Message", e: "Código de bugcheck (ej. 0x0000009f) y ubicación del volcado." },
+      { t: "Errores de disco y NTFS", d: "Problemas de almacenamiento previos al fallo.", c: "Get-WinEvent -FilterHashtable @{LogName='System';ProviderName='disk','Ntfs','storvsc','volmgr';Level=1,2,3;StartTime=(Get-Date).AddDays(-7)} -ErrorAction SilentlyContinue | Select TimeCreated,ProviderName,Id,Message -First 20", e: "Sin errores 7, 11, 51, 129, 153 (I/O y timeouts)." },
+      { t: "Errores de aplicación", d: "Caídas de procesos (Application Error 1000, .NET Runtime 1026).", c: "Get-WinEvent -FilterHashtable @{LogName='Application';Id=1000,1026;StartTime=(Get-Date).AddDays(-7)} -ErrorAction SilentlyContinue | Select TimeCreated,Id,Message -First 10 | Format-List", e: "Aplicación y módulo con fallos repetidos." },
+      { t: "Exportar evidencia", d: "Exporta los logs para adjuntarlos a un caso de soporte.", c: "wevtutil epl System C:\\Temp\\System.evtx\nwevtutil epl Application C:\\Temp\\Application.evtx", where: CMD, e: "Archivos .evtx en C:\\Temp." }
+    ]},
+  { id: "integrity", name: "Archivos del sistema dañados", desc: "Errores extraños, componentes que fallan o actualizaciones que no instalan.",
+    summary: "Repara la imagen de Windows y los archivos del sistema.",
+    steps: [
+      { t: "Revisar la imagen", d: "Comprueba si el almacén de componentes está dañado.", c: "DISM /Online /Cleanup-Image /ScanHealth", where: CMD, e: "«No component store corruption detected»." },
+      { t: "Reparar la imagen", d: "Descarga componentes sanos desde Windows Update (o desde una ISO con /Source).", c: "DISM /Online /Cleanup-Image /RestoreHealth", where: CMD, e: "«The restore operation completed successfully».", w: "Sin Internet usa: DISM /Online /Cleanup-Image /RestoreHealth /Source:WIM:D:\\sources\\install.wim:1 /LimitAccess" },
+      { t: "Verificar archivos del sistema", d: "SFC reemplaza archivos protegidos dañados.", c: "sfc /scannow", where: CMD, e: "«Windows Resource Protection did not find any integrity violations» o «found corrupt files and successfully repaired them»." },
+      { t: "Revisar el log de CBS", d: "Detalle de lo que SFC no pudo reparar.", c: "findstr /c:\"[SR]\" %windir%\\Logs\\CBS\\CBS.log > %userprofile%\\Desktop\\sfcdetails.txt", where: CMD, e: "Archivo en el escritorio con los archivos problemáticos." },
+      { t: "Reiniciar y validar", d: "Algunas reparaciones requieren reinicio.", c: "Restart-Computer", e: "El problema original desaparece." }
+    ]}
+]},
+{ id: "ad", name: "Active Directory", icon: "🏛️", where: PS, scenarios: [
+  { id: "dc", name: "Salud de controladores de dominio", desc: "Validación de DCs, replicación y servicios de AD.",
+    summary: "dcdiag, repadmin, roles FSMO y SYSVOL para el dominio {domain}.",
+    steps: [
+      { t: "Diagnóstico general", d: "dcdiag ejecuta decenas de pruebas sobre el DC.", c: "dcdiag /s:{dc} /q\ndcdiag /s:{dc} /test:dns /v", where: CMD, e: "/q muestra solo errores: sin salida = sano." },
+      { t: "Resumen de replicación", d: "Muestra fallos de replicación entre todos los DCs.", c: "repadmin /replsummary\nrepadmin /showrepl {dc} /errorsonly", where: CMD, e: "«fails» en 0 y «largest delta» menor a 60 minutos." },
+      { t: "Roles FSMO", d: "Confirma qué DC tiene cada rol y que está en línea.", c: "netdom query fsmo", where: CMD, e: "Todos los roles en DCs existentes y accesibles." },
+      { t: "SYSVOL y NETLOGON compartidos", d: "Sin estos recursos, las GPO y los scripts de inicio fallan.", c: "net share | findstr /i \"SYSVOL NETLOGON\"\ndfsrmig /getmigrationstate", where: CMD, e: "Ambos recursos compartidos y SYSVOL migrado a DFSR («Eliminated»)." },
+      { t: "Servicios del DC", d: "Servicios esenciales de Active Directory.", c: "Get-Service NTDS,DNS,Netlogon,KDC,DFSR,W32Time | Select Name,Status", e: "Todos en «Running»." },
+      { t: "Hora del PDC Emulator", d: "El PDC debe sincronizar con una fuente externa confiable y el resto con el dominio.", c: "w32tm /query /source\nw32tm /monitor /domain:{domain}", where: CMD, e: "PDC con NTP externo y desfase menor a 1 s entre DCs." }
+    ]},
+  { id: "trust", name: "Relación de confianza / login falla", desc: "«The trust relationship between this workstation and the primary domain failed» o problemas de inicio de sesión.",
+    summary: "Valida canal seguro, localización de DC, DNS y Kerberos desde el miembro.",
+    steps: [
+      { t: "Localizar un DC", d: "Comprueba que el equipo encuentra un controlador de dominio.", c: "nltest /dsgetdc:{domain}", where: CMD, e: "Devuelve un DC y «The command completed successfully»." },
+      { t: "DNS del miembro", d: "El equipo debe usar solo DNS del dominio (no públicos).", c: "Get-DnsClientServerAddress -AddressFamily IPv4\nResolve-DnsName _ldap._tcp.dc._msdcs.{domain} -Type SRV", e: "Servidores DNS internos y registros SRV de los DCs." },
+      { t: "Canal seguro", d: "Valida la cuenta de equipo en el dominio.", c: "Test-ComputerSecureChannel -Verbose", e: "«True». Si es «False», repara con el siguiente paso." },
+      { t: "Reparar canal seguro", d: "Restablece la contraseña de la cuenta de equipo sin sacarlo del dominio.", c: "Test-ComputerSecureChannel -Repair -Credential (Get-Credential)", e: "«True» sin necesidad de reiniciar.", w: "Si falla, usa: Reset-ComputerMachinePassword -Server {dc} -Credential (Get-Credential)" },
+      { t: "Tickets Kerberos", d: "Limpia tickets antiguos y fuerza una nueva autenticación.", c: "klist\nklist purge", where: CMD, e: "Tickets nuevos tras volver a iniciar sesión." },
+      { t: "Cuenta de usuario bloqueada", d: "Revisa bloqueo y origen de los intentos fallidos.", c: "Get-ADUser {user} -Properties LockedOut,BadLogonCount,LastBadPasswordAttempt,PasswordExpired | Select Name,LockedOut,BadLogonCount,LastBadPasswordAttempt,PasswordExpired\nUnlock-ADAccount {user}", e: "LockedOut = False tras desbloquear. Para el origen, busca el evento 4740 en el PDC." }
+    ]},
+  { id: "gpo", name: "GPO no se aplica", desc: "Una política de grupo no llega a un equipo o usuario.",
+    summary: "Forzar actualización, ver resultado y revisar filtros.",
+    steps: [
+      { t: "Forzar actualización", d: "Aplica políticas de equipo y usuario inmediatamente.", c: "gpupdate /force", where: CMD, e: "«Computer Policy update has completed successfully»." },
+      { t: "Resultado de directivas", d: "Muestra qué GPO se aplicaron y cuáles se filtraron.", c: "gpresult /r /scope computer\ngpresult /h C:\\Temp\\gpresult.html", where: CMD, e: "La GPO aparece en «Applied Group Policy Objects». Si está en «filtered out», revisa el motivo." },
+      { t: "Ubicación del objeto", d: "La GPO debe estar vinculada a la OU donde está el equipo o usuario.", c: "Get-ADComputer $env:COMPUTERNAME | Select DistinguishedName", e: "La OU coincide con un vínculo de la GPO." },
+      { t: "Filtro de seguridad y WMI", d: "El equipo/usuario necesita permiso «Read» y «Apply group policy».", c: "Get-GPPermission -Name \"<Nombre GPO>\" -All", e: "Authenticated Users o el grupo correspondiente con GpoApply." },
+      { t: "Eventos de directiva de grupo", d: "Errores de procesamiento y tiempos de aplicación.", c: "Get-WinEvent -LogName 'Microsoft-Windows-GroupPolicy/Operational' -MaxEvents 30 | Where Level -le 3 | Select TimeCreated,Id,Message", e: "Sin errores de acceso a SYSVOL ni timeouts de red." }
+    ]}
+]},
+{ id: "network", name: "Red y DNS", icon: "🌐", where: PS, scenarios: [
+  { id: "connectivity", name: "Conectividad y puertos", desc: "El servidor no alcanza otro equipo o servicio.",
+    summary: "Prueba IP, ruta, DNS y puerto desde {server} hacia {peer}.",
+    steps: [
+      { t: "Configuración IP", d: "Revisa IP, gateway y DNS de cada adaptador.", c: "Get-NetIPConfiguration | Select InterfaceAlias,IPv4Address,IPv4DefaultGateway,DNSServer", e: "IP, gateway y DNS correctos en el adaptador activo." },
+      { t: "Ping y ruta", d: "Prueba básica con traza de ruta.", c: "Test-NetConnection {peer} -TraceRoute", e: "PingSucceeded = True. La traza muestra el último salto alcanzado." },
+      { t: "Puerto TCP", d: "Comprueba si el servicio remoto acepta conexiones.", c: "Test-NetConnection {peer} -Port {port} -InformationLevel Detailed", e: "TcpTestSucceeded = True. False con ping exitoso = firewall o servicio detenido." },
+      { t: "Resolución de nombres", d: "Compara la respuesta de distintos servidores DNS.", c: "Resolve-DnsName {peer}\nClear-DnsClientCache", e: "El nombre resuelve a la IP esperada." },
+      { t: "Puertos en escucha locales", d: "Confirma qué escucha en este servidor y qué proceso lo hace.", c: "Get-NetTCPConnection -State Listen | Select LocalAddress,LocalPort,OwningProcess,@{N='Proceso';E={(Get-Process -Id $_.OwningProcess).ProcessName}} | Sort LocalPort", e: "El puerto del servicio aparece en escucha." },
+      { t: "Firewall de Windows", d: "Revisa perfiles y crea la regla de entrada si hace falta.", c: "Get-NetFirewallProfile | Select Name,Enabled,DefaultInboundAction\nNew-NetFirewallRule -DisplayName \"Permitir TCP {port}\" -Direction Inbound -Protocol TCP -LocalPort {port} -Action Allow", e: "Regla creada y puerto accesible desde el cliente." }
+    ]},
+  { id: "rdp", name: "Escritorio remoto (RDP)", desc: "No es posible conectarse por RDP al servidor.",
+    summary: "Valida servicio, puerto 3389, firewall, NLA y sesiones.",
+    steps: [
+      { t: "Puerto desde el cliente", d: "Comprueba que el 3389 es alcanzable.", where: "Cliente", c: "Test-NetConnection {server} -Port 3389", e: "TcpTestSucceeded = True." },
+      { t: "RDP habilitado", d: "fDenyTSConnections = 0 significa RDP permitido.", c: "Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name fDenyTSConnections\nGet-Service TermService", e: "Valor 0 y servicio «Running»." },
+      { t: "Regla de firewall", d: "Habilita el grupo de reglas de Escritorio remoto.", c: "Enable-NetFirewallRule -DisplayGroup \"Remote Desktop\"\nGet-NetFirewallRule -DisplayGroup \"Remote Desktop\" | Select DisplayName,Enabled,Profile", e: "Reglas habilitadas en el perfil Domain." },
+      { t: "Sesiones activas", d: "Un servidor sin licencias RDS permite solo 2 sesiones administrativas.", c: "qwinsta /server:{server}\nlogoff <ID> /server:{server}", where: CMD, e: "Sesiones desconectadas que se pueden cerrar para liberar espacio." },
+      { t: "Permisos del usuario", d: "El usuario debe estar en «Usuarios de escritorio remoto» o en Administradores.", c: "Get-LocalGroupMember -Group \"Remote Desktop Users\"", e: "Usuario o grupo presente." },
+      { t: "Eventos de RDP", d: "Errores de licenciamiento, certificados o autenticación.", c: "Get-WinEvent -LogName 'Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational' -MaxEvents 20 | Select TimeCreated,Id,Message", e: "Evento 1149 = autenticación exitosa en la red. Errores indican la causa." }
+    ]},
+  { id: "dns-server", name: "Servidor DNS", desc: "Diagnóstico del rol DNS de Windows Server.",
+    summary: "Zonas, reenviadores, caché y pruebas de resolución.",
+    steps: [
+      { t: "Zonas configuradas", d: "Lista zonas y su tipo (integradas en AD, primarias, secundarias).", c: "Get-DnsServerZone | Select ZoneName,ZoneType,IsDsIntegrated,IsReverseLookupZone", e: "Zonas del dominio integradas en AD y zonas inversas presentes." },
+      { t: "Reenviadores", d: "Necesarios para resolver nombres externos.", c: "Get-DnsServerForwarder\nTest-DnsServer -IPAddress (Get-DnsServerForwarder).IPAddress[0]", e: "Reenviadores que responden («Success»)." },
+      { t: "Probar resolución en este servidor", d: "Consulta directamente al servidor DNS local.", c: "Resolve-DnsName {domain} -Server 127.0.0.1\nResolve-DnsName www.microsoft.com -Server 127.0.0.1", e: "Ambas resuelven: interna y externa." },
+      { t: "Registros de un host", d: "Busca registros A obsoletos o duplicados.", c: "Get-DnsServerResourceRecord -ZoneName {domain} -Name {peer}", e: "Un solo registro A con la IP actual." },
+      { t: "Limpiar caché", d: "Elimina respuestas cacheadas incorrectas.", c: "Clear-DnsServerCache -Force", e: "Las nuevas consultas devuelven el valor actualizado." },
+      { t: "Eventos del servidor DNS", d: "Errores de zona, replicación o carga.", c: "Get-WinEvent -LogName 'DNS Server' -MaxEvents 30 | Where Level -le 3 | Select TimeCreated,Id,Message", e: "Sin errores 4000/4013 (problemas de carga desde AD)." }
+    ]}
+]},
+{ id: "updates", name: "Windows Update", icon: "🔄", where: PS, scenarios: [
+  { id: "fail", name: "Actualizaciones fallan", desc: "Las actualizaciones no se instalan o se quedan descargando.",
+    summary: "Revisa historial, restablece componentes y valida la conexión al origen (WSUS o Microsoft).",
+    steps: [
+      { t: "Historial de errores", d: "Muestra las actualizaciones fallidas con su código.", c: "$s = New-Object -ComObject Microsoft.Update.Session\n$s.CreateUpdateSearcher().QueryHistory(0,30) | Select Date,Title,ResultCode,HResult | Format-Table -Wrap", e: "ResultCode 2 = éxito, 4 = falla. Busca el HResult (ej. 0x800f0922) en la documentación." },
+      { t: "Origen de actualizaciones (WSUS)", d: "Si se usa WSUS, confirma el servidor configurado por GPO.", c: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -ErrorAction SilentlyContinue | Select WUServer,WUStatusServer", e: "URL de WSUS correcta y accesible (Test-NetConnection <wsus> -Port 8530)." },
+      { t: "Restablecer componentes", d: "Renombra las carpetas de caché para que Windows Update las recree.", c: "Stop-Service wuauserv,bits,cryptsvc -Force\nRename-Item C:\\Windows\\SoftwareDistribution SoftwareDistribution.old\nRename-Item C:\\Windows\\System32\\catroot2 catroot2.old\nStart-Service wuauserv,bits,cryptsvc", e: "Servicios iniciados. Vuelve a buscar actualizaciones." },
+      { t: "Reparar la imagen", d: "Componentes dañados impiden instalar actualizaciones acumulativas.", c: "DISM /Online /Cleanup-Image /RestoreHealth\nsfc /scannow", where: CMD, e: "Reparación completada sin errores." },
+      { t: "Log de Windows Update", d: "Genera el log legible en el escritorio.", c: "Get-WindowsUpdateLog", e: "WindowsUpdate.log en el escritorio con el detalle del fallo." },
+      { t: "Instalación manual", d: "Descarga el .msu desde el Microsoft Update Catalog e instálalo manualmente.", c: "wusa.exe C:\\Temp\\<actualizacion>.msu /quiet /norestart", where: CMD, e: "Instalación correcta (código de salida 0 o 3010 = requiere reinicio)." }
+    ]}
+]}
+];
+T.troubleshooter(document.getElementById("ts"), {
+  key: "windows", data: DATA,
+  fields: [
+    { id: "server", label: "Servidor", ph: "SRV-APP01" },
+    { id: "svc", label: "Servicio", ph: "Spooler" },
+    { id: "peer", label: "Host / IP remoto", ph: "10.0.0.20" },
+    { id: "port", label: "Puerto", ph: "443" },
+    { id: "domain", label: "Dominio", ph: "empresa.local" },
+    { id: "dc", label: "Controlador de dominio", ph: "DC01" },
+    { id: "user", label: "Usuario", ph: "jperez" },
+    { id: "drive", label: "Unidad", ph: "C:" }
+  ]
+});
+document.getElementById("count").textContent = DATA.reduce((a, c) => a + c.scenarios.length, 0) + " escenarios · " + DATA.reduce((a, c) => a + c.scenarios.reduce((b, s) => b + s.steps.length, 0), 0) + " pasos guiados";
+
+</script>
+<footer class="site-footer">
+  <div class="container wide">
+    <div class="footer-cols">
+      <div><h4>Portfolio</h4><a href="../#about">Perfil</a><a href="../#projects">Proyectos</a><a href="../#skills">Skills</a><a href="../cv.html">Curriculum</a></div>
+      <div><h4>Proyectos</h4><a href="../proyectos/datacenter.html">Data Center</a><a href="../proyectos/vxrail.html">Dell VxRail</a><a href="../proyectos/netbackup.html">NetBackup</a><a href="../proyectos/automation.html">Automation &amp; IaC</a></div>
+      <div><h4>Herramientas</h4><a href="../herramientas/subnet.html">Subnet Calculator</a><a href="../herramientas/sla.html">SLA Calculator</a><a href="../herramientas/password.html">Password Generator</a><a href="../herramientas/">Ver todas</a></div>
+      <div><h4>Contacto</h4><a href="mailto:contacto@emanuelchacon.cr">Correo</a><a href="https://www.linkedin.com/in/emanuelchaconcr/" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/emanuelchaconcr" target="_blank" rel="noopener">GitHub</a><a href="../enlaces/">Enlaces</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>Copyright © <span data-year>2026</span> Emanuel Chacón. Todos los derechos reservados.</span>
+      <span>Infrastructure · Automation · Costa Rica</span>
+    </div>
+  </div>
+</footer>
+<script src="../js/main.js?v=20261029b"></script>
+</body>
+</html>

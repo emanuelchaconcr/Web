@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>NTP / Chrony Helper | Emanuel Chacón | Emanuel Chacón</title>
-<meta name="description" content="Ayudante de configuración NTP/Chrony. Genera configuración y comandos de validación para servidores NTP.">
-<meta property="og:title" content="NTP / Chrony Helper | Emanuel Chacón | Emanuel Chacón">
-<meta property="og:description" content="Ayudante de configuración NTP/Chrony. Genera configuración y comandos de validación para servidores NTP.">
+<title>NTP / Chrony Helper | Emanuel Chacón</title>
+<meta name="description" content="Configuración de hora para chrony, timesyncd, Windows (miembro y PDC), ESXi y Cisco, más guía de troubleshooting.">
+<meta property="og:title" content="NTP / Chrony Helper | Emanuel Chacón">
+<meta property="og:description" content="Configuración de hora para chrony, timesyncd, Windows (miembro y PDC), ESXi y Cisco, más guía de troubleshooting.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/ntp.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/ntp.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,13 +31,103 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>NTP / Chrony Helper</span></nav>
-  <header class="tool-head"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h1 class="headline-sm">NTP / Chrony Helper</h1><p>Ayudante de configuración NTP/Chrony. Genera configuración y comandos de validación para servidores NTP.</p></div></header>
-<div class="toolbox">
-<label>Servidor NTP</label><input id="server" value="pool.ntp.org">
-<label>Sistema</label><select id="os"><option>RHEL / Oracle Linux / CentOS</option><option>Ubuntu / Debian</option></select>
-<button class="btn primary" onclick="go()">Generar configuración</button><div id="out" class="result"></div></div>
-</main><script>function go(){let s=server.value.trim();out.textContent=`chrony:\nserver ${s} iburst\n\nComandos:\nsystemctl enable --now chronyd\nchronyc sources -v\nchronyc tracking\n\nValidación:\ntimedatectl status\n\nNota: revisa firewall UDP/123.`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Sistemas</span><span>›</span><span>NTP / Chrony Helper</span></nav>
+  <header class="tool-head"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h1 class="headline-sm">NTP / Chrony Helper</h1><p>Configuración de hora para chrony, timesyncd, Windows (miembro y PDC), ESXi y Cisco, más guía de troubleshooting.</p><div class="badges"><span>7 plataformas</span><span>Checklist</span><span>Medir desfase</span></div></div></header>
+<div class="segmented" role="tablist"><button data-tab="gen" class="on">Generar configuración</button><button data-tab="ts">Troubleshooting</button><button data-tab="clock">Reloj de este equipo</button></div>
+<div class="toolbox" data-panel="gen">
+  <span class="field-label">Plataforma</span>
+  <div class="chips small" id="plat"></div>
+  <div class="grid2" style="margin-top:6px">
+    <div><label for="srv">Servidores NTP (uno por línea)</label><textarea id="srv" style="min-height:120px">0.pool.ntp.org
+1.pool.ntp.org
+time.cloudflare.com</textarea>
+      <div class="chips small" id="presets" style="margin-top:10px"></div></div>
+    <div>
+      <label for="allow">Permitir clientes desde (opcional)</label><input id="allow" placeholder="10.0.0.0/8" spellcheck="false">
+      <p class="hint">Solo si este equipo será servidor NTP para la red.</p>
+      <label for="tz">Zona horaria</label><input id="tz" value="America/Costa_Rica" spellcheck="false">
+    </div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="go">Generar</button></div>
+</div>
+<div class="toolbox" data-panel="clock" hidden>
+  <p style="color:var(--muted);font-size:15px">Compara la hora de tu equipo con la hora del servidor web (cabecera HTTP <code>Date</code>). Es una referencia rápida, con precisión de ±1 s.</p>
+  <div class="row-actions"><button class="btn primary" id="cgo">Medir desfase</button></div>
+</div>
+<div id="out"></div>
+<div id="tsbox" class="checklist" data-panel="ts" hidden></div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const $ = id => document.getElementById(id);
+const PLAT = { rhel: "RHEL / Oracle Linux (chrony)", deb: "Ubuntu / Debian (chrony)", tsd: "systemd-timesyncd", win: "Windows (miembro / standalone)", pdc: "Windows PDC Emulator", esxi: "VMware ESXi", ios: "Cisco IOS" };
+const PRE = { "pool.ntp.org": ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"], "Cloudflare": ["time.cloudflare.com"], "Google": ["time.google.com", "time2.google.com"], "Microsoft": ["time.windows.com"], "NIST": ["time.nist.gov"] };
+let plat = "rhel";
+$("plat").innerHTML = Object.entries(PLAT).map(([k, v]) => `<button type="button" class="chip${k === plat ? " on" : ""}" data-k="${k}">${v}</button>`).join("");
+$("plat").onclick = e => { const b = e.target.closest(".chip"); if (!b) return; plat = b.dataset.k; T.$$(".chip", $("plat")).forEach(x => x.classList.toggle("on", x === b)); go(); };
+$("presets").innerHTML = Object.keys(PRE).map(k => `<button type="button" class="chip">${k}</button>`).join("");
+$("presets").onclick = e => { const b = e.target.closest(".chip"); if (!b) return; $("srv").value = PRE[b.textContent].join("\n"); go(); };
+T.tabs(document.querySelector(".segmented"), id => { $("out").innerHTML = ""; if (id === "ts") ts(); if (id === "gen") go(); });
+
+function go() {
+  const S = T.val("srv").split(/\s+/).filter(Boolean), allow = T.val("allow").trim(), tz = T.val("tz").trim();
+  if (!S.length) return T.show("out", T.alert("err", "Agrega al menos un servidor NTP."));
+  const pools = S.map(s => (/pool\.ntp\.org$/.test(s) ? "pool " : "server ") + s + " iburst").join("\n");
+  const chronyConf = `# /etc/chrony.conf — generado en emanuelchacon.cr/herramientas\n${pools}\n\n# Corrige saltos grandes en los primeros 3 ajustes (útil en VMs tras reinicio)\nmakestep 1.0 3\n# Sincroniza el reloj de hardware (RTC)\nrtcsync\ndriftfile /var/lib/chrony/drift\nlogdir /var/log/chrony${allow ? `\n\n# Actuar como servidor para la red\nallow ${allow}\nlocal stratum 10` : ""}`;
+  const verifyChrony = `chronyc sources -v\nchronyc tracking\ntimedatectl`;
+  let blocks = [];
+  if (plat === "rhel" || plat === "deb") {
+    const file = plat === "rhel" ? "/etc/chrony.conf" : "/etc/chrony/chrony.conf";
+    blocks = [
+      [plat === "rhel" ? "dnf install -y chrony\nsystemctl enable --now chronyd" : "apt install -y chrony\nsystemctl enable --now chrony", "1 · Instalar"],
+      [chronyConf.replace("/etc/chrony.conf", file), "2 · " + file],
+      [`timedatectl set-timezone ${tz}\nsystemctl restart ${plat === "rhel" ? "chronyd" : "chrony"}\nchronyc makestep`, "3 · Aplicar"],
+      [(plat === "rhel" ? `firewall-cmd --permanent --add-service=ntp && firewall-cmd --reload` : `ufw allow 123/udp`) + (allow ? "" : "   # solo si actúa como servidor"), "4 · Firewall (si es servidor)"],
+      [verifyChrony, "5 · Verificar"]
+    ];
+  } else if (plat === "tsd") {
+    blocks = [[`# /etc/systemd/timesyncd.conf\n[Time]\nNTP=${S.join(" ")}\nFallbackNTP=time.cloudflare.com`, "1 · Configuración"], [`timedatectl set-timezone ${tz}\ntimedatectl set-ntp true\nsystemctl restart systemd-timesyncd`, "2 · Aplicar"], [`timedatectl timesync-status\ntimedatectl show-timesync --all`, "3 · Verificar"]];
+  } else if (plat === "win") {
+    blocks = [[`# Equipo miembro del dominio: debe sincronizar con la jerarquía del dominio (no con NTP externo)\nw32tm /config /syncfromflags:domhier /update\nRestart-Service w32time\nw32tm /resync /rediscover`, "Miembro de dominio"], [`# Equipo fuera de dominio\nw32tm /config /manualpeerlist:"${S.map(s => s + ",0x8").join(" ")}" /syncfromflags:manual /reliable:no /update\nRestart-Service w32time\nw32tm /resync /force`, "Standalone / workgroup"], [`w32tm /query /status\nw32tm /query /source\nw32tm /query /peers\nw32tm /stripchart /computer:${S[0]} /samples:5 /dataonly`, "Verificar"]];
+  } else if (plat === "pdc") {
+    blocks = [[`# Ejecutar SOLO en el DC que tiene el rol PDC Emulator\nnetdom query fsmo | findstr PDC\n\nw32tm /config /manualpeerlist:"${S.map(s => s + ",0x8").join(" ")}" /syncfromflags:manual /reliable:yes /update\nRestart-Service w32time\nw32tm /resync /rediscover`, "1 · Configurar PDC"], [`# Resto de DCs: jerarquía del dominio\nw32tm /config /syncfromflags:domhier /update\nRestart-Service w32time`, "2 · Otros DCs"], [`w32tm /query /status\nw32tm /monitor /domain:<dominio>`, "3 · Verificar"]];
+  } else if (plat === "esxi") {
+    blocks = [[`# ESXi 7.0 U1 o posterior\nesxcli system ntp set ${S.map(s => "--server=" + s).join(" ")} --enabled=true\nesxcli system ntp get\nesxcli system time get`, "ESXi Shell"], [`Get-VMHost | Add-VMHostNtpServer -NtpServer ${S.map(s => `"${s}"`).join(",")}\nGet-VMHost | Get-VMHostService | Where Key -eq "ntpd" | Set-VMHostService -Policy On\nGet-VMHost | Get-VMHostService | Where Key -eq "ntpd" | Start-VMHostService\nGet-VMHost | Get-VMHostFirewallException | Where Name -eq "NTP client" | Set-VMHostFirewallException -Enabled:$true`, "PowerCLI (todos los hosts)"], [`Host > Configurar > Sistema > Configuración de hora > Editar > Usar NTP\nPolítica del servicio: Iniciar y detener con el host`, "vSphere Client"]];
+  } else if (plat === "ios") {
+    blocks = [[`configure terminal\n clock timezone CST -6 0\n${S.map((s, i) => ` ntp server ${s}${i === 0 ? " prefer" : ""}`).join("\n")}\n ntp update-calendar\nend\nwrite memory`, "Configuración"], [`show ntp status\nshow ntp associations\nshow clock detail`, "Verificar"]];
+  }
+  T.show("out", T.card(PLAT[plat], blocks.map(([c, l]) => T.code(c, l)).join("") +
+    T.alert("info", "NTP usa <b>UDP 123</b>. Usa al menos 3 fuentes para que el cliente detecte una fuente con hora incorrecta. En VMs, desactiva la sincronización de hora de VMware Tools si el guest ya usa NTP.")));
+}
+function ts() {
+  T.checklist($("tsbox"), { key: "ntp", title: "La hora no sincroniza", eyebrow: "Linux / Windows / ESXi · 7 pasos", file: "ntp-troubleshooting", summary: "Encuentra por qué un equipo tiene la hora desfasada.", steps: [
+    { t: "Medir el desfase actual", d: "Primero cuantifica el problema contra una fuente confiable.", c: "# Linux\nchronyc tracking | grep -E \"System time|Leap\"\n# Windows\nw32tm /stripchart /computer:time.cloudflare.com /samples:3 /dataonly", e: "Desfase menor a 1 s. Más de 5 min rompe Kerberos y la autenticación al dominio." },
+    { t: "¿El servicio está activo?", d: "Comprueba que el demonio de hora corre y arranca con el sistema.", c: "systemctl status chronyd --no-pager\nGet-Service w32time", e: "Activo y habilitado." },
+    { t: "Alcance a las fuentes (UDP 123)", d: "Un firewall que bloquea UDP 123 es la causa más común.", c: "chronyc sources -v\nw32tm /query /peers", e: "En chrony, «^*» marca la fuente seleccionada. «^?» = inalcanzable." },
+    { t: "Probar una fuente manualmente", d: "Consulta una fuente sin modificar el reloj.", c: "chronyd -Q \"server time.cloudflare.com iburst\"\nw32tm /stripchart /computer:<servidor-ntp> /samples:3", e: "Respuesta con offset. Si no responde, revisa firewall/ruta." },
+    { t: "Conflicto con VMware Tools / Hyper-V", d: "La sincronización del hipervisor puede pelear con NTP.", c: "vmware-toolbox-cmd timesync status\nvmware-toolbox-cmd timesync disable", e: "Timesync de Tools deshabilitado cuando el guest usa NTP o es DC." },
+    { t: "Forzar un ajuste", d: "Corrige el reloj inmediatamente.", c: "chronyc makestep\nw32tm /resync /force", e: "El desfase baja a milisegundos." },
+    { t: "Jerarquía del dominio (Windows)", d: "Los miembros deben tomar la hora de los DCs y el PDC de una fuente externa.", c: "w32tm /query /source\nw32tm /monitor", e: "Miembros con origen = DC. PDC con origen = servidor NTP externo, no «Local CMOS Clock»." }
+  ]});
+}
+async function clock() {
+  const samples = [];
+  for (let i = 0; i < 3; i++) {
+    const t0 = Date.now();
+    const r = await fetch(location.origin + "/?t=" + t0, { method: "HEAD", cache: "no-store" });
+    const t1 = Date.now(), d = r.headers.get("date");
+    if (d) samples.push(new Date(d).getTime() + 500 - (t0 + t1) / 2);
+  }
+  if (!samples.length) return T.show("out", T.alert("err", "El servidor no devolvió la cabecera Date."));
+  const off = samples.reduce((a, b) => a + b, 0) / samples.length, abs = Math.abs(off) / 1000;
+  T.show("out", T.card("Reloj de este equipo", `<div class="big-stats"><div class="big-stat"><small>Desfase aproximado</small><b>${off > 0 ? "−" : "+"}${abs.toFixed(1)} s</b></div><div class="big-stat"><small>Hora local</small><b class="mono">${new Date().toLocaleTimeString("es-CR")}</b></div><div class="big-stat"><small>Zona horaria</small><b style="font-size:16px">${Intl.DateTimeFormat().resolvedOptions().timeZone}</b></div></div>` +
+    T.alert(abs < 2 ? "ok" : abs < 60 ? "warn" : "err", abs < 2 ? "Tu reloj está sincronizado (dentro de la precisión de esta prueba)." : `Tu reloj ${off > 0 ? "está atrasado" : "va adelantado"} unos ${abs.toFixed(0)} s. Revisa la sincronización NTP.`)));
+}
+$("go").onclick = go; $("cgo").onclick = clock;
+go();
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -52,6 +142,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

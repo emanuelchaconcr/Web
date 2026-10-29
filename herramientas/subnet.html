@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Subnet Calculator | Emanuel Chacón</title>
-<meta name="description" content="Calculadora de subred IPv4. Provee información de red, broadcast, máscara y número de hosts.">
-<meta property="og:title" content="Subnet Calculator | Emanuel Chacón">
-<meta property="og:description" content="Calculadora de subred IPv4. Provee información de red, broadcast, máscara y número de hosts.">
+<title>IPv4 Subnet Calculator | Emanuel Chacón</title>
+<meta name="description" content="Calcula red, broadcast, rango de hosts, máscara y wildcard. Divide redes en subredes y planifica direccionamiento VLSM.">
+<meta property="og:title" content="IPv4 Subnet Calculator | Emanuel Chacón">
+<meta property="og:description" content="Calcula red, broadcast, rango de hosts, máscara y wildcard. Divide redes en subredes y planifica direccionamiento VLSM.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/subnet.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/subnet.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,10 +31,134 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>IPv4 Subnet Calculator</span></nav>
-  <header class="tool-head"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span><div><h1 class="headline-sm">IPv4 Subnet Calculator</h1><p>Calculadora de subred IPv4. Provee información de red, broadcast, máscara y número de hosts.</p></div></header>
-<div class="toolbox"><div class="grid2"><div><label>IP</label><input id="ip" value="192.168.1.10"></div><div><label>CIDR</label><select id="cidr"></select></div></div><button class="btn primary" style="margin-top:16px" onclick="calc()">Calcular</button><div id="out" class="result"></div></div>
-</main><script>const c=document.getElementById('cidr');for(let i=0;i<=32;i++)c.innerHTML+=`<option ${i==24?'selected':''}>${i}</option>`;function ipn(s){return s.split('.').map(Number)}function calc(){let a=ipn(document.getElementById('ip').value),p=+c.value;if(a.length!=4||a.some(x=>x<0||x>255))return out.textContent='IP inválida';let mask=p===0?0:(0xffffffff<<(32-p))>>>0,n=((a[0]<<24)>>>0)|((a[1]<<16)>>>0)|((a[2]<<8)>>>0)|a[3],net=(n&mask)>>>0,b=p===32?net:(net+(2**(32-p)-1))>>>0;const s=x=>[(x>>>24)&255,(x>>>16)&255,(x>>>8)&255,x&255].join('.');out.textContent=`Network: ${s(net)}\nBroadcast: ${s(b)}\nMask: ${s(mask)}\nPrefix: /${p}\nHosts: ${p>=31?Math.max(0,2**(32-p)-2):2**(32-p)-2}`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Red</span><span>›</span><span>IPv4 Subnet Calculator</span></nav>
+  <header class="tool-head"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span><div><h1 class="headline-sm">IPv4 Subnet Calculator</h1><p>Calcula red, broadcast, rango de hosts, máscara y wildcard. Divide redes en subredes y planifica direccionamiento VLSM.</p><div class="badges"><span>CIDR y máscara</span><span>Subnetting</span><span>VLSM</span><span>Exportar CSV</span></div></div></header>
+<div class="segmented" role="tablist"><button data-tab="calc" class="on">Calcular subred</button><button data-tab="split">Dividir en subredes</button><button data-tab="vlsm">VLSM</button></div>
+<div class="toolbox" data-panel="calc">
+  <div class="grid3">
+    <div class="span2"><label for="ip">Dirección IP o CIDR</label><input id="ip" value="192.168.10.25/24" spellcheck="false" autocomplete="off"><p class="hint">Acepta <b>10.0.0.5/24</b>, <b>10.0.0.5 255.255.255.0</b> o solo la IP y eliges el prefijo.</p></div>
+    <div><label for="cidr">Prefijo / máscara</label><select id="cidr"></select></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="go">Calcular</button></div>
+</div>
+<div class="toolbox" data-panel="split" hidden>
+  <div class="grid3">
+    <div><label for="snet">Red base</label><input id="snet" value="10.10.0.0/22" spellcheck="false"></div>
+    <div><label for="smode">Dividir por</label><select id="smode"><option value="count">Cantidad de subredes</option><option value="hosts">Hosts por subred</option><option value="prefix">Nuevo prefijo</option></select></div>
+    <div><label for="sval">Valor</label><input id="sval" type="number" value="4" min="1"></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="sgo">Dividir</button></div>
+</div>
+<div class="toolbox" data-panel="vlsm" hidden>
+  <div class="grid2">
+    <div><label for="vnet">Red disponible</label><input id="vnet" value="172.16.0.0/23" spellcheck="false"></div>
+    <div><label for="vreq">Requerimientos (nombre: hosts, uno por línea)</label><textarea id="vreq" style="min-height:120px">Servidores: 120
+Usuarios: 200
+Gestión: 30
+VoIP: 50
+Enlace WAN: 2</textarea></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="vgo">Calcular VLSM</button></div>
+</div>
+<div id="out"></div>
+<div class="tool-help">
+  <div><h3>Hosts utilizables</h3><p>En IPv4 se restan la dirección de red y la de broadcast. Excepciones: <code>/31</code> (enlaces punto a punto, RFC 3021) tiene 2 hosts y <code>/32</code> representa un solo host.</p></div>
+  <div><h3>Wildcard</h3><p>Es la máscara invertida. Se usa en ACLs de Cisco y en OSPF: <code>0.0.0.255</code> equivale a un <code>/24</code>.</p></div>
+  <div><h3>VLSM</h3><p>Asigna primero las subredes más grandes para aprovechar el espacio sin solapamientos. Deja crecimiento: planifica al menos un 20 % extra de hosts.</p></div>
+</div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const sel = document.getElementById("cidr");
+for (let p = 32; p >= 0; p--) sel.insertAdjacentHTML("beforeend", `<option value="${p}" ${p === 24 ? "selected" : ""}>/${p} — ${T.ip.str(T.ip.mask(p))}</option>`);
+T.tabs(document.querySelector(".segmented"), () => document.getElementById("out").innerHTML = "");
+const err = m => T.show("out", T.alert("err", m));
+
+function calc() {
+  const r = T.ip.parseCidr(T.val("ip"), T.val("ip").includes("/") || /\s/.test(T.val("ip").trim()) ? undefined : sel.value);
+  if (r.error) return err(r.error);
+  sel.value = r.prefix;
+  const i = T.ip.info(r.ip, r.prefix), s = T.ip.str;
+  const type = T.ip.type(r.ip);
+  T.show("out", T.card("Resultado para " + s(r.ip) + "/" + r.prefix,
+    `<div class="big-stats">
+      <div class="big-stat"><small>Red</small><b class="mono">${s(i.net)}/${i.prefix}</b></div>
+      <div class="big-stat"><small>Hosts utilizables</small><b>${T.num(i.usable, 0)}</b></div>
+      <div class="big-stat"><small>Rango de hosts</small><b class="mono" style="font-size:15px">${s(i.first)} – ${s(i.last)}</b></div>
+    </div>` +
+    T.kv([
+      ["Dirección de red", s(i.net), { hl: true }],
+      ["Broadcast", i.prefix >= 31 ? "N/A (" + (i.prefix === 31 ? "punto a punto" : "host único") + ")" : s(i.bc)],
+      ["Primer host", s(i.first)], ["Último host", s(i.last)],
+      ["Máscara", s(i.mask)], ["Wildcard", s(i.wildcard)], ["Prefijo CIDR", "/" + i.prefix],
+      ["Total de direcciones", T.num(i.total, 0), { mono: false }], ["Hosts utilizables", T.num(i.usable, 0), { mono: false }],
+      ["Clase", T.ip.cls(r.ip), { mono: false }], ["Tipo", type, { mono: false }],
+      ["Máscara en binario", T.ip.bin(i.mask)], ["IP en binario", T.ip.bin(r.ip)],
+      ["IP en hexadecimal", T.ip.hex(r.ip)],
+      ["Zona DNS inversa", i.prefix >= 24 ? s(i.net).split(".").slice(0, 3).reverse().join(".") + ".in-addr.arpa" : i.prefix >= 16 ? s(i.net).split(".").slice(0, 2).reverse().join(".") + ".in-addr.arpa" : s(i.net).split(".")[0] + ".in-addr.arpa"]
+    ]) +
+    (i.usable >= 3 ? `<h3>Configuración rápida</h3>` +
+    T.code(`# Windows (PowerShell)\nNew-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress ${s(i.first + 1)} -PrefixLength ${i.prefix} -DefaultGateway ${s(i.first)}\n\n# Linux (NetworkManager)\nnmcli con mod eth0 ipv4.addresses ${s(i.first + 1)}/${i.prefix} ipv4.gateway ${s(i.first)} ipv4.method manual\n\n# Cisco IOS (gateway de la VLAN)\ninterface Vlan10\n ip address ${s(i.first)} ${s(i.mask)}\n\n# ACL estándar para esta red\naccess-list 10 permit ${s(i.net)} ${s(i.wildcard)}`, "Ejemplo: gateway = primer host, servidor = segundo host") : "")
+  ));
+}
+
+function split() {
+  const r = T.ip.parseCidr(T.val("snet")); if (r.error) return err(r.error);
+  const mode = T.val("smode"), v = Math.floor(+T.val("sval"));
+  if (!(v >= 1)) return err("Ingresa un valor mayor a 0.");
+  let np;
+  if (mode === "count") np = r.prefix + Math.ceil(Math.log2(v));
+  else if (mode === "hosts") { np = 32 - Math.ceil(Math.log2(v + 2)); if (v <= 2) np = v === 1 ? 32 : 31; }
+  else np = v;
+  if (np < r.prefix) return err(`El nuevo prefijo /${np} es más grande que la red base /${r.prefix}.`);
+  if (np > 32) return err("No hay espacio suficiente para esa división.");
+  const base = T.ip.info(r.ip, r.prefix).net, n = 2 ** (np - r.prefix), size = 2 ** (32 - np), s = T.ip.str;
+  const LIMIT = 1024, rows = [];
+  for (let k = 0; k < Math.min(n, LIMIT); k++) {
+    const i = T.ip.info(base + k * size, np);
+    rows.push([String(k + 1), `${s(i.net)}/${np}`, s(i.first), s(i.last), np >= 31 ? "—" : s(i.bc), T.num(i.usable, 0)]);
+  }
+  T.show("out", T.card(`${T.num(n, 0)} subredes /${np}`,
+    `<p style="margin-bottom:14px">Máscara ${s(T.ip.mask(np))} · ${T.num(T.ip.info(0, np).usable, 0)} hosts utilizables por subred.</p>` +
+    (n > LIMIT ? T.alert("warn", `Se muestran las primeras ${LIMIT} subredes de ${T.num(n, 0)}.`) : "") +
+    T.table(["#", "Subred", "Primer host", "Último host", "Broadcast", "Hosts"], rows) +
+    `<div class="row-actions"><button class="pill" id="csv">Descargar CSV</button></div>`));
+  document.getElementById("csv").onclick = () => T.download(`subredes-${s(base)}-${np}.csv`, "N,Subred,Primer host,Ultimo host,Broadcast,Hosts\n" + rows.map(r => r.join(",")).join("\n"), "text/csv");
+}
+
+function vlsm() {
+  const r = T.ip.parseCidr(T.val("vnet")); if (r.error) return err(r.error);
+  const reqs = T.val("vreq").split("\n").map(l => l.trim()).filter(Boolean).map((l, i) => {
+    const m = l.match(/^(.*?)[:=,\s]\s*(\d+)\s*$/) || l.match(/^()(\d+)$/);
+    return m ? { name: (m[1] || "Subred " + (i + 1)).trim(), hosts: +m[2] } : null;
+  });
+  if (!reqs.length || reqs.some(x => !x)) return err("Formato: «Nombre: hosts» en cada línea.");
+  const base = T.ip.info(r.ip, r.prefix), end = base.bc, s = T.ip.str;
+  let cur = base.net; const rows = []; let ok = true;
+  [...reqs].sort((a, b) => b.hosts - a.hosts).forEach(q => {
+    const p = q.hosts <= 1 ? 32 : q.hosts === 2 ? 31 : 32 - Math.ceil(Math.log2(q.hosts + 2));
+    const size = 2 ** (32 - p);
+    if (cur % size) cur = Math.ceil(cur / size) * size;
+    if (cur + size - 1 > end) { ok = false; rows.push({ _cls: "crit", cells: [q.name, String(q.hosts), "Sin espacio", "", "", "", ""] }); return; }
+    const i = T.ip.info(cur, p);
+    rows.push([q.name, String(q.hosts), `${s(i.net)}/${p}`, s(i.mask), `${s(i.first)} – ${s(i.last)}`, T.num(i.usable, 0), Math.round(q.hosts / i.usable * 100) + " %"]);
+    cur += size;
+  });
+  const used = cur - base.net, tot = base.total;
+  T.show("out", T.card("Plan VLSM",
+    (ok ? T.alert("ok", `Todo cabe en ${s(base.net)}/${r.prefix}. Usado: ${T.num(used, 0)} de ${T.num(tot, 0)} direcciones (${Math.round(used / tot * 100)} %). Libre desde ${cur <= end ? s(cur) : "—"}.`) : T.alert("err", "Algunas subredes no caben. Usa una red base más grande.")) +
+    `<div style="margin-top:16px">${T.table(["Nombre", "Requeridos", "Subred", "Máscara", "Rango utilizable", "Disponibles", "Uso"], rows)}</div>`));
+}
+document.getElementById("go").onclick = calc;
+document.getElementById("sgo").onclick = split;
+document.getElementById("vgo").onclick = vlsm;
+T.onEnter(document.querySelector('[data-panel="calc"]'), calc);
+T.onEnter(document.querySelector('[data-panel="split"]'), split);
+calc();
+sel.onchange = () => { const ip = T.val("ip").trim().split(/[\/\s]/)[0]; document.getElementById("ip").value = ip + "/" + sel.value; calc(); };
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -49,6 +173,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

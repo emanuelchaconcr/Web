@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>IP Range Calculator | Emanuel Chacón | Emanuel Chacón</title>
-<meta name="description" content="Calculadora de rangos CIDR. Convierte una dirección IP y una máscara en su rango de red, broadcast y número de hosts.">
-<meta property="og:title" content="IP Range Calculator | Emanuel Chacón | Emanuel Chacón">
-<meta property="og:description" content="Calculadora de rangos CIDR. Convierte una dirección IP y una máscara en su rango de red, broadcast y número de hosts.">
+<title>IP Range Calculator | Emanuel Chacón</title>
+<meta name="description" content="Convierte CIDR a rangos, rangos arbitrarios a la lista mínima de bloques CIDR y verifica si una IP pertenece a una red.">
+<meta property="og:title" content="IP Range Calculator | Emanuel Chacón">
+<meta property="og:description" content="Convierte CIDR a rangos, rangos arbitrarios a la lista mínima de bloques CIDR y verifica si una IP pertenece a una red.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/cidr-range.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/cidr-range.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,12 +31,77 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>IP Range Calculator</span></nav>
-  <header class="tool-head"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 19 5"/></svg></span><div><h1 class="headline-sm">IP Range Calculator</h1><p>Calculadora de rangos CIDR. Convierte una dirección IP y una máscara en su rango de red, broadcast y número de hosts.</p></div></header>
-<div class="toolbox">
-<label>Network CIDR</label><input id="cidr" value="10.10.20.0/24">
-<button class="btn primary" onclick="go()">Calcular rango</button><div id="out" class="result"></div></div>
-</main><script>function go(){let v=cidr.value.trim().split("/"),a=v[0].split(".").map(Number),p=+v[1];if(a.length!==4||p<0||p>32)return out.textContent="CIDR inválido";let n=(((a[0]<<24)>>>0)|((a[1]<<16)>>>0)|((a[2]<<8)>>>0)|a[3])>>>0,mask=p===0?0:(0xffffffff<<(32-p))>>>0,net=(n&mask)>>>0,b=p===32?net:(net+(2**(32-p)-1))>>>0,s=x=>[(x>>>24)&255,(x>>>16)&255,(x>>>8)&255,x&255].join(".");out.textContent=`Network: ${s(net)}\nBroadcast: ${s(b)}\nFirst: ${p>=31?s(net):s((net+1)>>>0)}\nLast: ${p>=31?s(b):s((b-1)>>>0)}\nTotal addresses: ${2**(32-p)}`}</script>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Red</span><span>›</span><span>IP Range Calculator</span></nav>
+  <header class="tool-head"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 19 5"/></svg></span><div><h1 class="headline-sm">IP Range Calculator</h1><p>Convierte CIDR a rangos, rangos arbitrarios a la lista mínima de bloques CIDR y verifica si una IP pertenece a una red.</p><div class="badges"><span>CIDR ↔ rango</span><span>Pertenencia</span><span>Reglas de firewall</span></div></div></header>
+<div class="segmented" role="tablist"><button data-tab="c2r" class="on">CIDR → rango</button><button data-tab="r2c">Rango → CIDR</button><button data-tab="chk">¿IP pertenece?</button></div>
+<div class="toolbox" data-panel="c2r">
+  <label for="cidrs">Redes CIDR (una por línea)</label>
+  <textarea id="cidrs" style="min-height:110px">10.10.20.0/24
+172.16.0.0/20
+192.168.100.64/26</textarea>
+  <div class="row-actions"><button class="btn primary" id="go1">Calcular rangos</button></div>
+</div>
+<div class="toolbox" data-panel="r2c" hidden>
+  <div class="grid2">
+    <div><label for="rs">IP inicial</label><input id="rs" value="192.168.1.10" spellcheck="false"></div>
+    <div><label for="re">IP final</label><input id="re" value="192.168.1.200" spellcheck="false"></div>
+  </div>
+  <p class="hint">Convierte un rango arbitrario en la lista mínima de bloques CIDR. Útil para reglas de firewall, ACLs y listas de permitidos.</p>
+  <div class="row-actions"><button class="btn primary" id="go2">Convertir a CIDR</button></div>
+</div>
+<div class="toolbox" data-panel="chk" hidden>
+  <div class="grid2">
+    <div><label for="ips">Direcciones IP</label><textarea id="ips">10.10.20.15
+10.10.21.4
+192.168.100.70
+8.8.8.8</textarea></div>
+    <div><label for="nets">Redes</label><textarea id="nets">10.10.20.0/24
+192.168.100.64/26
+172.16.0.0/12</textarea></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="go3">Verificar</button></div>
+</div>
+<div id="out"></div>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+T.tabs(document.querySelector(".segmented"), () => document.getElementById("out").innerHTML = "");
+const s = T.ip.str, lines = id => T.val(id).split("\n").map(x => x.trim()).filter(Boolean);
+document.getElementById("go1").onclick = () => {
+  const rows = lines("cidrs").map(l => {
+    const r = T.ip.parseCidr(l); if (r.error) return { _cls: "crit", cells: [l, r.error, "", "", "", ""] };
+    const i = T.ip.info(r.ip, r.prefix);
+    const aligned = i.net === r.ip ? "" : ` (ajustada desde ${s(r.ip)})`;
+    return [l, `${s(i.net)}/${r.prefix}${aligned}`, `${s(i.net)} – ${s(i.bc)}`, `${s(i.first)} – ${s(i.last)}`, s(i.mask), T.num(i.total, 0)];
+  });
+  T.show("out", T.card("Rangos", T.table(["Entrada", "Red", "Rango completo", "Hosts utilizables", "Máscara", "Direcciones"], rows)));
+};
+document.getElementById("go2").onclick = () => {
+  const a = T.ip.parse(T.val("rs")), b = T.ip.parse(T.val("re"));
+  if (a == null || b == null) return T.show("out", T.alert("err", "Ingresa dos direcciones IPv4 válidas."));
+  const [x, y] = a <= b ? [a, b] : [b, a];
+  const list = T.ip.rangeToCidrs(x, y);
+  const txt = list.map(([n, p]) => `${s(n)}/${p}`).join("\n");
+  T.show("out", T.card(`${list.length} bloque${list.length > 1 ? "s" : ""} CIDR`,
+    `<p style="margin-bottom:12px">Cubren exactamente ${T.num(y - x + 1, 0)} direcciones, de ${s(x)} a ${s(y)}.</p>` +
+    T.table(["CIDR", "Desde", "Hasta", "Direcciones"], list.map(([n, p]) => { const i = T.ip.info(n, p); return [`${s(n)}/${p}`, s(i.net), s(i.bc), T.num(i.total, 0)]; })) +
+    T.code(txt, "Lista para copiar") +
+    T.code(list.map(([n, p]) => `New-NetFirewallRule -DisplayName "Rango ${s(x)}-${s(y)}" -Direction Inbound -RemoteAddress ${s(n)}/${p} -Action Allow`).join("\n"), "Windows Firewall (ejemplo)") +
+    T.code(list.map(([n, p]) => `firewall-cmd --permanent --zone=trusted --add-source=${s(n)}/${p}`).join("\n") + "\nfirewall-cmd --reload", "firewalld (ejemplo)")));
+};
+document.getElementById("go3").onclick = () => {
+  const nets = lines("nets").map(l => ({ l, r: T.ip.parseCidr(l) })).filter(x => !x.r.error);
+  const rows = lines("ips").map(l => {
+    const n = T.ip.parse(l); if (n == null) return { _cls: "crit", cells: [l, "IP inválida", ""] };
+    const hit = nets.filter(x => T.ip.inNet(n, x.r.ip, x.r.prefix)).sort((a, b) => b.r.prefix - a.r.prefix);
+    return hit.length ? { _cls: "", cells: [l, "✓ Sí", hit.map(h => h.l).join(", ")] } : { _cls: "warn", cells: [l, "✗ No", "—"] };
+  });
+  T.show("out", T.card("Resultado", T.table(["IP", "¿Pertenece?", "Red(es) que la contienen (más específica primero)"], rows)));
+};
+document.getElementById("go1").click();
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -51,6 +116,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>

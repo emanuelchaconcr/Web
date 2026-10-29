@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>TCP / UDP Port Checker | Emanuel Chacón | Emanuel Chacón</title>
-<meta name="description" content="Verificador de puertos TCP/UDP. Genera comandos de diagnóstico en PowerShell, ncat y nmap.">
-<meta property="og:title" content="TCP / UDP Port Checker | Emanuel Chacón | Emanuel Chacón">
-<meta property="og:description" content="Verificador de puertos TCP/UDP. Genera comandos de diagnóstico en PowerShell, ncat y nmap.">
+<title>Port Diagnostics | Emanuel Chacón</title>
+<meta name="description" content="Genera los comandos para probar puertos TCP/UDP desde Windows, Linux y Nmap, con perfiles por servicio y reglas de firewall.">
+<meta property="og:title" content="Port Diagnostics | Emanuel Chacón">
+<meta property="og:description" content="Genera los comandos para probar puertos TCP/UDP desde Windows, Linux y Nmap, con perfiles por servicio y reglas de firewall.">
 <meta property="og:url" content="https://emanuelchacon.cr/herramientas/ports.html">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
@@ -16,8 +16,8 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="canonical" href="https://emanuelchacon.cr/herramientas/ports.html">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css?v=20261029">
-<link rel="stylesheet" href="tool.css?v=20261029">
+<link rel="stylesheet" href="../css/style.css?v=20261029b">
+<link rel="stylesheet" href="tool.css?v=20261029b">
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -31,14 +31,88 @@
   </div>
 </header>
 <main id="main" class="tool-page">
-  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>TCP / UDP Port Checker</span></nav>
-  <header class="tool-head"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></svg></span><div><h1 class="headline-sm">TCP / UDP Port Checker</h1><p>Verificador de puertos TCP/UDP. Genera comandos de diagnóstico en PowerShell, ncat y nmap.</p></div></header>
+  <nav class="breadcrumb" aria-label="Ruta"><a href="./">Herramientas</a><span>›</span><span>Red</span><span>›</span><span>Port Diagnostics</span></nav>
+  <header class="tool-head"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></svg></span><div><h1 class="headline-sm">Port Diagnostics</h1><p>Genera los comandos para probar puertos TCP/UDP desde Windows, Linux y Nmap, con perfiles por servicio y reglas de firewall.</p><div class="badges"><span>Perfiles por servicio</span><span>Firewall</span><span>Referencia de puertos</span></div></div></header>
 <div class="toolbox">
-<label>Host / IP</label><input id="host" value="8.8.8.8">
-<label>Puerto</label><input id="port" type="number" value="443">
-<p style="color:#8d9aaa;font-size:12px">Desde el navegador no es posible realizar un escaneo TCP arbitrario de forma fiable. Esta herramienta valida el formato y genera el comando de diagnóstico.</p>
-<button class="btn primary" onclick="go()">Generar diagnóstico</button><div id="out" class="result"></div></div>
-</main><script>function go(){let h=host.value.trim(),p=+port.value;if(!h||p<1||p>65535)return out.textContent="Host o puerto inválido";out.textContent=`PowerShell:\nTest-NetConnection ${h} -Port ${p}\n\nLinux:\nnc -vz ${h} ${p}\n\nNmap:\nnmap -Pn -p ${p} ${h}` }</script>
+  <span class="field-label">Perfiles rápidos</span>
+  <div class="chips small" id="profiles"></div>
+  <div class="grid3" style="margin-top:6px">
+    <div><label for="host">Host / IP destino</label><input id="host" value="srv-app01.empresa.local" spellcheck="false"></div>
+    <div><label for="ports">Puertos</label><input id="ports" value="443" spellcheck="false"><p class="hint">Ej.: <b>443</b>, <b>80,443,8443</b> o <b>1000-1010</b></p></div>
+    <div><label for="proto">Protocolo</label><select id="proto"><option>TCP</option><option>UDP</option></select></div>
+  </div>
+  <div class="row-actions"><button class="btn primary" id="go">Generar diagnóstico</button></div>
+  <p class="hint" style="margin-top:14px">Un navegador no puede abrir conexiones TCP/UDP arbitrarias, así que esta herramienta genera los comandos exactos para ejecutarlos desde el equipo de origen.</p>
+</div>
+<div id="out"></div>
+<section class="out-card">
+  <div class="out-head"><h2>Referencia de puertos comunes</h2><input id="q" placeholder="Buscar puerto o servicio…" style="max-width:260px;min-height:38px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg-alt);color:var(--text);font:15px var(--font)"></div>
+  <div id="ref"></div>
+</section>
+
+</main>
+<script src="tools.js?v=20261029b"></script>
+<script>
+const REF = [
+ [20,"TCP","FTP datos"],[21,"TCP","FTP control"],[22,"TCP","SSH / SFTP / SCP"],[23,"TCP","Telnet (inseguro)"],[25,"TCP","SMTP"],[53,"TCP/UDP","DNS"],[67,"UDP","DHCP servidor"],[68,"UDP","DHCP cliente"],[69,"UDP","TFTP"],[80,"TCP","HTTP"],[88,"TCP/UDP","Kerberos"],[110,"TCP","POP3"],[123,"UDP","NTP"],[135,"TCP","RPC Endpoint Mapper"],[137,"UDP","NetBIOS nombres"],[138,"UDP","NetBIOS datagramas"],[139,"TCP","NetBIOS sesión"],[143,"TCP","IMAP"],[161,"UDP","SNMP"],[162,"UDP","SNMP traps"],[389,"TCP/UDP","LDAP"],[443,"TCP","HTTPS"],[445,"TCP","SMB / CIFS"],[464,"TCP/UDP","Kerberos cambio de contraseña"],[465,"TCP","SMTPS"],[514,"UDP","Syslog"],[587,"TCP","SMTP submission"],[593,"TCP","RPC sobre HTTP"],[623,"UDP","IPMI (iDRAC/iLO)"],[636,"TCP","LDAPS"],[853,"TCP","DNS sobre TLS"],[902,"TCP/UDP","VMware ESXi (consola VM / heartbeat)"],[993,"TCP","IMAPS"],[995,"TCP","POP3S"],[1433,"TCP","Microsoft SQL Server"],[1434,"UDP","SQL Server Browser"],[1521,"TCP","Oracle Database"],[1812,"UDP","RADIUS autenticación"],[1813,"UDP","RADIUS accounting"],[2049,"TCP/UDP","NFS"],[3260,"TCP","iSCSI"],[3268,"TCP","AD Global Catalog"],[3269,"TCP","AD Global Catalog SSL"],[3306,"TCP","MySQL / MariaDB"],[3389,"TCP/UDP","RDP"],[5060,"TCP/UDP","SIP"],[5432,"TCP","PostgreSQL"],[5480,"TCP","vCenter VAMI"],[5671,"TCP","AMQP sobre TLS"],[5985,"TCP","WinRM HTTP"],[5986,"TCP","WinRM HTTPS"],[6443,"TCP","Kubernetes API"],[8000,"TCP","VMware vMotion"],[8080,"TCP","HTTP alterno / proxy"],[8443,"TCP","HTTPS alterno"],[8530,"TCP","WSUS HTTP"],[8531,"TCP","WSUS HTTPS"],[9100,"TCP","Impresión RAW / node_exporter"],[9200,"TCP","Elasticsearch"],[9389,"TCP","AD Web Services"],[10050,"TCP","Zabbix agente"],[10051,"TCP","Zabbix servidor"],[13720,"TCP","Veritas NetBackup bprd"],[13724,"TCP","Veritas NetBackup vnetd"],[1556,"TCP","Veritas NetBackup PBX"],[27017,"TCP","MongoDB"],[49152,"TCP","RPC dinámico (49152-65535)"]
+];
+const PROFILES = {
+  "Web": ["80,443", "TCP"], "RDP": ["3389", "TCP"], "SSH": ["22", "TCP"], "DNS": ["53", "UDP"], "NTP": ["123", "UDP"],
+  "Active Directory": ["53,88,135,389,445,464,636,3268,3269,9389", "TCP"], "SQL Server": ["1433", "TCP"],
+  "vCenter / ESXi": ["443,902,5480", "TCP"], "vMotion": ["8000", "TCP"], "iSCSI": ["3260", "TCP"], "SMB": ["445", "TCP"],
+  "WinRM": ["5985,5986", "TCP"], "NetBackup": ["1556,13724", "TCP"], "Correo": ["25,465,587,993", "TCP"]
+};
+const pbox = document.getElementById("profiles");
+pbox.innerHTML = Object.keys(PROFILES).map(k => `<button type="button" class="chip">${k}</button>`).join("");
+pbox.onclick = e => { const b = e.target.closest(".chip"); if (!b) return; const [p, pr] = PROFILES[b.textContent]; document.getElementById("ports").value = p; document.getElementById("proto").value = pr; T.$$(".chip", pbox).forEach(x => x.classList.toggle("on", x === b)); go(); };
+
+function parsePorts(str) {
+  const out = new Set();
+  for (const part of str.split(/[,\s]+/).filter(Boolean)) {
+    const m = part.match(/^(\d+)(?:-(\d+))?$/); if (!m) return null;
+    const a = +m[1], b = m[2] ? +m[2] : a;
+    if (a < 1 || b > 65535 || b < a || b - a > 1000) return null;
+    for (let p = a; p <= b; p++) out.add(p);
+  }
+  return [...out].sort((x, y) => x - y);
+}
+const compact = ps => { const r = []; let s = ps[0], p = ps[0]; for (let i = 1; i <= ps.length; i++) { if (ps[i] === p + 1) { p = ps[i]; continue; } r.push(s === p ? `${s}` : `${s}-${p}`); s = p = ps[i]; } return r.join(","); };
+
+function go() {
+  const h = T.val("host").trim(), ps = parsePorts(T.val("ports")), proto = T.val("proto");
+  if (!h || /\s/.test(h)) return T.show("out", T.alert("err", "Ingresa un host o IP sin espacios."));
+  if (!ps || !ps.length) return T.show("out", T.alert("err", "Puertos inválidos. Usa 1–65535, separados por coma o como rango (máx. 1000 por rango)."));
+  const list = compact(ps), tcp = proto === "TCP", known = ps.map(p => { const r = REF.find(x => x[0] === p); return r ? `${p} (${r[2]})` : `${p}`; });
+  const ps1 = tcp ? (ps.length === 1 ? `Test-NetConnection ${h} -Port ${ps[0]} -InformationLevel Detailed` : `@(${ps.join(",")}) | ForEach-Object {\n  $r = Test-NetConnection ${h} -Port $_ -WarningAction SilentlyContinue\n  [pscustomobject]@{Puerto=$_; Abierto=$r.TcpTestSucceeded; IP=$r.RemoteAddress}\n} | Format-Table -AutoSize`)
+    : `# UDP no tiene handshake: una respuesta vacía no confirma que el puerto esté cerrado.\n# Prueba con el cliente real del servicio, por ejemplo:\n${ps.includes(53) ? `Resolve-DnsName example.com -Server ${h}\n` : ""}${ps.includes(123) ? `w32tm /stripchart /computer:${h} /samples:3 /dataonly\n` : ""}${ps.includes(161) ? `# SNMP: usa snmpwalk desde Linux\n` : ""}Test-NetConnection ${h}   # verifica al menos la ruta`;
+  const linux = tcp ? `${ps.length === 1 ? `nc -vz -w 3 ${h} ${ps[0]}` : `for p in ${ps.join(" ")}; do nc -vz -w 2 ${h} $p; done`}\n\n# Alternativa sin netcat (bash)\ntimeout 3 bash -c "</dev/tcp/${h}/${ps[0]}" && echo "abierto" || echo "cerrado/filtrado"\n\n# Si es HTTPS, valida también el certificado\n${ps.some(p => [443, 8443, 5480, 636, 993, 465].includes(p)) ? `openssl s_client -connect ${h}:${ps.find(p => [443, 8443, 5480, 636, 993, 465].includes(p))} -servername ${h} </dev/null 2>/dev/null | openssl x509 -noout -subject -dates` : `curl -v --max-time 5 telnet://${h}:${ps[0]}`}`
+    : `nc -vzu -w 3 ${h} ${ps[0]}\n${ps.includes(53) ? `dig @${h} example.com +short\n` : ""}${ps.includes(123) ? `chronyc -n sourcestats; ntpdate -q ${h} 2>/dev/null\n` : ""}${ps.includes(161) ? `snmpwalk -v2c -c public ${h} sysDescr\n` : ""}`;
+  const nmap = `nmap -Pn ${tcp ? "-sT" : "-sU"} -p ${list} ${h}\nnmap -Pn ${tcp ? "-sV" : "-sU -sV"} -p ${list} ${h}   # detecta versión del servicio`;
+  const srv = `# ¿Está escuchando en el servidor destino?\n# Windows\nGet-Net${tcp ? "TCPConnection -State Listen" : "UDPEndpoint"} | Where LocalPort -in ${ps.slice(0, 20).join(",")}\n# Linux\nss -ln${tcp ? "t" : "u"}p | grep -E ":(${ps.slice(0, 20).join("|")})\\b"`;
+  const fw = `# Windows Firewall\nNew-NetFirewallRule -DisplayName "Permitir ${proto} ${list}" -Direction Inbound -Protocol ${proto} -LocalPort ${list} -Action Allow\n\n# firewalld (RHEL / Oracle Linux)\n${list.split(",").map(x => `firewall-cmd --permanent --add-port=${x}/${proto.toLowerCase()}`).join("\n")}\nfirewall-cmd --reload\n\n# UFW (Ubuntu)\n${list.split(",").map(x => `ufw allow ${x.replace("-", ":")}/${proto.toLowerCase()}`).join("\n")}\n\n# ESXi\nesxcli network firewall ruleset list   # habilita el ruleset correspondiente al servicio`;
+  T.show("out",
+    T.card(`${proto} ${list} → ${h}`, `<p style="margin-bottom:6px">${T.esc(known.slice(0, 12).join(" · "))}${known.length > 12 ? " …" : ""}</p>` +
+      T.code(ps1, "Windows · PowerShell") + T.code(linux, "Linux / macOS") + T.code(nmap, "Nmap")) +
+    T.card("Si la prueba falla", T.kv([
+      ["Timeout", "Un firewall o ACL descarta el tráfico en el camino, o la ruta no existe.", { mono: false, copy: false }],
+      ["Conexión rechazada", "El host responde pero nada escucha en ese puerto: el servicio está detenido o escucha en otra IP.", { mono: false, copy: false }],
+      ["Nombre no resuelve", "Problema de DNS: prueba con la IP directamente.", { mono: false, copy: false }]
+    ]) + T.code(srv, "En el servidor destino") + T.code(fw, "Abrir el puerto (si corresponde)")));
+}
+document.getElementById("go").onclick = go;
+T.onEnter(document.querySelector(".toolbox"), go);
+
+const ref = document.getElementById("ref"), q = document.getElementById("q");
+const drawRef = () => {
+  const t = q.value.trim().toLowerCase();
+  const rows = REF.filter(r => !t || String(r[0]).includes(t) || r[2].toLowerCase().includes(t)).sort((a, b) => a[0] - b[0]);
+  ref.innerHTML = T.table(["Puerto", "Protocolo", "Servicio"], rows.map(r => [{ html: `<a href="#" data-p="${r[0]}" data-pr="${r[1]}" style="color:var(--link)">${r[0]}</a>` }, r[1], r[2]]));
+};
+q.oninput = drawRef; drawRef();
+ref.onclick = e => { const a = e.target.closest("[data-p]"); if (!a) return; e.preventDefault(); document.getElementById("ports").value = a.dataset.p; document.getElementById("proto").value = a.dataset.pr.startsWith("UDP") ? "UDP" : "TCP"; go(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+go();
+
+</script>
 <footer class="site-footer">
   <div class="container wide">
     <div class="footer-cols">
@@ -53,6 +127,6 @@
     </div>
   </div>
 </footer>
-<script src="../js/main.js?v=20261029"></script>
+<script src="../js/main.js?v=20261029b"></script>
 </body>
 </html>
