@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sistema ADI | Emanuel Chacón</title>
+<meta name="description" content="Sistema web para Asociaciones de Desarrollo Integral: sitio público, panel administrativo, tesorería, actas con IA local, mapas SIG y transmisiones en vivo. Proyecto en desarrollo.">
+<meta property="og:title" content="Sistema ADI | Emanuel Chacón">
+<meta property="og:description" content="Sistema web para Asociaciones de Desarrollo Integral: sitio público, panel administrativo, tesorería, actas con IA local, mapas SIG y transmisiones en vivo. Proyecto en desarrollo.">
+<meta property="og:url" content="https://emanuelchacon.cr/proyectos/sistema-adi.html">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://emanuelchacon.cr/assets/favicon.svg">
+<meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161617" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="https://emanuelchacon.cr/proyectos/sistema-adi.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css?v=20261103">
+<style>
+.adi-hero{padding:84px 0 40px;text-align:center}
+.adi-hero .headline{font-size:clamp(48px,8vw,88px);letter-spacing:-.045em}
+.adi-hero .subhead{margin:18px auto 0}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.pills span{font-size:13px;color:var(--text-2);background:var(--bg-alt);padding:6px 13px;border-radius:999px}
+.live-dot{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#bf4800;background:color-mix(in srgb,#ff9f0a 16%,transparent);padding:6px 14px;border-radius:999px;margin-bottom:20px}
+.live-dot i{width:8px;height:8px;border-radius:50%;background:#ff9f0a;animation:pulse 1.8s ease-in-out infinite}
+@media (prefers-color-scheme:dark){.live-dot{color:#ffb340}}
+@keyframes pulse{50%{opacity:.35}}
+/* Mock del panel */
+.mock{margin:56px auto 0;width:min(980px,100%);position:relative}
+.mock::before{content:"";position:absolute;inset:6% 4% 0;background:radial-gradient(closest-side,rgba(0,113,227,.25),transparent),radial-gradient(closest-side at 80% 60%,rgba(48,209,88,.18),transparent);filter:blur(50px);z-index:-1}
+.mock .window{text-align:left}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:430px;background:#f5f5f7;color:#1d1d1f;font-family:var(--font)}
+@media (prefers-color-scheme:dark){.app{background:#161617;color:#f5f5f7}}
+.app-side{padding:18px 12px;border-right:1px solid rgba(128,128,128,.18);font-size:12.5px}
+.app-side b{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#8e8e93;margin:14px 8px 6px}
+.app-side b:first-child{margin-top:0}
+.app-side span{display:block;padding:6px 8px;border-radius:8px;color:inherit;opacity:.85}
+.app-side span.on{background:#0071e3;color:#fff;opacity:1}
+.app-main{padding:22px 24px}
+.app-main h4{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:#fff;border-radius:12px;padding:12px 14px}
+@media (prefers-color-scheme:dark){.kpi,.alist{background:#232325}}
+.kpi small{display:block;font-size:11px;color:#8e8e93}
+.kpi strong{font-size:20px;letter-spacing:-.02em}
+.alist{margin-top:12px;background:#fff;border-radius:12px;padding:6px 14px}
+.alist div{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:9px 0;border-bottom:1px solid rgba(128,128,128,.15)}
+.alist div:last-child{border:0}
+.alist em{font-style:normal;font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,159,10,.18);color:#b25000;white-space:nowrap}
+.alist em.ok{background:rgba(48,209,88,.18);color:#1f8a3a}
+.alist em.b{background:rgba(0,113,227,.14);color:#0060df}
+.mock-note{font-size:12px;color:var(--muted);text-align:center;margin-top:14px}
+/* Contenido */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tile ul{list-style:none;margin-top:12px;display:grid;gap:9px}
+.tile li{font-size:15.5px;color:var(--text-2);padding-left:22px;position:relative;line-height:1.45}
+.tile li::before{content:"";position:absolute;left:2px;top:.5em;width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:.7}
+.area h3{font-size:20px;margin:16px 0 6px}
+.area p{font-size:14.5px}
+.feature{display:flex;flex-direction:column;min-height:300px}
+.feature .tag-new{align-self:flex-start;font-size:11.5px;font-weight:600;color:var(--link);background:color-mix(in srgb,var(--accent) 12%,transparent);padding:3px 10px;border-radius:999px;margin-top:16px}
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.stack div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.section.alt .stack div{border-color:transparent}
+.stack small{display:block;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.stack b{display:block;font-size:17px;margin-top:4px;letter-spacing:-.01em}
+.stack p{font-size:13.5px;color:var(--muted);margin-top:4px}
+.timeline{position:relative;margin-top:10px;padding-left:28px}
+.timeline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--line-strong)}
+.tl{position:relative;padding:0 0 26px}
+.tl::before{content:"";position:absolute;left:-26px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--accent)}
+.tl.now::before{background:#ff9f0a;border-color:#ff9f0a;box-shadow:0 0 0 5px color-mix(in srgb,#ff9f0a 25%,transparent)}
+.tl.next::before{border-color:var(--line-strong);border-style:dashed}
+.tl small{font-size:13px;font-weight:600;color:var(--muted)}
+.tl h3{font-size:19px;font-weight:600;letter-spacing:-.02em;margin:2px 0 4px}
+.tl p{font-size:15px;color:var(--muted);max-width:640px}
+.cta-box{text-align:center;background:var(--surface);border-radius:var(--radius-lg);padding:56px 28px;border:1px solid var(--line)}
+@media(max-width:834px){.app{grid-template-columns:1fr}.app-side{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}}
+</style>
+
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="navbar">
+  <div class="container wide nav-inner">
+    <a class="brand" href="../" aria-label="Emanuel Chacón, inicio"><span class="brand-mark">EC</span>Emanuel Chacón</a>
+    <nav class="nav-links" id="site-nav" aria-label="Principal">
+      <a href="../#about">Perfil</a><a href="../#projects" aria-current="page">Proyectos</a><a href="../#skills">Skills</a><a href="../#lab">Lab</a><a href="../herramientas/">Herramientas</a><a href="../#contact">Contacto</a><a class="nav-cta" href="../enlaces/">Enlaces</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menú" aria-expanded="false" aria-controls="site-nav"><span></span><span></span></button>
+  </div>
+</header>
+<main id="main">
+<section class="adi-hero">
+  <div class="container">
+    <nav class="breadcrumb reveal" aria-label="Ruta" style="justify-content:center"><a href="../#projects">Proyectos</a><span>›</span><span>Software</span></nav>
+    <div class="reveal"><span class="live-dot"><i></i>En desarrollo activo · versión 2.9.5</span></div>
+    <span class="eyebrow reveal">Proyecto 05 · Software propio</span>
+    <h1 class="headline reveal">Sistema <span class="gradient-text">ADI.</span></h1>
+    <p class="subhead reveal">Plataforma web para Asociaciones de Desarrollo Integral de Costa Rica: sitio público para la comunidad y un panel administrativo completo para la Junta Directiva.</p>
+    <div class="pills reveal"><span>PHP 8.1</span><span>SQLite</span><span>Leaflet · SIG</span><span>Whisper (IA local)</span><span>MediaMTX</span><span>Ubuntu VPS</span></div>
+    <div class="actions center reveal"><a class="btn primary" href="#modulos">Ver módulos</a><a class="link" href="mailto:contacto@emanuelchacon.cr?subject=Sistema%20ADI">Solicitar información</a></div>
+
+    <div class="mock reveal d2" aria-hidden="true">
+      <div class="window">
+        <div class="window-bar"><span></span><span></span><span></span><label>Panel administrativo — Sistema ADI</label></div>
+        <div class="app">
+          <div class="app-side">
+            <b>Principal</b><span class="on">Panel</span><span>Portal de Aprobaciones</span><span>Calendario</span>
+            <b>Comunidad</b><span>Asociados</span><span>Buzón comunal</span><span>Mapa de necesidades</span>
+            <b>Junta Directiva</b><span>Actas y acuerdos</span><span>Cartas y oficios</span><span>Documentos</span>
+            <b>Tesorería</b><span>Tesorería</span>
+            <b>Proyectos y bienes</b><span>Proyectos</span><span>Infraestructura (SIG)</span>
+          </div>
+          <div class="app-main">
+            <h4>Panel</h4>
+            <div class="kpis">
+              <div class="kpi"><small>Asociados activos</small><strong>248</strong></div>
+              <div class="kpi"><small>Al día con cuotas</small><strong>87 %</strong></div>
+              <div class="kpi"><small>Presupuesto ejecutado</small><strong>62 %</strong></div>
+              <div class="kpi"><small>Gestiones abiertas</small><strong>9</strong></div>
+            </div>
+            <div class="alist">
+              <div><span>Egreso de ₡185 000 · Materiales de construcción</span><em>Por aprobar</em></div>
+              <div><span>Acuerdo 14-2026 · Reparación del salón comunal</span><em class="b">En ejecución</em></div>
+              <div><span>Informe anual a DINADECO</span><em>Vence en 12 días</em></div>
+              <div><span>Gestión GC-0312 · Reparación de alumbrado</span><em class="ok">Resuelta</em></div>
+              <div><span>Sesión ordinaria · borrador de acta listo</span><em class="b">Revisar</em></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="mock-note">Representación ilustrativa del panel con datos de ejemplo.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section tight alt">
+  <div class="container">
+    <div class="stats">
+      <div class="stat reveal"><strong data-count="8">8</strong><span>Áreas en el panel</span></div>
+      <div class="stat reveal d1"><strong data-count="35" data-suffix="+">35+</strong><span>Módulos</span></div>
+      <div class="stat reveal d2"><strong data-count="12">12</strong><span>Perfiles de usuario</span></div>
+      <div class="stat reveal d3"><strong data-count="25" data-suffix="+">25+</strong><span>Informes PDF y Excel</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">El reto</span>
+      <h2 class="headline">De cuadernos y hojas sueltas a una gestión transparente.</h2>
+      <p class="subhead">Muchas asociaciones comunales llevan actas, cuotas, finanzas y proyectos en papel o en archivos dispersos. Eso dificulta rendir cuentas, cumplir con DINADECO y dar continuidad cuando cambia la Junta.</p>
+    </div>
+    <div class="split">
+      <article class="tile reveal"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span><h3>El problema</h3><ul><li>Información repartida entre libros, correos y archivos de Excel.</li><li>Poca trazabilidad: quién aprobó un gasto, qué se acordó, qué está pendiente.</li><li>Rendición de cuentas y transparencia difíciles ante la comunidad.</li><li>Cada cambio de Junta Directiva empieza casi desde cero.</li></ul></article>
+      <article class="tile reveal d1"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><h3>La solución</h3><ul><li>Un solo sistema web con sitio público y panel por permisos.</li><li>Flujos con aprobación, auditoría y control dual de egresos.</li><li>Transparencia: se publica solo lo que la Junta autoriza.</li><li>Historial completo que se hereda de una Junta a la siguiente.</li></ul></article>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="modulos">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Panel administrativo</span>
+      <h2 class="headline">Todo lo que la Junta necesita, organizado por áreas.</h2>
+      <p class="subhead">Cada usuario ve solo los módulos de su cargo: Ver, Ver y editar o Sin acceso, validado en el servidor en cada acción.</p>
+    </div>
+    <div class="grid-4">
+      <article class="tile area reveal d0"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg></span><h3>Principal</h3><p>Panel con avisos, notificaciones, Portal de Aprobaciones y calendario de vencimientos exportable.</p></article><article class="tile area reveal d1"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><h3>Comunidad</h3><p>Asociados con ficha completa, afiliaciones, códigos del portal, buzón comunal, mapa de necesidades y voluntariado.</p></article><article class="tile area reveal d2"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><h3>Junta Directiva</h3><p>Junta y comisiones, sustituciones, actas, acuerdos con seguimiento, cartas y oficios, correspondencia y cumplimiento.</p></article><article class="tile area reveal d3"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><h3>Tesorería</h3><p>Cuotas y recibos, ingresos y egresos, presupuesto anual, donaciones, convenios, caja chica y conciliación.</p></article><article class="tile area reveal d0"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span><h3>Proyectos y bienes</h3><p>Proyectos con expediente y evidencias, inventario, préstamos, riesgos e infraestructura en mapas (SIG).</p></article><article class="tile area reveal d1"><span class="icon c-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span><h3>Comunicación</h3><p>Actividades, comunicados, mensajes, instituciones y aliados, y transmisiones en vivo.</p></article><article class="tile area reveal d2"><span class="icon c-pink" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><h3>Informes</h3><p>Estado de resultados, ejecución presupuestaria, morosidad, proyectos, voluntariado e informe anual.</p></article><article class="tile area reveal d3"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3>Administración</h3><p>Usuarios y permisos, configuración, copias de seguridad verificables, auditoría, bitácora y licencia.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Funciones destacadas</span>
+      <h2 class="headline">Pensado para cómo trabaja una ADI.</h2>
+    </div>
+    <div class="bento">
+      <article class="tile feature span-4 reveal"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span><h3>Actas inteligentes con IA local</h3><p>Graba la sesión, la transcribe en una computadora de la asociación con Whisper (sin enviar el audio a terceros), separa a quienes hablan, detecta mociones y votaciones, y prepara el borrador del acta. Nunca inventa: lo que no consta queda marcado para revisión de Secretaría.</p><span class="tag-new">Privacidad primero</span></article>
+      <article class="tile dark feature span-2 reveal d1"><span class="eyebrow" style="color:#a1a1a6">Control dual</span><div class="grow"></div><div class="big-number">2</div><p style="color:#f5f5f7;font-weight:600;font-size:17px;margin-top:6px">personas por egreso</p><p>Los egresos sobre el umbral los aprueba alguien distinto de quien los registró.</p></article>
+      <article class="tile feature span-2 reveal"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Portal de Aprobaciones</h3><p>Nada institucional se borra directamente: eliminaciones, anulaciones y cambios sensibles pasan por una matriz de aprobación configurable, con auditoría encadenada SHA-256.</p></article>
+      <article class="tile feature span-2 reveal d1"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg></span><h3>Mapas e infraestructura (SIG)</h3><p>Necesidades, zonas de riesgo y emergencias en el mapa. Dibujo de tuberías, postes y tanques por capas, con medidas geodésicas, coordenadas CRTM05 y exportación GeoJSON.</p></article>
+      <article class="tile feature span-2 reveal d2"><span class="icon c-pink" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span><h3>Transmisiones en vivo</h3><p>Asambleas y actividades transmitidas con OBS a la página «En vivo» del sitio usando un servidor de video propio, sin depender de YouTube.</p></article>
+      <article class="tile feature span-3 reveal"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><h3>Tesorería y presupuesto</h3><p>Flujo solicitud → revisión → aprobación → pago → cierre. Presupuesto anual con formulación, programación mensual, modificaciones con versiones, cierre y 15 informes. Fondos restringidos solo financian lo que permite su convenio.</p></article>
+      <article class="tile feature span-3 reveal d1"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><h3>Portal del asociado</h3><p>Cada asociado consulta su estado de cuenta con un código de un solo uso y puede pedir actualizar sus datos. Las personas nuevas solicitan su afiliación en línea con seguimiento por correo.</p></article>
+      <article class="tile feature span-3 reveal"><span class="icon c-indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><h3>Cartas, oficios y documentos</h3><p>Oficios con consecutivo anual en PDF con membrete, plantillas y envío por correo. Gestor documental con versiones, permisos por carpeta y publicación controlada en el sitio.</p></article>
+      <article class="tile feature span-3 reveal d1"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1.5"/><path d="M5 8v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4"/></svg></span><h3>Carga masiva e importación</h3><p>Plantillas de Excel para migrar asociados, cuotas, saldos iniciales e históricos, con vista previa que valida fila por fila y cargas que se pueden deshacer.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Sitio público</span>
+      <h2 class="headline">Transparencia para la comunidad.</h2>
+      <p class="subhead">Solo se publica lo que la Junta marca como público.</p>
+    </div>
+    <div class="grid-3">
+      <article class="tile reveal"><span class="icon c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg></span><h3>Noticias y actividades</h3><p>Comunicados y actividades con botón «Agregar a mi calendario» para iPhone, Google y Outlook, y suscripción automática.</p></article>
+      <article class="tile reveal"><span class="icon c-purple" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><h3>Junta y transparencia</h3><p>Junta Directiva, Fiscalía y comisiones; proyectos con avance, presupuesto y ejecución; documentos públicos.</p></article>
+      <article class="tile reveal"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg></span><h3>Buzón comunal</h3><p>Solicitudes, quejas y reportes con ubicación GPS, código y clave para consultar el estado de la gestión.</p></article>
+      <article class="tile reveal"><span class="icon c-orange" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 19 5"/></svg></span><h3>Mapa y emergencias</h3><p>Mapa comunitario de necesidades y zonas de riesgo, contactos institucionales y recomendaciones.</p></article>
+      <article class="tile reveal"><span class="icon c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><h3>Portal del asociado</h3><p>Estado de cuenta en PDF, actualización de datos y solicitud de afiliación en línea.</p></article>
+      <article class="tile reveal"><span class="icon c-pink" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span><h3>En vivo</h3><p>Transmisiones de asambleas y actividades, con grabaciones publicables.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="split">
+      <div class="reveal">
+        <span class="eyebrow">Seguridad y cumplimiento</span>
+        <h2 class="headline-sm">Construido con controles de verdad.</h2>
+        <p class="subhead" style="margin-top:14px;font-size:19px">Los permisos se validan en el servidor en cada página y acción, no solo ocultando botones.</p>
+      </div>
+      <article class="tile reveal d1"><span class="icon c-gray" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3>Medidas incluidas</h3><ul><li>Contraseñas con hash, bloqueo por intentos fallidos y cierre por inactividad.</li><li>Protección CSRF, consultas preparadas y cookies HttpOnly / SameSite.</li><li>Auditoría campo por campo con el usuario responsable.</li><li>Credenciales sensibles cifradas con AES-256-GCM.</li><li>Adjuntos privados fuera del alcance público.</li><li>Respaldos con huellas SHA-256, verificación y restauración segura.</li><li>Datos personales tratados conforme a la Ley 8968; afiliación según la Ley 3859.</li></ul></article>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Arquitectura</span>
+      <h2 class="headline">Liviano, portable y fácil de instalar.</h2>
+      <p class="subhead">No requiere servidor de base de datos: funciona en un hosting compartido, en un VPS o en una computadora de la asociación.</p>
+    </div>
+    <div class="stack reveal">
+      <div><small>Backend</small><b>PHP 8.1+</b><p>Motor de módulos propio, permisos y migraciones.</p></div>
+      <div><small>Datos</small><b>SQLite</b><p>Un solo archivo, fácil de respaldar y mover.</p></div>
+      <div><small>Mapas</small><b>Leaflet + Geoman</b><p>Esri, OpenStreetMap, OpenTopoMap o MapTiler.</p></div>
+      <div><small>IA local</small><b>Whisper</b><p>Transcripción de sesiones sin enviar audio a terceros.</p></div>
+      <div><small>Video</small><b>MediaMTX + OBS</b><p>Servidor de transmisión propio.</p></div>
+      <div><small>Infraestructura</small><b>Ubuntu 24.04 · Apache</b><p>Instalador con HTTPS, firewall y tareas programadas.</p></div>
+      <div><small>Interfaz</small><b>Diseño tipo Apple</b><p>Modo oscuro automático y navegación móvil con pestañas.</p></div>
+      <div><small>Calidad</small><b>Pruebas automatizadas</b><p>Cada versión pasa las pruebas antes de generar el release.</p></div>
+    </div>
+    <div class="tile reveal" style="margin-top:20px"><span class="icon c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg></span><h3>Ciclo de versiones</h3><p>Desarrollo y pruebas en local → generación del release con pruebas automáticas y paquete versionado con huella SHA-256 → publicación al VPS con un script que respalda código y datos antes de actualizar, sin tocar la información de la asociación.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Evolución</span>
+      <h2 class="headline">Hoja de ruta.</h2>
+    </div>
+    <div class="timeline reveal">
+      <div class="tl"><small>Base</small><h3>Sitio público y panel administrativo</h3><p>Asociados, cuotas y recibos, finanzas, Junta Directiva, actas, buzón comunal y portal del asociado.</p></div>
+      <div class="tl"><small>Versiones 2.3 – 2.4</small><h3>Presupuesto anual y carga masiva</h3><p>Formulación, aprobación y ejecución presupuestaria; migración de datos existentes desde Excel con validación.</p></div>
+      <div class="tl"><small>Versiones 2.5 – 2.7</small><h3>Aprobaciones, licencias y gestor documental</h3><p>Portal de Aprobaciones, edición masiva, licenciamiento por instalación y documentos con versiones y publicación.</p></div>
+      <div class="tl"><small>Versión 2.8</small><h3>Rediseño de la interfaz</h3><p>Diseño tipo Apple, modo oscuro automático y experiencia móvil con barra de pestañas.</p></div>
+      <div class="tl now"><small>Versiones 2.9.x · Actual</small><h3>Transmisiones en vivo y despliegue en VPS</h3><p>Servidor de video propio, instalador para Ubuntu y publicación automatizada a producción.</p></div>
+      <div class="tl next"><small>Siguiente etapa</small><h3>Puesta en producción con asociaciones</h3><p>Implementación en servidor propio, acompañamiento a Juntas Directivas y mejoras a partir del uso real.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="cta-box reveal">
+      <span class="eyebrow">¿Su asociación lo necesita?</span>
+      <h2 class="headline-sm">Conversemos sobre su ADI.</h2>
+      <p class="subhead" style="margin:14px auto 0;font-size:19px">El sistema se instala por asociación, con su propio logo, datos y servidor. Escríbame para una demostración.</p>
+      <div class="actions center"><a class="btn primary" href="mailto:contacto@emanuelchacon.cr?subject=Sistema%20ADI%20-%20Demostraci%C3%B3n">Solicitar demostración</a><a class="link" href="https://www.linkedin.com/in/emanuelchaconcr/" target="_blank" rel="noopener">LinkedIn</a></div>
+    </div>
+    <nav class="next-nav reveal" aria-label="Más proyectos">
+      <div><small>Anterior</small><a href="automation.html">‹ Automation &amp; IaC</a></div>
+      <div class="r"><small>Siguiente</small><a href="datacenter.html">Migración Integral de Data Center ›</a></div>
+    </nav>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="container wide">
+    <div class="footer-cols">
+      <div><h4>Portfolio</h4><a href="../#about">Perfil</a><a href="../#projects">Proyectos</a><a href="../#skills">Skills</a><a href="../cv.html">Curriculum</a></div>
+      <div><h4>Proyectos</h4><a href="../proyectos/datacenter.html">Data Center</a><a href="../proyectos/vxrail.html">Dell VxRail</a><a href="../proyectos/netbackup.html">NetBackup</a><a href="../proyectos/automation.html">Automation &amp; IaC</a></div>
+      <div><h4>Herramientas</h4><a href="../herramientas/subnet.html">Subnet Calculator</a><a href="../herramientas/sla.html">SLA Calculator</a><a href="../herramientas/password.html">Password Generator</a><a href="../herramientas/">Ver todas</a></div>
+      <div><h4>Contacto</h4><a href="mailto:contacto@emanuelchacon.cr">Correo</a><a href="https://www.linkedin.com/in/emanuelchaconcr/" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/emanuelchaconcr" target="_blank" rel="noopener">GitHub</a><a href="../enlaces/">Enlaces</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>Copyright © <span data-year>2026</span> Emanuel Chacón. Todos los derechos reservados.</span>
+      <span>Infrastructure · Automation · Costa Rica</span>
+    </div>
+  </div>
+</footer>
+<script src="../js/main.js?v=20261103"></script>
+</body>
+</html>
