@@ -300,12 +300,18 @@ footer.site-footer{background:var(--bg-alt);color:var(--muted);font-size:12px;li
 }
 @media (max-width:834px){
   .menu-toggle{display:block}
-  .nav-links{position:fixed;top:52px;left:0;right:0;bottom:0;flex-direction:column;align-items:flex-start;gap:0;padding:18px 34px;background:var(--bg);
+  /* El menú se posiciona respecto de la barra (backdrop-filter crea su propio bloque contenedor) */
+  .nav-links{position:absolute;top:100%;left:0;right:0;height:calc(100vh - 52px);height:calc(100dvh - 52px);overflow-y:auto;overscroll-behavior:contain;
+    flex-direction:column;align-items:flex-start;gap:0;padding:18px 34px calc(28px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);
     opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .35s var(--ease),transform .35s var(--ease),visibility .35s}
+  .menu-open .navbar{background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none;position:fixed;left:0;right:0}
+  .menu-open .navbar+*{margin-top:52px}
   .menu-open .nav-links{opacity:1;visibility:visible;transform:none}
   .nav-links a{font-size:26px;font-weight:600;color:var(--text);opacity:1;padding:9px 0;width:100%}
   .nav-cta{background:none;color:var(--link)!important;padding:9px 0;border-radius:0}
-  .menu-open{overflow:hidden}
+  .menu-open body{overflow:hidden}
+  .nav-links a{border-bottom:1px solid var(--line)}
+  .nav-links a:last-child{border-bottom:0}
   .grid-3,.lab-grid,.detail-grid{grid-template-columns:1fr}
   .bento{grid-template-columns:1fr}
   .bento .span-4,.bento .span-2,.bento .span-3{grid-column:auto}
