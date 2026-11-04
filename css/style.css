@@ -300,18 +300,7 @@ footer.site-footer{background:var(--bg-alt);color:var(--muted);font-size:12px;li
 }
 @media (max-width:834px){
   .menu-toggle{display:block}
-  /* El menú se posiciona respecto de la barra (backdrop-filter crea su propio bloque contenedor) */
-  .nav-links{position:absolute;top:100%;left:0;right:0;height:calc(100vh - 52px);height:calc(100dvh - 52px);overflow-y:auto;overscroll-behavior:contain;
-    flex-direction:column;align-items:flex-start;gap:0;padding:18px 34px calc(28px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);
-    opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .35s var(--ease),transform .35s var(--ease),visibility .35s}
-  .menu-open .navbar{background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none;position:fixed;left:0;right:0}
-  .menu-open .navbar+*{margin-top:52px}
-  .menu-open .nav-links{opacity:1;visibility:visible;transform:none}
-  .nav-links a{font-size:26px;font-weight:600;color:var(--text);opacity:1;padding:9px 0;width:100%}
-  .nav-cta{background:none;color:var(--link)!important;padding:9px 0;border-radius:0}
   .menu-open body{overflow:hidden}
-  .nav-links a{border-bottom:1px solid var(--line)}
-  .nav-links a:last-child{border-bottom:0}
   .grid-3,.lab-grid,.detail-grid{grid-template-columns:1fr}
   .bento{grid-template-columns:1fr}
   .bento .span-4,.bento .span-2,.bento .span-3{grid-column:auto}
@@ -343,3 +332,189 @@ footer.site-footer{background:var(--bg-alt);color:var(--muted);font-size:12px;li
   .tile{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
   .reveal{opacity:1;transform:none}
 }
+
+/* =========================================================
+   LIQUID GLASS — capa visual inspirada en iOS 26
+   Vidrio translúcido con desenfoque, brillo especular,
+   bordes con reflejo, fondo de color vivo y movimiento.
+   ========================================================= */
+:root{
+  --spring:cubic-bezier(.2,.9,.25,1.12);
+  --smooth:cubic-bezier(.2,.8,.2,1);
+  --g-bg:rgba(255,255,255,.52);
+  --g-bg-strong:rgba(255,255,255,.74);
+  --g-border:rgba(255,255,255,.75);
+  --g-edge:rgba(0,0,0,.06);
+  --g-hi:rgba(255,255,255,.95);
+  --g-lo:rgba(255,255,255,.25);
+  --g-shadow:0 10px 40px -12px rgba(15,23,42,.18),0 2px 6px rgba(15,23,42,.05);
+  --g-blur:22px;
+  --orb1:rgba(0,122,255,.30);--orb2:rgba(175,82,222,.26);--orb3:rgba(255,45,85,.18);--orb4:rgba(52,199,89,.20);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --g-bg:rgba(40,40,44,.42);
+    --g-bg-strong:rgba(30,30,33,.72);
+    --g-border:rgba(255,255,255,.14);
+    --g-edge:rgba(0,0,0,.4);
+    --g-hi:rgba(255,255,255,.22);
+    --g-lo:rgba(255,255,255,.04);
+    --g-shadow:0 14px 44px -14px rgba(0,0,0,.7),0 2px 8px rgba(0,0,0,.35);
+    --orb1:rgba(10,132,255,.32);--orb2:rgba(191,90,242,.26);--orb3:rgba(255,55,95,.16);--orb4:rgba(48,209,88,.16);
+  }
+}
+
+/* ---------- Fondo vivo (lo que el vidrio refracta) ---------- */
+body::before,body::after{content:"";position:fixed;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(70px);will-change:transform}
+body::before{width:62vmax;height:62vmax;left:-18vmax;top:-20vmax;
+  background:radial-gradient(circle at 35% 35%,var(--orb1),transparent 62%),radial-gradient(circle at 75% 70%,var(--orb3),transparent 60%);
+  animation:orbA 28s ease-in-out infinite alternate}
+body::after{width:58vmax;height:58vmax;right:-20vmax;bottom:-22vmax;
+  background:radial-gradient(circle at 40% 40%,var(--orb2),transparent 62%),radial-gradient(circle at 70% 75%,var(--orb4),transparent 58%);
+  animation:orbB 34s ease-in-out infinite alternate}
+@keyframes orbA{0%{transform:translate3d(0,0,0) rotate(0) scale(1)}50%{transform:translate3d(14vw,10vh,0) rotate(40deg) scale(1.12)}100%{transform:translate3d(4vw,26vh,0) rotate(80deg) scale(.95)}}
+@keyframes orbB{0%{transform:translate3d(0,0,0) rotate(0) scale(1)}50%{transform:translate3d(-12vw,-14vh,0) rotate(-35deg) scale(1.1)}100%{transform:translate3d(-24vw,-4vh,0) rotate(-70deg) scale(.96)}}
+.section.alt{background:color-mix(in srgb,var(--bg-alt) 55%,transparent)}
+footer.site-footer{background:color-mix(in srgb,var(--bg-alt) 70%,transparent);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+
+/* ---------- Material de vidrio ---------- */
+.lg,
+.tile,.toolbox,.out-card,.checklist,.link-card,.stack>div,.cta-box,.flow-node,.gallery-nav button,.availability,.hero .status{
+  background:linear-gradient(150deg,var(--g-bg) 0%,color-mix(in srgb,var(--g-bg) 60%,transparent) 100%)!important;
+  -webkit-backdrop-filter:blur(var(--g-blur)) saturate(180%);backdrop-filter:blur(var(--g-blur)) saturate(180%);
+  border:1px solid var(--g-border)!important;
+  box-shadow:inset 0 1px 0 var(--g-hi),inset 0 -1px 0 var(--g-lo),inset 0 0 0 1px var(--g-edge),var(--g-shadow)!important;
+  position:relative;isolation:isolate}
+.tile.dark{background:linear-gradient(150deg,rgba(20,20,22,.82),rgba(20,20,22,.66))!important;border-color:rgba(255,255,255,.12)!important;color:#f5f5f7}
+/* reflejo especular que sigue al puntero */
+.tile::after,.link-card::after,.btn::after,.chip::after,.toolbox::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,-40%),rgba(255,255,255,.38),transparent 42%);
+  opacity:0;transition:opacity .4s var(--smooth);mix-blend-mode:soft-light}
+.tile:hover::after,.link-card:hover::after,.btn:hover::after,.chip:hover::after,.toolbox:hover::after{opacity:1}
+@media (prefers-color-scheme:dark){.tile::after,.link-card::after,.btn::after,.chip::after,.toolbox::after{background:radial-gradient(420px circle at var(--mx,50%) var(--my,-40%),rgba(255,255,255,.16),transparent 42%);mix-blend-mode:normal}}
+/* línea de brillo superior (borde de cristal) */
+.tile::before,.link-card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:2;
+  background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.35));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.7}
+@media (prefers-color-scheme:dark){.tile::before,.link-card::before{opacity:.28}}
+.project .glyph{z-index:0}
+
+/* interacción de tarjetas: elevación con resorte + inclinación 3D */
+.tile{transition:transform .6s var(--spring),box-shadow .5s var(--smooth),opacity 1s var(--smooth),filter .9s var(--smooth)!important}
+a.tile:hover,.tile.hover:hover,.tool-card:hover,.project:hover{transform:perspective(1000px) translateY(-6px) scale(1.012) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
+a.tile:active,.tool-card:active{transform:scale(.985);transition-duration:.15s!important}
+
+/* ---------- Barra de navegación: cápsula flotante ---------- */
+.navbar{background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border:0!important;
+  height:auto;top:10px;padding:10px 12px 0;pointer-events:none;view-transition-name:site-nav}
+.navbar .nav-inner{pointer-events:auto;height:54px;width:min(1180px,100%);padding:0 10px 0 18px;border-radius:999px;position:relative;isolation:isolate;
+  transition:height .5s var(--spring),width .6s var(--spring),box-shadow .4s var(--smooth),background .4s}
+.navbar .nav-inner::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;
+  background:linear-gradient(160deg,var(--g-bg-strong),var(--g-bg));
+  -webkit-backdrop-filter:blur(26px) saturate(190%);backdrop-filter:blur(26px) saturate(190%);
+  border:1px solid var(--g-border);
+  box-shadow:inset 0 1px 0 var(--g-hi),inset 0 -1px 0 var(--g-lo),inset 0 0 0 1px var(--g-edge),var(--g-shadow)}
+.lg-refract .navbar .nav-inner::before{backdrop-filter:url(#lg-lens) blur(10px) saturate(190%) brightness(1.04)}
+.navbar.scrolled .nav-inner{height:48px;width:min(1040px,100%)}
+.navbar.scrolled{border:0}
+.nav-links a{position:relative;padding:7px 12px;border-radius:999px;transition:background .3s var(--smooth),color .2s,opacity .2s}
+.nav-links{gap:2px}
+.nav-links a:hover{background:color-mix(in srgb,var(--text) 7%,transparent)}
+.nav-links a[aria-current="page"]{background:color-mix(in srgb,var(--text) 9%,transparent)}
+.nav-cta{padding:8px 16px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px -4px color-mix(in srgb,var(--accent) 70%,transparent)}
+.nav-cta:hover{background:var(--accent-hover)!important}
+.menu-toggle{border-radius:50%;transition:background .3s}
+.menu-toggle:hover{background:color-mix(in srgb,var(--text) 7%,transparent)}
+.hero{padding-top:84px}
+.page-hero,.adi-hero{padding-top:64px}
+.tool-page{padding-top:40px!important}
+
+/* ---------- Botones de cristal ---------- */
+.btn{position:relative;overflow:hidden;isolation:isolate;transition:transform .5s var(--spring),box-shadow .35s var(--smooth),background .3s,color .3s!important}
+.btn.primary{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 82%,#fff),var(--accent) 55%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -2px 6px rgba(0,0,0,.12),0 10px 24px -10px color-mix(in srgb,var(--accent) 80%,transparent)}
+.btn.primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -2px 6px rgba(0,0,0,.12),0 16px 32px -12px color-mix(in srgb,var(--accent) 85%,transparent)}
+.btn:active{transform:scale(.95)!important;transition-duration:.12s!important}
+.btn.ghost{background:var(--g-bg);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+  border:1px solid var(--g-border);box-shadow:inset 0 1px 0 var(--g-hi),var(--g-shadow);color:var(--link)}
+.btn.ghost:hover{background:var(--g-bg-strong);color:var(--link);transform:translateY(-2px)}
+.pill,.chip,.segmented,.tags span,.chips span,.pills span,.hero-meta span{
+  -webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%)}
+.chip{position:relative;overflow:hidden;background:var(--g-bg)!important;border:1px solid var(--g-border)!important;box-shadow:inset 0 1px 0 var(--g-hi),0 2px 8px -4px rgba(0,0,0,.15);transition:transform .45s var(--spring),background .3s,color .3s!important}
+.chip:hover{transform:translateY(-1px)}
+.chip.on{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 80%,#fff),var(--accent))!important;color:#fff;border-color:transparent!important}
+.chips.small .chip.on{background:linear-gradient(180deg,color-mix(in srgb,var(--text) 85%,#888),var(--text))!important;color:var(--bg)}
+.segmented{background:var(--g-bg)!important;border:1px solid var(--g-border);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 1px 4px rgba(0,0,0,.06)}
+.segmented button{transition:background .4s var(--spring),color .2s,box-shadow .4s,transform .4s var(--spring)}
+.segmented button.on{background:var(--g-bg-strong);box-shadow:inset 0 1px 0 var(--g-hi),0 3px 10px -3px rgba(0,0,0,.25)}
+.segmented button:active{transform:scale(.94)}
+.icon{box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 2px rgba(0,0,0,.15),0 6px 14px -6px rgba(0,0,0,.35);transition:transform .6s var(--spring)}
+.tile:hover .icon{transform:translateY(-2px) scale(1.08) rotate(-4deg)}
+
+/* ---------- Ventanas tipo macOS sobre vidrio ---------- */
+.window{box-shadow:0 30px 80px -20px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08) inset!important}
+.hero-visual .window{transform:perspective(1400px) rotateX(var(--hx,8deg)) scale(var(--hs,.96));transform-origin:50% 0;transition:transform .2s linear;will-change:transform}
+
+/* ---------- Animaciones de entrada ---------- */
+.reveal{opacity:0;transform:translateY(42px) scale(.97);filter:blur(10px);
+  transition:opacity 1s var(--smooth),transform 1.1s var(--spring),filter .9s var(--smooth)!important}
+.reveal.visible{opacity:1;transform:none;filter:blur(0)}
+.reveal.d1{transition-delay:.08s!important}.reveal.d2{transition-delay:.16s!important}.reveal.d3{transition-delay:.24s!important}
+.hero h1,.adi-hero h1{animation:heroIn 1.3s var(--spring) both}
+.hero .subhead,.adi-hero .subhead{animation:heroIn 1.3s .12s var(--spring) both}
+.hero .status,.live-dot{animation:popIn .9s .05s var(--spring) both}
+@keyframes heroIn{from{opacity:0;transform:translateY(30px) scale(.96);filter:blur(14px)}to{opacity:1;transform:none;filter:none}}
+@keyframes popIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+.gradient-text{background-size:220% 100%!important;animation:shimmer 7s ease-in-out infinite alternate}
+@keyframes shimmer{from{background-position:0% 50%}to{background-position:100% 50%}}
+.navbar .nav-inner{animation:navIn 1s var(--spring) both}
+@keyframes navIn{from{opacity:0;transform:translateY(-24px) scale(.92)}to{opacity:1;transform:none}}
+.stat strong{transition:transform .6s var(--spring)}
+.stat:hover strong{transform:scale(1.08)}
+
+/* transiciones suaves entre páginas (Chrome / Safari recientes) */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:vtOut .35s var(--smooth) both}
+::view-transition-new(root){animation:vtIn .5s var(--spring) both}
+@keyframes vtOut{to{opacity:0;transform:scale(.985);filter:blur(6px)}}
+@keyframes vtIn{from{opacity:0;transform:scale(1.015);filter:blur(6px)}}
+
+/* ---------- Menú móvil: hoja de vidrio flotante ---------- */
+@media (max-width:834px){
+  .navbar{padding:8px 10px 0;top:8px}
+  .navbar .nav-inner,.navbar.scrolled .nav-inner{height:52px;width:100%;padding:0 6px 0 14px}
+  .nav-links{position:absolute;top:calc(100% + 10px);left:0;right:0;max-height:calc(100dvh - 96px);overflow-y:auto;overscroll-behavior:contain;
+    flex-direction:column;align-items:stretch;gap:2px;padding:12px;border-radius:30px;
+    background:linear-gradient(160deg,color-mix(in srgb,var(--bg) 78%,transparent),color-mix(in srgb,var(--bg) 62%,transparent));
+    -webkit-backdrop-filter:blur(34px) saturate(190%);backdrop-filter:blur(34px) saturate(190%);
+    border:1px solid var(--g-border);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-edge),0 30px 60px -20px rgba(0,0,0,.35);
+    opacity:0;visibility:hidden;transform:translateY(-14px) scale(.94);transform-origin:top right;
+    transition:opacity .35s var(--smooth),transform .55s var(--spring),visibility .35s}
+  .menu-open .nav-links{opacity:1;visibility:visible;transform:none}
+  .nav-links a{font-size:22px;font-weight:600;color:var(--text);opacity:1;padding:13px 18px;border-radius:18px;width:auto}
+  .nav-links a:hover,.nav-links a:active{background:color-mix(in srgb,var(--text) 8%,transparent)}
+  .nav-cta{margin-top:6px;text-align:center;color:#fff!important;padding:13px 18px!important;border-radius:18px!important;font-size:19px!important}
+  .menu-open .nav-links a{animation:itemIn .55s var(--spring) both}
+  .menu-open .nav-links a:nth-child(1){animation-delay:.04s}.menu-open .nav-links a:nth-child(2){animation-delay:.07s}
+  .menu-open .nav-links a:nth-child(3){animation-delay:.10s}.menu-open .nav-links a:nth-child(4){animation-delay:.13s}
+  .menu-open .nav-links a:nth-child(5){animation-delay:.16s}.menu-open .nav-links a:nth-child(6){animation-delay:.19s}
+  .menu-open .nav-links a:nth-child(7){animation-delay:.22s}.menu-open .nav-links a:nth-child(8){animation-delay:.25s}
+  @keyframes itemIn{from{opacity:0;transform:translateY(-10px) scale(.96);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+  /* velo detrás del menú */
+  .menu-open main,.menu-open footer{filter:blur(6px) saturate(120%);transform:scale(.985);transition:filter .45s var(--smooth),transform .55s var(--spring)}
+  main,footer.site-footer{transition:filter .35s var(--smooth),transform .45s var(--spring)}
+  .hero{padding-top:56px}
+  :root{--g-blur:16px}
+}
+
+/* ---------- Accesibilidad: menos movimiento / menos transparencia ---------- */
+@media (prefers-reduced-motion:reduce){
+  body::before,body::after,.gradient-text,.navbar .nav-inner,.hero h1,.hero .subhead,.adi-hero h1,.adi-hero .subhead{animation:none!important}
+  .reveal{filter:none!important;transform:none!important;opacity:1!important}
+  .hero-visual .window{transform:none!important}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
+@media (prefers-reduced-transparency:reduce){
+  .tile,.toolbox,.out-card,.checklist,.link-card,.navbar .nav-inner::before,.nav-links{background:var(--surface)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+}
+@media print{body::before,body::after{display:none}.tile,.toolbox,.out-card,.checklist{background:#fff!important;box-shadow:none!important;backdrop-filter:none!important}}
